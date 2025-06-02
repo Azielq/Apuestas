@@ -1,0 +1,65 @@
+###############################################################################
+# Normalización de finales de línea (LF para Unix, CRLF para Windows)
+###############################################################################
+* text=auto
+
+###############################################################################
+# Archivos C# - mejor visualización de diffs
+###############################################################################
+*.cs diff=csharp
+
+###############################################################################
+# Archivos de solución y proyectos: forzar merge manual si se prefiere
+###############################################################################
+# Puedes descomentar estas líneas si quieres evitar conflictos automáticos:
+#*.sln       merge=binary
+#*.csproj    merge=binary
+#*.fsproj    merge=binary
+
+###############################################################################
+# Archivos Web (HTML, CSS, JS, JSON, JSX, TSX, etc.)
+###############################################################################
+*.html text
+*.css  text
+*.js   text
+*.jsx  text
+*.ts   text
+*.tsx  text
+*.json text
+
+###############################################################################
+# Archivos de configuración ASP.NET y EF Core
+###############################################################################
+*.edmx         text
+*.edmx.diagram text
+web.config     text
+app.config     text
+appsettings.*.json text
+
+###############################################################################
+# Archivos de documentación
+###############################################################################
+*.md text
+*.txt text
+
+###############################################################################
+# Archivos de imagen (tratados como binarios)
+###############################################################################
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text  # SVGs son texto XML
+
+###############################################################################
+# Archivos de documentos (opcional diff)
+###############################################################################
+#*.pdf diff=astextplain
+#*.docx diff=astextplain
+
+###############################################################################
+# Archivos de fuentes (fuentes web)
+###############################################################################
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
