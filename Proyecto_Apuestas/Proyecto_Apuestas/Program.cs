@@ -1,5 +1,6 @@
-using Proyecto_Apuestas.Data;
+
 using Microsoft.EntityFrameworkCore;
+using Proyecto_Apuestas.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
+// Esto es lo que se Agrega para Entity Framework con MySQL para su correcto funcionamiento
+builder.Services.AddDbContext<apuestasDbContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
 
 var app = builder.Build();
 
