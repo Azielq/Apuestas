@@ -49,8 +49,6 @@ appsettings.*.json text
 *.jpg binary
 *.jpeg binary
 *.gif binary
-*.svg text  # SVGs son texto XML
-
 ###############################################################################
 # Archivos de documentos (opcional diff)
 ###############################################################################
