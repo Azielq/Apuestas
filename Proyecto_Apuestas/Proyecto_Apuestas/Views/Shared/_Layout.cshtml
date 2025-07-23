@@ -1,48 +1,183 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Proyecto_Apuestas</title>
-    <!-- Share Sources -->
+    <title>@ViewData["Title"] - Bet506 | Apuestas Deportivas Costa Rica</title>
+
     @await Html.PartialAsync("_StylesCDN")
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Proyecto_Apuestas</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+<body class="bg-dark text-white">
+    <!-- Header -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-primary">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="/">
+                    <img src="/images/LogoBet506.png" alt="Bet506" height="40">
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link active" href="/">Inicio</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="sportsDropdown" role="button" data-bs-toggle="dropdown">
+                                Deportes
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="/sports/football"><i class="bi bi-joystick me-2"></i>Fútbol</a></li>
+                                <li><a class="dropdown-item" href="/sports/basketball"><i class="bi bi-basketball me-2"></i>Basketball</a></li>
+                                <li><a class="dropdown-item" href="/sports/tennis"><i class="bi bi-tennisball me-2"></i>Tenis</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/sports"><i class="bi bi-list-ul me-2"></i>Todos los deportes</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" href="/live">En Vivo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/promotions">Promociones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">Nosotros</a>
                         </li>
                     </ul>
+                    
+                    <div class="d-flex align-items-center">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <div class="dropdown">
+                                <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                                    <span class="me-2">@User.Identity.Name</span>
+                                    <i class="bi bi-person-circle"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/account/profile"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                                    <li><a class="dropdown-item" href="/account/bets"><i class="bi bi-journal-check me-2"></i>Mis apuestas</a></li>
+                                    <li><a class="dropdown-item" href="/account/transactions"><i class="bi bi-wallet2 me-2"></i>Transacciones</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/account/logout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
+                                </ul>
+                            </div>
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="badge bg-success rounded-pill p-2">₡25,000</span>
+                                <a href="/account/deposit" class="btn btn-sm btn-primary ms-2">+</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <a href="/account/login" class="btn btn-outline-light me-2">Iniciar sesión</a>
+                            <a href="/account/register" class="btn btn-primary">Registrarse</a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - Proyecto_Apuestas - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Main Content -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white-50 border-top border-primary">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-3 mb-4 mb-lg-0">
+                    <img src="~/images/LogoBet506.png" alt="Bet506" height="40" class="mb-3">
+                    <p class="small">La plataforma líder de apuestas deportivas en Costa Rica. Juega con responsabilidad.</p>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-5"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-twitter-x fs-5"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-instagram fs-5"></i></a>
+                        <a href="#" class="text-white"><i class="bi bi-youtube fs-5"></i></a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2 mb-4">
+                    <h5 class="text-white mb-3">Apuestas</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/sports/football" class="text-white-50">Fútbol</a></li>
+                        <li class="mb-2"><a href="/sports/basketball" class="text-white-50">Basketball</a></li>
+                        <li class="mb-2"><a href="/sports/tennis" class="text-white-50">Tenis</a></li>
+                        <li class="mb-2"><a href="/sports/baseball" class="text-white-50">Béisbol</a></li>
+                        <li class="mb-2"><a href="/live" class="text-white-50">En vivo</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2 mb-4">
+                    <h5 class="text-white mb-3">Empresa</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/about" class="text-white-50">Nosotros</a></li>
+                        <li class="mb-2"><a href="/contact" class="text-white-50">Contacto</a></li>
+                        <li class="mb-2"><a href="/blog" class="text-white-50">Blog</a></li>
+                        <li class="mb-2"><a href="/careers" class="text-white-50">Carreras</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2 mb-4">
+                    <h5 class="text-white mb-3">Legal</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/terms" class="text-white-50">Términos</a></li>
+                        <li class="mb-2"><a href="/privacy" class="text-white-50">Privacidad</a></li>
+                        <li class="mb-2"><a href="/responsible-gaming" class="text-white-50">Juego responsable</a></li>
+                        <li class="mb-2"><a href="/faq" class="text-white-50">Preguntas frecuentes</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-3 col-lg-3 mb-4">
+                    <h5 class="text-white mb-3">Métodos de pago</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <img src="~/images/PM/visa-logo.jpg" alt="Visa" height="30">
+                        <img src="~/images/PM/mastercard-symbol-03.jpg" alt="Mastercard" height="30">
+                        <img src="~/images/PM/sinpe_logo.png" alt="Sinpe" height="30">
+                        <img src="~/images/PM/PayPal-Rewards.png" alt="PayPal" height="30">
+                        <img src="~/images/PM/bitcoin-logo.png" alt="Bitcoin" height="30">
+                    </div>
+                    <div class="mt-3">
+                        <h5 class="text-white mb-2">Descarga nuestra app</h5>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-dark border border-secondary btn-sm px-3">
+                                <i class="bi bi-apple me-1"></i> App Store
+                            </a>
+                            <a href="#" class="btn btn-dark border border-secondary btn-sm px-3">
+                                <i class="bi bi-google-play me-1"></i> Play Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-secondary">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="small mb-0">© @DateTime.Now.Year Bet506. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="small mb-0">Licencia #CR-123456789</p>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- Share Scripts -->
+    <!-- Scripts -->
     @await Html.PartialAsync("_ScriptsCDN")
+    <script>
+        // Initialize AOS animation(These are initial tests)
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        
+        // Initialize tooltips(These are initial tests)
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

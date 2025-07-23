@@ -1,8 +1,302 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Bet506 | Apuestas Deportivas en Costa Rica";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden">
+    <div class="container py-5">
+        <div class="row align-items-center py-5">
+            <div class="col-lg-6 py-5" data-aos="fade-right">
+                <h1 class="display-4 fw-bold mb-4">Apuestas deportivas en <span class="text-primary">Costa Rica</span></h1>
+                <p class="lead mb-4">La mejor plataforma para apostar en tus deportes favoritos con las cuotas más competitivas del mercado.</p>
+                <div class="d-flex gap-3">
+                    <a href="/account/register" class="btn btn-primary btn-lg px-4">Regístrate ahora</a>
+                    <a href="/sports" class="btn btn-outline-light btn-lg px-4">Ver deportes</a>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="card bg-dark-2 border-primary shadow-lg">
+                    <div class="card-header bg-quaternary text-white py-3">
+                        <h5 class="mb-0"><i class="bi bi-lightning-charge-fill me-2"></i>Partidos en vivo</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action bg-dark-4 text-white border-secondary">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <img src="~/images/Champ.png" alt="Saprissa" height="20" class="me-2">
+                                            <span>Deportivo Saprissa</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <img src="~/images/Champ.png" alt="LDA" height="20" class="me-2">
+                                            <span>Liga Deportiva Alajuelense</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="badge bg-danger mb-1">LIVE 65'</div>
+                                        <div class="fs-5">1 - 1</div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action bg-dark-4 text-white border-secondary">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <img src="~/images/Champ.png" alt="Real Madrid" height="20" class="me-2">
+                                            <span>Real Madrid</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <img src="~/images/Champ.png" alt="Barcelona" height="20" class="me-2">
+                                            <span>Barcelona</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="badge bg-danger mb-1">LIVE 32'</div>
+                                        <div class="fs-5">0 - 0</div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action bg-dark-4 text-white border-secondary">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <img src="~/images/Champ.png" alt="Lakers" height="20" class="me-2">
+                                            <span>LA Lakers</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <img src="~/images/Champ.png" alt="Warriors" height="20" class="me-2">
+                                            <span>Golden State Warriors</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="badge bg-danger mb-1">LIVE Q3</div>
+                                        <div class="fs-5">78 - 82</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-dark-3 text-center py-2">
+                        <a href="/live" class="text-primary">Ver todos los partidos en vivo <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Promotions Section -->
+<section class="py-5 bg-dark-2">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold" data-aos="fade-right">Promociones exclusivas</h2>
+            <a href="/promotions" class="text-primary" data-aos="fade-left">Ver todas</a>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card h-100 border-primary bg-dark-3 promo-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-info rounded-circle p-2 me-3">
+                                <i class="bi bi-gift-fill fs-4"></i>
+                            </div>
+                            <h5 class="mb-0">Bienvenida</h5>
+                        </div>
+                        <p class="text-white-50">Obtén un 100% de bonificación en tu primer depósito hasta ₡50,000.</p>
+                    </div>
+                    <div class="card-footer bg-dark-4 border-0">
+                        <a href="/promotions/welcome" class="btn btn-sm btn-primary w-100">Aplicar ahora</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card h-100 border-primary bg-dark-3 promo-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-info rounded-circle p-2 me-3">
+                                <i class="bi bi-arrow-repeat fs-4"></i>
+                            </div>
+                            <h5 class="mb-0">Reembolso</h5>
+                        </div>
+                        <p class="text-white-50">Recibe un reembolso del 50% si tu apuesta pierde por un margen de 1 punto.</p>
+                    </div>
+                    <div class="card-footer bg-dark-4 border-0">
+                        <a href="/promotions/cashback" class="btn btn-sm btn-primary w-100">Aplicar ahora</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card h-100 border-primary bg-dark-3 promo-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-info rounded-circle p-2 me-3">
+                                <i class="bi bi-coin fs-4"></i>
+                            </div>
+                            <h5 class="mb-0">Apuesta gratis</h5>
+                        </div>
+                        <p class="text-white-50">Apuesta ₡10,000 y si pierdes, te devolvemos ₡5,000 en crédito.</p>
+                    </div>
+                    <div class="card-footer bg-dark-4 border-0">
+                        <a href="/promotions/freebet" class="btn btn-sm btn-primary w-100">Aplicar ahora</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sports Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold mb-5 text-center" data-aos="fade-up">Deportes populares</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="card sport-card h-100 bg-dark-2 border-0 overflow-hidden">
+                    <img src="~/images/Ligas.jpg" class="card-img-top" alt="Fútbol">
+                    <div class="card-body">
+                        <h5 class="card-title">Fútbol</h5>
+                        <p class="card-text text-white-50">Ligas locales e internacionales con las mejores cuotas.</p>
+                        <a href="/sports/football" class="btn btn-sm btn-outline-primary">Ver partidos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="card sport-card h-100 bg-dark-2 border-0 overflow-hidden">
+                    <img src="~/images/NBA-logo.png" class="card-img-top" alt="Basketball">
+                    <div class="card-body">
+                        <h5 class="card-title">Basketball</h5>
+                        <p class="card-text text-white-50">NBA, Euroleague y más. Apuesta en cada canasta.</p>
+                        <a href="/sports/basketball" class="btn btn-sm btn-outline-primary">Ver partidos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="card sport-card h-100 bg-dark-2 border-0 overflow-hidden">
+                    <img src="~/images/Slam.png" class="card-img-top" alt="Tenis">
+                    <div class="card-body">
+                        <h5 class="card-title">Tenis</h5>
+                        <p class="card-text text-white-50">Grand Slams y torneos ATP/WTA con apuestas en vivo.</p>
+                        <a href="/sports/tennis" class="btn btn-sm btn-outline-primary">Ver partidos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="card sport-card h-100 bg-dark-2 border-0 overflow-hidden">
+                    <img src="~/images/MLB_logo.png" class="card-img-top" alt="Béisbol">
+                    <div class="card-body">
+                        <h5 class="card-title">Béisbol</h5>
+                        <p class="card-text text-white-50">MLB, ligas locales y más. Apuesta en cada lanzamiento.</p>
+                        <a href="/sports/baseball" class="btn btn-sm btn-outline-primary">Ver partidos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-dark-2">
+    <div class="container">
+        <h2 class="fw-bold mb-5 text-center" data-aos="fade-up">¿Por qué elegir Bet506?</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="text-center px-3">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="bi bi-graph-up-arrow fs-1 text-primary"></i>
+                    </div>
+                    <h4 class="mb-3">Cuotas competitivas</h4>
+                    <p class="text-white-50">Ofrecemos las mejores cuotas del mercado para maximizar tus ganancias.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-center px-3">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="bi bi-lightning-charge fs-1 text-primary"></i>
+                    </div>
+                    <h4 class="mb-3">Apuestas en vivo</h4>
+                    <p class="text-white-50">Apuesta mientras el juego está en curso con nuestras transmisiones en vivo.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="text-center px-3">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="bi bi-shield-check fs-1 text-primary"></i>
+                    </div>
+                    <h4 class="mb-3">Seguridad garantizada</h4>
+                    <p class="text-white-50">Tu seguridad es nuestra prioridad. Licencia oficial en Costa Rica.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold mb-5 text-center" data-aos="fade-up">Lo que dicen nuestros clientes</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card h-100 bg-dark-2 border-primary">
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <img src="~/images/Prof.jpg" alt="Cliente" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Carlos M.</h6>
+                                <small class="text-primary">San José</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">"Las mejores cuotas para el fútbol nacional. He ganado más con Bet506 que con cualquier otra plataforma."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card h-100 bg-dark-2 border-primary">
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <img src="~/images/Prof.jpg" alt="Cliente" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">María F.</h6>
+                                <small class="text-primary">Alajuela</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">"El proceso de retiro es rápido y sin complicaciones. Me encanta la variedad de deportes disponibles."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card h-100 bg-dark-2 border-primary">
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <img src="~/images/Prof.jpg" alt="Cliente" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Jorge R.</h6>
+                                <small class="text-primary">Heredia</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">"La app es muy fácil de usar y las promociones son excelentes. Recomendado 100%."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-fifth">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mb-4 mb-lg-0" data-aos="fade-right">
+                <h2 class="fw-bold mb-3">¿Listo para comenzar a apostar?</h2>
+                <p class="lead mb-0">Regístrate hoy y recibe tu bonificación de bienvenida.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                <a href="/account/register" class="btn btn-dark btn-lg px-4">Regístrate gratis</a>
+            </div>
+        </div>
+    </div>
+</section>
