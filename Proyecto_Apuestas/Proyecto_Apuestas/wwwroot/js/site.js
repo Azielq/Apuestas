@@ -1,4 +1,13 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿function abrirLogin() {
+    Swal.fire({
+        title: 'Iniciar sesión',
+        html:
+            `<input type="email" id="email" class="swal2-input" placeholder="Correo electrónico">
+              <input type="password" id="password" class="swal2-input" placeholder="Contraseña">`,
+        confirmButtonText: 'Ingresar',
+        focusConfirm: false,
+        preConfirm: () => {
 
-// Write your JavaScript code.
+        }
+    });
+}
