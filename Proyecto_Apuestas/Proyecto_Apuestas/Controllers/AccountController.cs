@@ -46,59 +46,50 @@ namespace Proyecto_Apuestas.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
-            if (!ModelState.IsValid)
+            // Validar manualmente el modelo
+            if (model == null || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
             {
-                return View(model);
+                return BadRequest(new { success = false, message = "Por favor ingresa email y contraseña." });
             }
 
-            // NOTE: Esto nos verifica intentos fallidos
+            // Verificar intentos fallidos
             var failedAttempts = await _userService.GetFailedLoginAttemptsAsync(model.Email, TimeSpan.FromHours(1));
             if (failedAttempts >= 5)
             {
-                AddModelErrors("Demasiados intentos fallidos. Por favor intenta más tarde.");
-                return View(model);
+                return Unauthorized(new { success = false, message = "Demasiados intentos fallidos. Por favor intenta más tarde." });
             }
 
             var user = await _userService.GetUserByEmailAsync(model.Email);
             if (user == null)
             {
                 await _userService.RecordLoginAttemptAsync(model.Email, false);
-                AddModelErrors("Email o contraseña incorrectos");
-                return View(model);
+                return Unauthorized(new { success = false, message = "Email o contraseña incorrectos." });
             }
 
-            //  NOTE: Esto nos verifica si la cuenta está bloqueada
             if (user.LockedUntil.HasValue && user.LockedUntil.Value > DateTime.Now)
             {
-                AddModelErrors($"Tu cuenta está bloqueada hasta {user.LockedUntil.Value:dd/MM/yyyy HH:mm}");
-                return View(model);
+                return Unauthorized(new { success = false, message = $"Tu cuenta está bloqueada hasta {user.LockedUntil.Value:dd/MM/yyyy HH:mm}." });
             }
 
-            //  NOTE: Esto nos verifica la contraseña
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
             if (result == PasswordVerificationResult.Failed)
             {
                 await _userService.RecordLoginAttemptAsync(model.Email, false);
-                AddModelErrors("Email o contraseña incorrectos");
-                return View(model);
+                return Unauthorized(new { success = false, message = "Email o contraseña incorrectos." });
             }
 
             // Login exitoso
             await _userService.RecordLoginAttemptAsync(model.Email, true);
             await SignInAsync(user, model.RememberMe);
 
-            if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-            {
-                return Redirect(model.ReturnUrl);
-            }
-
-            return RedirectToAction("Index", "Home");
+            // Retornar éxito como alertaa
+            return Ok(new { success = true, message = "Inicio de sesión exitoso." });
         }
+
 
         [HttpGet]
         public IActionResult Register()
@@ -124,7 +115,7 @@ namespace Proyecto_Apuestas.Controllers
             try
             {
                 // Obtiene rol por defecto
-                var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Regular");
+                var defaultRole = await _context.Roles.FindAsync(2);//lo cambie a 2 porque el rol de usuario es el segundo en la tabla Roles, no hay algun roll default en la tabla Roles
                 if (defaultRole == null)
                 {
                     AddModelErrors("Error en la configuración del sistema");

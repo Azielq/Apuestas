@@ -1,0 +1,94 @@
+
+.registro-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    padding: 20px;
+}
+
+.form-registro {
+    background-color: #1a1233;
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+    width: 700px;
+    max-width: 100%;
+}
+
+    .form-registro h2 {
+        color: #ffffff;
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+label {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.form-control {
+    background-color: #2a1f45;
+    border: 1px solid #1BB96B;
+    color: #ffffff !important;
+    caret-color: #1BB96B;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+    .form-control::placeholder {
+        color: #cccccc;
+        opacity: 1;
+    }
+
+    .form-control:focus {
+        border-color: #1BB96B;
+        box-shadow: 0 0 8px #1BB96Bbb;
+        outline: none;
+        background-color: #2a1f45;
+    }
+
+.text-danger {
+    font-size: 0.8rem;
+    color: #ff6b6b;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.btn-enviar {
+    background-color: #1BB96B;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 20px;
+    width: 100%;
+    transition: 0.3s;
+}
+
+    .btn-enviar:hover {
+        background-color: #149657;
+        box-shadow: 0 0 12px #1BB96Baa;
+    }
+
+.volver-login {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.9rem;
+}
+
+    .volver-login a {
+        color: #1BB96B;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .volver-login a:hover {
+            text-decoration: underline;
+        }

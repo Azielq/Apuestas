@@ -71,14 +71,48 @@
                         }
                         else
                         {
-                            <a href="/account/login" class="btn btn-outline-light me-2">Iniciar sesión</a>
-                            <a href="/account/register" class="btn btn-primary">Registrarse</a>
+                            <button type="button" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar sesión</button>
+                            <a href="/account/Register" class="btn btn-primary">Registrarse</a>
                         }
                     </div>
                 </div>
             </div>
         </nav>
     </header>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Iniciar sesión</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label for="Email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="Email" name="Email" placeholder="correo@ejemplo.com" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="Password" name="Password" placeholder="Mínimo 6 caracteres" required minlength="6" />
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="RememberMe" name="RememberMe" />
+                            <label class="form-check-label" for="RememberMe">Recordarme</label>
+                        </div>
+                        <div id="loginError" class="alert alert-danger visually-hidden" role="alert"></div>
+                        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Main Content -->
     <main role="main">

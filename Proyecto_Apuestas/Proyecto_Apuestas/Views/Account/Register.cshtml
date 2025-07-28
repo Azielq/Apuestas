@@ -1,0 +1,104 @@
+﻿@model Proyecto_Apuestas.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Crear Cuenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="@(Url.Content("~/css/Register.css"))" />
+
+<div class="registro-container">
+    <div class="form-registro">
+        <h2><i class="fa-solid fa-user-plus me-2"></i>Crear Cuenta</h2>
+
+        <form asp-action="Register" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName">Nombre</label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Ej: Juan" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="PrimerApellido">Primer apellido</label>
+                    <input asp-for="PrimerApellido" class="form-control" placeholder="Ej: Castillo" />
+                    <span asp-validation-for="PrimerApellido" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SegundoApellido">Segundo apellido</label>
+                    <input asp-for="SegundoApellido" class="form-control" placeholder="Ej: López" />
+                    <span asp-validation-for="SegundoApellido" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="BirthDate">Fecha de nacimiento</label>
+                    <input asp-for="BirthDate" type="text" class="form-control datepicker" placeholder="Selecciona tu fecha" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Email">Correo electrónico</label>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="Ej: correo@ejemplo.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber">Teléfono</label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Ej: +506 8888 8888" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Country">País</label>
+                    <input asp-for="Country" class="form-control" placeholder="Ej: Costa Rica" />
+                    <span asp-validation-for="Country" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="UserName">Nombre de usuario</label>
+                    <input asp-for="UserName" class="form-control" placeholder="Ej: juancr07" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Password">Contraseña</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Mínimo 6 caracteres" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword">Confirmar contraseña</label>
+                    <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Repite la contraseña" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-enviar">
+                <i class="fa-solid fa-user-check me-2"></i>Registrarme
+            </button>
+
+            <div class="volver-login">
+                ¿Ya tienes una cuenta? <a asp-action="Login">Inicia sesión aquí</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr(".datepicker", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+        defaultDate: null,
+        altInput: true,
+        altFormat: "F j, Y",
+        locale: "es"
+    });
+</script>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
