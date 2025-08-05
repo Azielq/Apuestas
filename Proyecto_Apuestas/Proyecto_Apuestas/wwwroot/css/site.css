@@ -1,31 +1,169 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+:root {
+    --bs-primary: #00ced1;
+    --bs-secondary: #6c757d;
+    --bs-tertiary: #405c76;
+    --bs-quaternary: #4da990;
+    --bs-fifth: #2d6455;
+    --bs-dark: #121212;
+    --bs-dark-2: #1a1a1a;
+    --bs-dark-3: #222222;
+    --bs-dark-4: #2a2a2a;
+    --bs-dark-5: #434343;
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bs-dark);
+    color: white;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.bg-dark-2 {
+    background-color: var(--bs-dark-2);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.bg-dark-3 {
+    background-color: var(--bs-dark-3);
+}
+
+.bg-dark-4 {
+    background-color: var(--bs-dark-4);
+}
+
+.bg-dark-5 {
+    background-color: var(--bs-dark-4);
+}
+.bg-tertiary {
+    background-color: var(--bs-tertiary);
+}
+.bg-quaternary {
+    background-color: var(--bs-quaternary);
+}
+.bg-fifth {
+    background-color: var(--bs-fifth);
+}
+
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('~/images/Champ.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.border-primary {
+    border-color: var(--bs-primary) !important;
+}
+
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #000;
+    font-weight: 600;
+}
+
+    .btn-primary:hover {
+        background-color: #00ced1;
+        border-color: #00ced1;
+    }
+
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--bs-primary);
+        color: #000;
+    }
+
+.text-primary {
+    color: var(--bs-primary) !important;
+}
+.text-tertiary {
+    color: var(--bs-tertiary) !important;
+}
+.text-quaternary {
+    color: var(--bs-quaternary) !important;
+}
+
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+.dropdown-menu-dark {
+    background-color: var(--bs-dark-3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+    .dropdown-item:hover {
+        background-color: rgba(0, 255, 136, 0.1);
+        color: var(--bs-primary);
+    }
+
+.card {
+    background-color: var(--bs-dark-2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-title {
+        color: var(--bs-primary);
+    font-weight: 600;
+}
+
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.sport-card img {
+    transition: transform 0.5s ease;
+}
+
+.sport-card:hover img {
+    transform: scale(1.05);
+}
+
+.promo-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.mb-0 {
+    color: aliceblue;
+}
+
+.promo-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, rgba(0, 255, 136, 0) 70%);
+    transform: scale(0);
+    transition: transform 0.8s ease;
+}
+
+    .promo-card:hover::before {
+        transform: scale(1);
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2.5rem;
+    }
+
+    .hero-section {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
 }

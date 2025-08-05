@@ -1,0 +1,588 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Proyecto_Apuestas.Controllers.Admin.AdminBaseController">
+    <Position X="3.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIAAAAAgAIAAAAAAAAAA=</HashCode>
+      <FileName>Controllers\Admin\AdminBaseController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.Admin.DashboardController">
+    <Position X="2.75" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAgAAAAAAAAAAAAAAAAAAAAAAAEEAIAAAAA=</HashCode>
+      <FileName>Controllers\Admin\DashboardController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.Admin.EventsController">
+    <Position X="1" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAQAgBBAAABACABAAAAAAAAEACAAkAAAEAAAA=</HashCode>
+      <FileName>Controllers\Admin\EventsController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.Admin.ReportsController">
+    <Position X="4.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAAAAAAAAAEAAAAABAAEGAMAAAAA=</HashCode>
+      <FileName>Controllers\Admin\ReportsController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.Admin.UsersController">
+    <Position X="6.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAEAABBAABAAAAgAAAEAIAAAAAAAEEAAABAAA=</HashCode>
+      <FileName>Controllers\Admin\UsersController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.AccountController">
+    <Position X="13" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAABMgAAhAAAAAAAAAMQAAABAAAAABAUAAAAAAA=</HashCode>
+      <FileName>Controllers\AccountController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.BaseController">
+    <Position X="7" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAQAAAAAAAAAAIAAAAAgAIAAAAAAAAAw=</HashCode>
+      <FileName>Controllers\BaseController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.BettingController">
+    <Position X="0.75" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAUAiBAAQEAACQBAAEAAAAAEAgAQEEAAABAAA=</HashCode>
+      <FileName>Controllers\BettingController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.EventController">
+    <Position X="11.25" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAhBAAAAECABAAAEAAAAAAEAAEQAAAhAAA=</HashCode>
+      <FileName>Controllers\EventController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.HomeController">
+    <Position X="9.5" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAAQEACACAAAAAAAAAAQAAAAEEAAAAAAA=</HashCode>
+      <FileName>Controllers\HomeController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.NotificationController">
+    <Position X="7.75" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAQAAAEAAAAAAAAAAgAAgAAAEQAAAAAAEEAAAAAAA=</HashCode>
+      <FileName>Controllers\NotificationController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.PaymentController">
+    <Position X="4.25" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQEAAAAAAEAAAAAABEACAAAAAACAUOAgAAAAI=</HashCode>
+      <FileName>Controllers\PaymentController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.SportController">
+    <Position X="2.5" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABBAAAAACAAAAAAAAAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>Controllers\SportController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Controllers.TeamController">
+    <Position X="6" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABBAAAAACCBCAAAAAAAAAAAAFAAAAAAIA=</HashCode>
+      <FileName>Controllers\TeamController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.StartupValidationService">
+    <Position X="34.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAACBAABAAAAAAAAAAIAAAAgAAAAEAAAAAAAA=</HashCode>
+      <FileName>Services\StartupValidationService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.ConfigurationDiagnosticsService" BaseTypeListCollapsed="true">
+    <Position X="36" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAIiABIAKAAAAAAACBIAAAIgAIAAEAAAAABAA=</HashCode>
+      <FileName>Services\ConfigurationDiagnosticsService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.ConfigurationDiagnostics">
+    <Position X="32.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAACAAAAgAAAAAgCAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>Services\ConfigurationDiagnosticsService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Interfaces.BetResult">
+    <Position X="13.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAAAAgAAAAFAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\Interfaces\IBettingService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Interfaces.BetHistoryFilter">
+    <Position X="13.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAACAAgAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Services\Interfaces\IBettingService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.BettingService">
+    <Position X="0.5" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIEAAAJAAACAABgCBRIAAACAgAAAAUAACAEAA=</HashCode>
+      <FileName>Services\Implementations\BettingService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="System.Object">
+    <Position X="15.75" Y="2" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.EmailService">
+    <Position X="2.25" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAEAAAAAACAAAAABACIAAAAgAgCAABAYgAAAA=</HashCode>
+      <FileName>Services\Implementations\EmailService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.EventService">
+    <Position X="4" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAMAEAggBAEAACABAAIAMAAwAAAAAhAQMBACAAA=</HashCode>
+      <FileName>Services\Implementations\EventService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.NotificationService">
+    <Position X="5.75" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAACAgAAhEAEAABRGAAQIAQAAAEAAAAABBAAIAA=</HashCode>
+      <FileName>Services\Implementations\NotificationService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.OddsService">
+    <Position X="7.5" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAABAAAiAAAAAAAoAAABAAGQAGAABAAABA=</HashCode>
+      <FileName>Services\Implementations\OddsService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.PaymentService">
+    <Position X="9.25" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QEAAAACEEAhAhAAEAAEDIACAMAAAEAUEgQMFAAANAQI=</HashCode>
+      <FileName>Services\Implementations\PaymentService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.ReportService">
+    <Position X="11" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAABAAAQgQgAAAAIAAAAAAAAAAAJAAAhiA=</HashCode>
+      <FileName>Services\Implementations\ReportService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Services.Implementations.UserService">
+    <Position X="12.75" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQGAhAAQBCARSAgAAAFACAgIAAAAAAhAAAAAEAAAAg=</HashCode>
+      <FileName>Services\Implementations\UserService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.EmailSettings">
+    <Position X="20.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAASAAAAAAAAAAEAgAABAAgAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration\AppSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.SendGridSettings">
+    <Position X="22" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration\AppSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.PaymentSettings">
+    <Position X="25.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration\AppSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.StripeSettings">
+    <Position X="18.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAgAAAAAAAAAAQAAA=</HashCode>
+      <FileName>Configuration\AppSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.ApplicationSettings">
+    <Position X="23.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAEAAAACAAAACAAAAAIAAAQAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Configuration\AppSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.BettingSettings">
+    <Position X="27.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAACgAACAAEAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration\AppSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.AutoMapperProfile">
+    <Position X="38.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>Configuration\AutoMapperProfile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.ServiceConfiguration">
+    <Position X="29" Y="5.25" Width="1.5" />
+    <InheritanceLine Type="System.Object" ManuallyRouted="true">
+      <Path>
+        <Point X="16.5" Y="4.45" />
+        <Point X="16.5" Y="4.875" />
+        <Point X="29.75" Y="4.875" />
+        <Point X="29.75" Y="5.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration\ServiceConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Configuration.ValidationConfiguration">
+    <Position X="30.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Configuration\ValidationConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Extensions.MiddlewareExtensions">
+    <Position X="12" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAABgAACAAAAAgAAEAAAAAAABAgAAAAAAAA=</HashCode>
+      <FileName>Extensions\MiddlewareExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Extensions.SessionExtensions">
+    <Position X="10.25" Y="5" Width="1.5" />
+    <InheritanceLine Type="System.Object" ManuallyRouted="true">
+      <Path>
+        <Point X="16.5" Y="4.45" />
+        <Point X="16.5" Y="4.875" />
+        <Point X="11" Y="4.875" />
+        <Point X="11" Y="5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAgAAAAAAAAAAAAAQAAEAAAAAIAA=</HashCode>
+      <FileName>Extensions\SessionExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper">
+    <Position X="19" Y="11" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.NotificationSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.SystemSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.SeoSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.SecuritySettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.EmailSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.Features" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.AwsSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.LoggingSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.SportsSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.CacheSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.PromotionSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.BettingLimits" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.ExternalApis" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Proyecto_Apuestas.Helpers.ConfigurationHelper.PaymentSettings" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Helpers\ConfigurationHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgIACAAQAABEAAAAiAAAAABAAAAAEAAAkBABE=</HashCode>
+      <FileName>Helpers\ConfigurationHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.CurrencyHelper">
+    <Position X="20.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEACAAABAQAAAAIAAAABAUAAAAAAACAAIAAAAABAgA=</HashCode>
+      <FileName>Helpers\CurrencyHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.DateTimeHelper">
+    <Position X="22.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAEAAAAAAAAAAAEEAgAAAAAJYgAAAAAAMAQAIAAE=</HashCode>
+      <FileName>Helpers\DateTimeHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.EmailTemplateHelper">
+    <Position X="24.25" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAQAAAAIAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Helpers\EmailTemplateHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.HtmlHelpers">
+    <Position X="26" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAEBAAAAAAKAAAAAAEAAACQAQAAAI=</HashCode>
+      <FileName>Helpers\HtmlHelpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.OddsCalculator">
+    <Position X="27.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAIBAgBAAAAAAwIBAAAECAAAIAAAAAAAAI=</HashCode>
+      <FileName>Helpers\OddsCalculator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.SecurityHelper">
+    <Position X="29.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQABAEAAAAAEAAAQABACAAAAAAAAAAAAQAAAAgAAAAI=</HashCode>
+      <FileName>Helpers\SecurityHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.StringHelpers">
+    <Position X="31.25" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQABEAAAAAAQQIAAAAAAAEAAAEAAgAAAAAEAAAAAAg=</HashCode>
+      <FileName>Helpers\StringHelpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Helpers.ValidationHelpers">
+    <Position X="33" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAQgAABBAAEAIAAAAAACAABAAkBAAAAAAAA=</HashCode>
+      <FileName>Helpers\ValidationHelpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FluentValidation.AbstractValidator&lt;T&gt;" Collapsed="true">
+    <Position X="21.5" Y="15.5" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.Admin.UserManagementFilterValidator">
+    <Position X="24" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\AdminValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.Admin.ReportViewModelValidator">
+    <Position X="25.75" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Validators\AdminValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.BetHistoryViewModelValidator">
+    <Position X="27.5" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\BetHistoryViewModelValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.CreateBetViewModelValidator">
+    <Position X="29.25" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABQAAAhAAAAAAAAEAAEAAAAAEAAAAAAA=</HashCode>
+      <FileName>Validators\BetValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.BetSlipViewModelValidator">
+    <Position X="32.75" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\BetValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.BetSlipItemValidator">
+    <Position X="31" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\BetValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.CompetitionViewModelValidator">
+    <Position X="34.5" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\CompetitionValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.EventFilterValidator">
+    <Position X="36.25" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\EventValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.LoginViewModelValidator">
+    <Position X="38" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\LoginViewModelValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.RegisterViewModelValidator">
+    <Position X="41.5" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAABAAAAAAAAAQAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\LoginViewModelValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.ChangePasswordViewModelValidator">
+    <Position X="39.75" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\LoginViewModelValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.NotificationListViewModelValidator">
+    <Position X="43.25" Y="16.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\NotificationValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.PaginationViewModelValidator">
+    <Position X="22.25" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\PaginationViewModelValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.AddPaymentMethodViewModelValidator">
+    <Position X="24" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\PaymentValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.DepositViewModelValidator">
+    <Position X="27.5" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAEAQAAAAA=</HashCode>
+      <FileName>Validators\PaymentValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.WithdrawViewModelValidator">
+    <Position X="25.75" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAABAAAAAACAAAAAAAAAAAAAAAEAQAAAAA=</HashCode>
+      <FileName>Validators\PaymentValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.SportListViewModelValidator">
+    <Position X="29.25" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\SportValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.TeamViewModelValidator">
+    <Position X="31" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\TeamValidators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.TransactionHistoryViewModelValidator">
+    <Position X="32.75" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\TransactionHistoryViewModelValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Proyecto_Apuestas.Validators.UpdateProfileViewModelValidator">
+    <Position X="34.5" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validators\UpdateProfileViewModelValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutoMapper.Profile">
+    <Position X="38.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
