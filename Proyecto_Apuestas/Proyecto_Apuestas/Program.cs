@@ -4,6 +4,8 @@ using Proyecto_Apuestas.Configuration;
 using Proyecto_Apuestas.Data;
 using Proyecto_Apuestas.Helpers;
 using Proyecto_Apuestas.Services;
+using Proyecto_Apuestas.Services.Implementations;
+using Proyecto_Apuestas.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -166,5 +168,19 @@ if (app.Environment.IsDevelopment())
         return Results.Ok(overview);
     });
 }
+
+builder.Services.AddScoped<IOddsService, OddsService>();
+
+builder.Services.AddHttpClient<IOddsApiService, OddsApiService>(client =>
+{
+    var configuration = builder.Configuration;
+    var baseUrl = configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/v4";
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    client.DefaultRequestHeaders.Add("User-Agent", "ProyectoApuestas/1.0");
+});
+
+
 
 app.Run();

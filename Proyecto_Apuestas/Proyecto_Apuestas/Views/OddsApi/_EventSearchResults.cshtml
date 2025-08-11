@@ -1,0 +1,42 @@
+﻿@model List<Proyecto_Apuestas.Models.API.OddsApiModel>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No se encontraron eventos que coincidan con tu búsqueda.
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var evt in Model)
+        {
+            <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" 
+               class="list-group-item list-group-item-action bg-dark-3 text-white border-secondary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">@evt.HomeTeam vs @evt.AwayTeam</h6>
+                        <small class="text-muted">
+                            <i class="bi bi-calendar me-1"></i>
+                            @evt.CommenceTime.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary">@evt.SportTitle</span>
+                        @if (evt.Bookmakers != null && evt.Bookmakers.Any())
+                        {
+                            var h2hMarket = evt.Bookmakers.FirstOrDefault()?.Markets?.FirstOrDefault(m => m.Key == "h2h");
+                            if (h2hMarket != null && h2hMarket.Outcomes != null && h2hMarket.Outcomes.Any())
+                            {
+                                <div class="mt-1">
+                                    <small class="text-success">Cuotas disponibles</small>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+}
