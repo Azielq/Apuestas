@@ -1,0 +1,280 @@
+﻿// Index.cshtml
+@using Proyecto_Apuestas.ViewModels.API
+@model OddsApiDashboardViewModel
+@{
+    ViewData["Title"] = "Cuotas en Vivo - The Odds API";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header con estado de API -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark-2 border-primary">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h2 class="mb-0">
+                                <i class="bi bi-graph-up-arrow me-2"></i>Cuotas Internacionales en Vivo
+                            </h2>
+                            <p class="text-muted mb-0 mt-2">Powered by The Odds API</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-md-end">
+                                @if (Model.IsApiAvailable)
+                                {
+                                    <span class="badge bg-success fs-6">
+                                        <i class="bi bi-check-circle me-1"></i>API Conectada
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger fs-6">
+                                        <i class="bi bi-x-circle me-1"></i>API No Disponible
+                                    </span>
+                                }
+
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        Uso: @Model.ApiUsage.RequestsUsed / @(Model.ApiUsage.RequestsUsed + Model.ApiUsage.RequestsRemaining)
+                                    </small>
+                                    <div class="progress" style="height: 5px;">
+                                        @{
+                                            var percentage = Model.ApiUsage.RequestsUsed > 0
+                                            ? (double)Model.ApiUsage.RequestsUsed / (Model.ApiUsage.RequestsUsed + Model.ApiUsage.RequestsRemaining) * 100
+                                            : 0;
+                                            var progressColor = percentage > 80 ? "danger" : percentage > 60 ? "warning" : "success";
+                                        }
+                                        <div class="progress-bar bg-@progressColor" style="width: @percentage%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Búsqueda rápida -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="input-group input-group-lg">
+                <span class="input-group-text bg-dark-3 border-primary">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text"
+                       id="searchEvents"
+                       class="form-control bg-dark-3 border-primary text-white"
+                       placeholder="Buscar equipo o evento...">
+                <button class="btn btn-primary" type="button" onclick="searchEvents()">
+                    Buscar
+                </button>
+            </div>
+            <div id="searchResults" class="mt-3"></div>
+        </div>
+    </div>
+
+    <!-- Deportes disponibles -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3">Deportes Disponibles</h3>
+            <div class="row g-3">
+                @foreach (var sport in Model.ActiveSports.GroupBy(s => s.Group))
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card bg-dark-3 border-secondary h-100">
+                            <div class="card-header bg-dark-4 text-primary">
+                                <strong>@sport.Key</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group list-group-flush">
+                                    @foreach (var s in sport)
+                                    {
+                                        <a href="@Url.Action("Events", "OddsApi", new { sportKey = s.Key })"
+                                           class="list-group-item list-group-item-action bg-dark-3 text-white border-0 py-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>
+                                                    <i class="bi bi-trophy me-2"></i>@s.Title
+                                                </span>
+                                                <i class="bi bi-arrow-right text-primary"></i>
+                                            </div>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Eventos destacados -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Eventos Próximos Destacados</h3>
+                <a href="@Url.Action("LiveEvents", "OddsApi")" class="btn btn-outline-primary">
+                    <i class="bi bi-broadcast me-2"></i>Ver Eventos en Vivo
+                </a>
+            </div>
+
+            <div id="featuredEvents" class="row g-3">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando eventos...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <!-- Panel de administración -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-dark-2 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <i class="bi bi-gear-fill me-2"></i>Panel de Administración
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <button class="btn btn-success w-100" onclick="syncSports()">
+                                    <i class="bi bi-arrow-repeat me-2"></i>Sincronizar Deportes
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <select id="sportToSync" class="form-select bg-dark-3 text-white">
+                                        <option value="">Seleccione un deporte...</option>
+                                        @foreach (var sport in Model.ActiveSports)
+                                        {
+                                            <option value="@sport.Key">@sport.Title</option>
+                                        }
+                                    </select>
+                                    <button class="btn btn-primary" onclick="syncEvents()">
+                                        Sincronizar Eventos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadFeaturedEvents();
+
+            // Auto-actualización cada 60 segundos
+            setInterval(function() {
+                loadFeaturedEvents();
+                updateApiStatus();
+            }, 60000);
+
+            // Búsqueda en tiempo real
+            $('#searchEvents').on('input', function() {
+                if ($(this).val().length >= 3) {
+                    searchEvents();
+                }
+            });
+        });
+
+        function loadFeaturedEvents() {
+            $.get('@Url.Action("Events", "OddsApi", new { sportKey = "soccer_epl", region = "us", market = "h2h" })', function(data) {
+                // Procesar y mostrar eventos destacados
+                // Este es un ejemplo simplificado
+                $('#featuredEvents').html('<div class="col-12"><p>Eventos cargados</p></div>');
+            }).fail(function() {
+                $('#featuredEvents').html('<div class="col-12"><div class="alert alert-warning">No se pudieron cargar los eventos</div></div>');
+            });
+        }
+
+        function searchEvents() {
+            var query = $('#searchEvents').val();
+            if (query.length < 3) return;
+
+            $.get('@Url.Action("SearchEvents", "OddsApi")', { query: query }, function(data) {
+                $('#searchResults').html(data);
+            });
+        }
+
+        function updateApiStatus() {
+            $.get('@Url.Action("ApiStatus", "OddsApi")', function(data) {
+                // Actualizar el estado de la API en la UI
+            });
+        }
+
+        @if (User.IsInRole("Admin"))
+        {
+                <text>
+                function syncSports() {
+                    if (!confirm('¿Desea sincronizar todos los deportes con la base de datos local?')) return;
+
+                    $.post('@Url.Action("SyncSports", "OddsApi")', function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(function() { location.reload(); }, 2000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    });
+                }
+
+                function syncEvents() {
+                    var sportKey = $('#sportToSync').val();
+                    if (!sportKey) {
+                        toastr.warning('Seleccione un deporte');
+                        return;
+                    }
+
+                    if (!confirm('¿Desea sincronizar los eventos de este deporte?')) return;
+
+                    $.post('@Url.Action("SyncEvents", "OddsApi")', { sportKey: sportKey }, function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    });
+                }
+                </text>
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .list-group-item-action:hover {
+            background-color: rgba(0, 123, 255, 0.1) !important;
+        }
+
+        .progress {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #searchResults {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+}

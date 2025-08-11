@@ -439,5 +439,66 @@ namespace Proyecto_Apuestas.Services.Implementations
                 }
             }
         }
+
+        public async Task<EventDetailsViewModel?> GetEventByExternalIdAsync(string externalId)
+        {
+            var eventEntity = await _context.Events
+                .Include(e => e.EventHasTeams)
+                    .ThenInclude(et => et.Team)
+                        .ThenInclude(t => t.Sport)
+                .Include(e => e.EventHasTeams)
+                    .ThenInclude(et => et.Team)
+                        .ThenInclude(t => t.Images)
+                .Include(e => e.OddsHistories)
+                .Include(e => e.Bets)
+                .FirstOrDefaultAsync(e => e.ExternalEventId == externalId);
+
+            if (eventEntity == null) return null;
+
+            var teams = eventEntity.EventHasTeams.Select(et => et.Team).ToList();
+            var sport = teams.FirstOrDefault()?.Sport;
+
+            var viewModel = new EventDetailsViewModel
+            {
+                EventId = eventEntity.EventId,
+                ExternalEventId = eventEntity.ExternalEventId,
+                Date = eventEntity.Date,
+                Outcome = eventEntity.Outcome,
+                Teams = new List<EventTeamDetailsViewModel>(),
+                CurrentOdds = await GetEventOddsAsync(eventEntity.EventId),
+                SportName = sport?.Name ?? "N/A",
+                CompetitionName = "Liga Principal", // Puedes obtener esto de una relación real si existe
+                TotalBets = eventEntity.Bets.Count,
+                TotalStaked = eventEntity.Bets.Sum(b => b.Stake),
+                CanBet = await IsEventBettableAsync(eventEntity.EventId)
+            };
+
+            // Mapear los equipos
+            foreach (var eventTeam in eventEntity.EventHasTeams)
+            {
+                var team = eventTeam.Team;
+                var oddsHistory = await _context.OddsHistories
+                    .Where(o => o.EventId == eventEntity.EventId && o.TeamId == team.TeamId)
+                    .OrderByDescending(o => o.RetrievedAt)
+                    .Take(10)
+                    .Select(o => o.Odds)
+                    .ToListAsync();
+
+                viewModel.Teams.Add(new EventTeamDetailsViewModel
+                {
+                    TeamId = team.TeamId,
+                    TeamName = team.TeamName,
+                    CurrentOdds = oddsHistory.FirstOrDefault(),
+                    LogoUrl = team.Images.FirstOrDefault()?.Url,
+                    IsHomeTeam = eventTeam.IsHomeTeam,
+                    TeamWinPercent = team.TeamWinPercent,
+                    TeamDrawPercent = team.TeamDrawPercent,
+                    LastWin = team.LastWin,
+                    OddsHistory = oddsHistory
+                });
+            }
+
+            return viewModel;
+        }
     }
 }
