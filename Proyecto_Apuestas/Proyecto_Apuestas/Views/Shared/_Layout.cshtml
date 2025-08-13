@@ -193,8 +193,19 @@
                 </div>
             </div>
         </div>
-    </footer>
+    </nav>
+    <div class="navbar-underline"></div>
 
+    <!-- MAIN -->
+    <main class="container-fluid mt-4">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-white py-4 mt-5" style="background-color: #14162b;">
+        &copy; 2025 - Proyecto_Apuestas -
+        <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none text-light">Privacidad</a>
+    </footer>
     <!-- Scripts -->
     @await Html.PartialAsync("_ScriptsCDN")
     <script>
@@ -211,7 +222,12 @@
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     </script>
-
+    <!-- meterlos en el cdn -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

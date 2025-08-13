@@ -165,5 +165,136 @@ body {
     .hero-section {
         padding-top: 3rem;
         padding-bottom: 3rem;
+.promo-section {
+    background-color: #060019;
+    margin-top: -25px;
+    margin-bottom: 30px;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-height: 300px !important;
+    overflow: hidden;
+}
+
+.flyer-row {
+    height: 100% !important;
+    min-height: auto !important;
+}
+
+.text-section {
+    background: transparent !important;
+    height: 100% !important;
+    min-height: auto !important;
+    display: flex !important;
+    padding: 3rem !important;
+    text-align: center;
+
+}
+
+.image-section {
+    height: 100% !important;
+    min-height: auto !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.flyer-img {
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    animation: fadeInRight 1.2s ease forwards !important;
+    filter: brightness(0.8) contrast(1.1) !important;
+}
+
+.promo-text {
+    width: 100% !important;
+    max-width: 500px;
+    animation: fadeInLeft 1.2s ease forwards;
+}
+
+    .promo-text h6 {
+        font-size: 1.2rem;
+        letter-spacing: 3px;
+        opacity: 0.9;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #aaa;
+    }
+
+    .promo-text h1 {
+        font-size: 3.8rem;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 15px;
+        margin-bottom: 1.2rem;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+    }
+
+.text-white-bold {
+    color: white;
+    text-transform: uppercase;
+}
+
+.text-price {
+    color: #1BB96B;
+    font-weight: 900;
+}
+
+.btn-success {
+    font-size: 1.3rem;
+    padding: 0.8rem 2.5rem;
+    font-weight: 700;
+    background-color: #1BB96B !important;
+    border: none;
+    transition: all 0.3s ease;
+    animation: bounceIn 1.5s ease;
+}
+
+    .btn-success:hover {
+        background-color: #17a361 !important;
+        transform: scale(1.0);
+    }
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.9);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
     }
 }
