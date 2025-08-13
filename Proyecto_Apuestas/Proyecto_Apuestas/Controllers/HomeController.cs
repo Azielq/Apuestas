@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Proyecto_Apuestas.Models;
+using Proyecto_Apuestas.Models.API;
 using Proyecto_Apuestas.Services.Interfaces;
+using Proyecto_Apuestas.ViewModels.API;
 using System.Diagnostics;
 
 namespace Proyecto_Apuestas.Controllers
@@ -10,64 +12,69 @@ namespace Proyecto_Apuestas.Controllers
         private readonly IEventService _eventService;
         private readonly IBettingService _bettingService;
         private readonly IUserService _userService;
+        private readonly IOddsApiService _oddsApiService;
 
         public HomeController(
             IEventService eventService,
             IBettingService bettingService,
             IUserService userService,
+            IOddsApiService oddsApiService,
             ILogger<HomeController> logger) : base(logger)
         {
             _eventService = eventService;
             _bettingService = bettingService;
             _userService = userService;
+            _oddsApiService = oddsApiService;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var upcomingEvents = await _eventService.GetUpcomingEventsByCategoryAsync();
-
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                var userId = _userService.GetCurrentUserId();
-                var activeBets = await _bettingService.GetActiveBetsByUserAsync(userId);
-                ViewBag.ActiveBetsCount = activeBets.Count;
-
-                var user = await _userService.GetCurrentUserAsync();
-                ViewBag.UserBalance = user?.CreditBalance ?? 0;
-            }
-
-            return View(upcomingEvents);
-        }
         public async Task<IActionResult> LandingPage()
         {
-            var upcomingEvents = await _eventService.GetUpcomingEventsByCategoryAsync();
-
-            if (User.Identity?.IsAuthenticated == true)
+            var sports = await _oddsApiService.GetSportsAsync();
+            var activeSports = sports
+                .Where(s => s.Active &&
+                           (s.Key.Contains("soccer") || s.Key.Contains("basketball") || s.Key.Contains("tennis")))
+                .ToList();
+            var dashboardData = new OddsApiDashboardViewModel
             {
-                var userId = _userService.GetCurrentUserId();
-                var activeBets = await _bettingService.GetActiveBetsByUserAsync(userId);
-                ViewBag.ActiveBetsCount = activeBets.Count;
+                ActiveSports = activeSports,
+                ApiUsage = await _oddsApiService.GetApiUsageAsync(),
+                IsApiAvailable = await _oddsApiService.IsApiAvailableAsync()
+            };
+            var sportEventsDict = new Dictionary<string, List<EventApiModel>>();
 
-                var user = await _userService.GetCurrentUserAsync();
-                ViewBag.UserBalance = user?.CreditBalance ?? 0;
+            foreach (var sport in activeSports)
+            {
+                var oddsEvents = await _oddsApiService.GetOddsAsync(sport.Key, "us", "h2h");
+
+                var mappedEvents = oddsEvents.Select(o => new EventApiModel
+                {
+                    Id = o.Id,
+                    SportKey = o.SportKey,
+                    SportTitle = o.SportTitle,
+                    CommenceTime = o.CommenceTime,
+                    HomeTeam = o.HomeTeam,
+                    AwayTeam = o.AwayTeam,
+                    Completed = false,
+                    Bookmakers = o.Bookmakers,
+                    Scores = null 
+                })
+                .OrderBy(e => e.CommenceTime)
+                .Take(5) // mostrar máximo 5 eventos por deporte
+                .ToList();
+
+                sportEventsDict[sport.Key] = mappedEvents;
             }
 
-            return View(upcomingEvents);
-        }
-        public IActionResult Privacy()
-        {
-            return View();
+            ViewBag.SportEvents = sportEventsDict;
+
+            return View(dashboardData);
         }
 
-        public IActionResult About()
-        {
-            return View();
-        }
 
-        public IActionResult Contact()
-        {
-            return View();
-        }
+
+        public IActionResult Privacy() => View();
+
+        public IActionResult About() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -79,9 +86,8 @@ namespace Proyecto_Apuestas.Controllers
                 return View();
             }
 
-            // Aquí enviarías el email
             AddSuccessMessage("Tu mensaje ha sido enviado. Te contactaremos pronto.");
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(LandingPage));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
