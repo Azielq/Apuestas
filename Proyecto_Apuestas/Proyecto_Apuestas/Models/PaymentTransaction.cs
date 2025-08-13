@@ -19,6 +19,8 @@ public partial class PaymentTransaction
 
     public int PaymentMethodId { get; set; }
 
+    public string? StripePaymentIntentId { get; set; }
+
     [Precision(10, 2)]
     public decimal Amount { get; set; }
 
@@ -44,4 +46,6 @@ public partial class PaymentTransaction
     [ForeignKey("UserId")]
     [InverseProperty("PaymentTransactions")]
     public virtual UserAccount User { get; set; } = null!;
+
+
 }

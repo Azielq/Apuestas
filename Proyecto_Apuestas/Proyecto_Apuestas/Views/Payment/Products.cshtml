@@ -1,0 +1,38 @@
+﻿@model List<Proyecto_Apuestas.Models.ChipProduct>
+
+@{
+    ViewBag.Title = "Comprar Chips";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <h1 class="text-center mb-4">Selecciona tu paquete de chips</h1>
+
+    <div class="row justify-content-center">
+        @foreach (var producto in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@producto.Name</h5>
+                        <p class="card-text">@producto.Description</p>
+                        <p class="card-text">
+                            <strong>@producto.Chips</strong> chips por
+                            <strong>@(producto.PriceInCents / 100.0M):C</strong>
+                        </p>
+                        <button class="btn btn-primary btn-comprar"
+                                data-product-id="@producto.Id"
+                                data-product-name="@producto.Name"
+                                data-product-amount="@producto.PriceInCents">
+                            Comprar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/products.js"></script>
+}

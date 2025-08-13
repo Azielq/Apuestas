@@ -72,6 +72,8 @@ public partial class UserAccount
     [InverseProperty("User")]
     public virtual ICollection<PaymentTransaction> PaymentTransactions { get; set; } = new List<PaymentTransaction>();
 
+
+
     [InverseProperty("User")]
     public virtual ICollection<ReportLog> ReportLogs { get; set; } = new List<ReportLog>();
 

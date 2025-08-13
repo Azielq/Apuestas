@@ -4,6 +4,8 @@ using Proyecto_Apuestas.Configuration;
 using Proyecto_Apuestas.Data;
 using Proyecto_Apuestas.Helpers;
 using Proyecto_Apuestas.Services;
+using Proyecto_Apuestas.Services.Implementations;
+using Proyecto_Apuestas.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,10 @@ builder.Services.AddDbContext<apuestasDbContext>(options =>
 
 // Register application services, AutoMapper, Authentication, Authorization, and Session
 builder.Services.AddApplicationServices(builder.Configuration);
+
+// Stripe Service
+builder.Services.AddScoped<IStripeService, StripeService>();
+builder.Services.AddSingleton<IProductService, ProductService>();
 
 var app = builder.Build();
 
@@ -168,3 +174,4 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+

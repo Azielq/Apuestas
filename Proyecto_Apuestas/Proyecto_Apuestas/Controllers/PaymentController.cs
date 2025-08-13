@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Proyecto_Apuestas.Services;
+using Proyecto_Apuestas.Services.Implementations;
 using Proyecto_Apuestas.Services.Interfaces;
 using Proyecto_Apuestas.ViewModels;
 
@@ -11,17 +13,26 @@ namespace Proyecto_Apuestas.Controllers
         private readonly IPaymentService _paymentService;
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
+        private readonly IStripeService _stripeService;
+        private readonly IProductService _productService;
+
+
 
         public PaymentController(
             IPaymentService paymentService,
             IUserService userService,
             INotificationService notificationService,
+            IStripeService stripeService,
+            IProductService productService,
             ILogger<PaymentController> logger) : base(logger)
         {
             _paymentService = paymentService;
             _userService = userService;
             _notificationService = notificationService;
+            _stripeService = stripeService;
+            _productService = productService; // ✅ Aquí lo guardás
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -227,6 +238,56 @@ namespace Proyecto_Apuestas.Controllers
 
             return View(stats);
         }
+
+        //Seccion Stripe ------------------------------------------------------------------
+
+        //PruebaStripe
+        [HttpGet]
+        [AllowAnonymous] 
+
+        public async Task<IActionResult> TestStripe()
+        {
+            try
+            {
+                decimal montoDePrueba = 50m;
+                var clientSecret = await _stripeService.CreatePaymentIntentAsync(montoDePrueba);
+
+                return Content($"Stripe funciono correctamente. ClientSecret generado: {clientSecret}");
+            }
+            catch (Exception ex)
+            {
+                return Content($"Error al probar Stripe: {ex.Message}");
+            }
+        }
+
+        //Stripe Payment Intent
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateStripePaymentIntent([FromBody] decimal amount)
+        {
+            if (amount <= 0)
+                return JsonError("El monto debe ser mayor a 0");
+
+            try
+            {
+                var clientSecret = await _stripeService.CreatePaymentIntentAsync(amount);
+                return JsonSuccess(new { clientSecret });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear el PaymentIntent de Stripe");
+                return JsonError("No se pudo crear el pago con Stripe");
+            }
+        }
+
+        public IActionResult Products()
+        {
+            var productos = _productService.GetAvailableProducts();
+            return View(productos);
+        }
+
+
+
 
         // Métodos privados
         private async Task LoadDepositViewData(DepositViewModel model)
