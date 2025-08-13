@@ -38,7 +38,22 @@ namespace Proyecto_Apuestas.Controllers
 
             return View(upcomingEvents);
         }
+        public async Task<IActionResult> LandingPage()
+        {
+            var upcomingEvents = await _eventService.GetUpcomingEventsByCategoryAsync();
 
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = _userService.GetCurrentUserId();
+                var activeBets = await _bettingService.GetActiveBetsByUserAsync(userId);
+                ViewBag.ActiveBetsCount = activeBets.Count;
+
+                var user = await _userService.GetCurrentUserAsync();
+                ViewBag.UserBalance = user?.CreditBalance ?? 0;
+            }
+
+            return View(upcomingEvents);
+        }
         public IActionResult Privacy()
         {
             return View();
