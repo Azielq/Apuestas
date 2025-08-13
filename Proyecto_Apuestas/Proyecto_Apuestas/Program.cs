@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Proyecto_Apuestas.Configuration;
 using Proyecto_Apuestas.Data;
 using Proyecto_Apuestas.Helpers;
@@ -43,7 +42,7 @@ using (var scope = app.Services.CreateScope())
 {
     var validationService = scope.ServiceProvider.GetRequiredService<IStartupValidationService>();
     var diagnosticsService = scope.ServiceProvider.GetRequiredService<IConfigurationDiagnosticsService>();
-    
+
     // Validate JSON files first
     var jsonValid = await diagnosticsService.ValidateJsonFilesAsync();
     if (!jsonValid)
@@ -52,14 +51,14 @@ using (var scope = app.Services.CreateScope())
     }
 
     var isValid = await validationService.ValidateAllConfigurationsAsync();
-    
+
     if (!isValid)
     {
         var errors = await validationService.GetValidationErrorsAsync();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogCritical("Application startup failed due to configuration errors: {Errors}", 
+        logger.LogCritical("Application startup failed due to configuration errors: {Errors}",
             string.Join(", ", errors));
-        
+
         if (!app.Environment.IsDevelopment())
         {
             throw new InvalidOperationException($"Configuration validation failed: {string.Join(", ", errors)}");
@@ -67,7 +66,7 @@ using (var scope = app.Services.CreateScope())
         else
         {
             logger.LogWarning("Development mode: Continuing despite configuration errors");
-            
+
             // Generate diagnostics report in development
             var report = await diagnosticsService.GenerateConfigurationReportAsync();
             logger.LogInformation("Configuration Diagnostics Report:\n{Report}", report);
@@ -116,8 +115,9 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 // Health check endpoint
-app.MapGet("/health", () => Results.Ok(new { 
-    Status = "Healthy", 
+app.MapGet("/health", () => Results.Ok(new
+{
+    Status = "Healthy",
     Timestamp = DateTime.UtcNow,
     Version = ConfigurationHelper.ApplicationSettingsTyped.Version,
     Environment = ConfigurationHelper.ApplicationSettingsTyped.Environment
@@ -176,7 +176,7 @@ if (app.Environment.IsDevelopment())
             },
             Timestamp = DateTime.UtcNow
         };
-        
+
         return Results.Ok(overview);
     });
 }

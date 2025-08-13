@@ -29,8 +29,8 @@ namespace Proyecto_Apuestas.Services.Implementations
             _configuration = configuration;
 
             // Configuración de la API
-            _apiKey = configuration["OddsApi:ApiKey"] ?? "d987329b3f5c3b08d0ba38ea3014abe2";
-            _baseUrl = configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/";
+            _apiKey = configuration["OddsApi:ApiKey"];
+            _baseUrl = configuration["OddsApi:BaseUrl"];
 
             _httpClient.BaseAddress = new Uri(_baseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Clear();
