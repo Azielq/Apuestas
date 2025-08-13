@@ -20,6 +20,18 @@ builder.Services.AddDbContext<apuestasDbContext>(options =>
 // Register application services, AutoMapper, Authentication, Authorization, and Session
 builder.Services.AddApplicationServices(builder.Configuration);
 
+builder.Services.AddScoped<IOddsService, OddsService>();
+
+builder.Services.AddHttpClient<IOddsApiService, OddsApiService>(client =>
+{
+    var configuration = builder.Configuration;
+    var baseUrl = configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/v4";
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    client.DefaultRequestHeaders.Add("User-Agent", "ProyectoApuestas/1.0");
+});
+
 var app = builder.Build();
 
 // Initialize configuration helper with both configuration and service provider
@@ -169,17 +181,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-builder.Services.AddScoped<IOddsService, OddsService>();
 
-builder.Services.AddHttpClient<IOddsApiService, OddsApiService>(client =>
-{
-    var configuration = builder.Configuration;
-    var baseUrl = configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/v4";
-    client.BaseAddress = new Uri(baseUrl);
-    client.Timeout = TimeSpan.FromSeconds(30);
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.DefaultRequestHeaders.Add("User-Agent", "ProyectoApuestas/1.0");
-});
 
 
 
