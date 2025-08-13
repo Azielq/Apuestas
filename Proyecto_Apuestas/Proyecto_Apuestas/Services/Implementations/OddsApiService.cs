@@ -30,7 +30,7 @@ namespace Proyecto_Apuestas.Services.Implementations
 
             // Configuración de la API
             _apiKey = configuration["OddsApi:ApiKey"] ?? "d987329b3f5c3b08d0ba38ea3014abe2";
-            _baseUrl = configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/v4";
+            _baseUrl = configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/";
 
             _httpClient.BaseAddress = new Uri(_baseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -41,7 +41,7 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var response = await _httpClient.GetAsync($"/sports?apiKey={_apiKey}");
+                var response = await _httpClient.GetAsync($"v4/sports?apiKey={_apiKey}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -74,7 +74,7 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var url = $"/sports/{sportKey}/events?apiKey={_apiKey}";
+                var url = $"v4/sports/{sportKey}/events?apiKey={_apiKey}";
 
                 if (!string.IsNullOrEmpty(regions))
                     url += $"&regions={regions}";
@@ -108,7 +108,7 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var url = $"/sports/{sportKey}/events/live?apiKey={_apiKey}";
+                var url = $"v4/sports/{sportKey}/events/live?apiKey={_apiKey}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
@@ -134,7 +134,7 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var url = $"/sports/{sportKey}/events/{eventId}?apiKey={_apiKey}";
+                var url = $"v4/sports/{sportKey}/events/{eventId}?apiKey={_apiKey}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
@@ -160,7 +160,7 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var url = $"/sports/{sportKey}/odds?apiKey={_apiKey}";
+                var url = $"v4/sports/{sportKey}/odds?apiKey={_apiKey}";
 
                 if (!string.IsNullOrEmpty(regions))
                     url += $"&regions={regions}";
@@ -196,7 +196,7 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var url = $"/sports/{sportKey}/odds-live?apiKey={_apiKey}&markets=h2h";
+                var url = $"v4/sports/{sportKey}/odds-live?apiKey={_apiKey}&markets=h2h";
                 var response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
@@ -361,7 +361,7 @@ namespace Proyecto_Apuestas.Services.Implementations
             try
             {
                 // Hacer una llamada simple para obtener los headers con información de uso
-                var response = await _httpClient.GetAsync($"/sports?apiKey={_apiKey}&all=false");
+                var response = await _httpClient.GetAsync($"v4/sports?apiKey={_apiKey}&all=false");
 
                 if (response.Headers.TryGetValues("x-requests-used", out var used) &&
                     response.Headers.TryGetValues("x-requests-remaining", out var remaining))
@@ -386,7 +386,7 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var response = await _httpClient.GetAsync($"/sports?apiKey={_apiKey}&all=false");
+                var response = await _httpClient.GetAsync($"v4/sports?apiKey={_apiKey}&all=false");
                 return response.IsSuccessStatusCode;
             }
             catch
