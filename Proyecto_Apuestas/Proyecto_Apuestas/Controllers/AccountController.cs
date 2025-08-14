@@ -49,64 +49,36 @@ namespace Proyecto_Apuestas.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+                return Json(new { success = false, message = "Datos inválidos." });
 
-            // NOTE: Esto nos verifica intentos fallidos
             var failedAttempts = await _userService.GetFailedLoginAttemptsAsync(model.Email, TimeSpan.FromHours(1));
             if (failedAttempts >= 5)
-            {
-                AddModelErrors("Demasiados intentos fallidos. Por favor intenta más tarde.");
-                return View(model);
-            }
+                return Json(new { success = false, message = "Demasiados intentos fallidos." });
 
             var user = await _userService.GetUserByEmailAsync(model.Email);
             if (user == null)
-            {
-                await _userService.RecordLoginAttemptAsync(model.Email, false);
-                AddModelErrors("Email o contraseña incorrectos");
-                return View(model);
-            }
+                return Json(new { success = false, message = "Email o contraseña incorrectos." });
 
-            //  NOTE: Esto nos verifica si la cuenta está bloqueada
             if (user.LockedUntil.HasValue && user.LockedUntil.Value > DateTime.Now)
-            {
-                AddModelErrors($"Tu cuenta está bloqueada hasta {user.LockedUntil.Value:dd/MM/yyyy HH:mm}");
-                return View(model);
-            }
+                return Json(new { success = false, message = $"Tu cuenta está bloqueada hasta {user.LockedUntil.Value:dd/MM/yyyy HH:mm}" });
 
-            //  NOTE: Esto nos verifica la contraseña
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
             if (result == PasswordVerificationResult.Failed)
-            {
-                await _userService.RecordLoginAttemptAsync(model.Email, false);
-                AddModelErrors("Email o contraseña incorrectos");
-                return View(model);
-            }
+                return Json(new { success = false, message = "Email o contraseña incorrectos." });
 
-            // Login exitoso
-            await _userService.RecordLoginAttemptAsync(model.Email, true);
             await SignInAsync(user, model.RememberMe);
 
-            if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-            {
-                return Redirect(model.ReturnUrl);
-            }
-
-            return RedirectToAction("Index", "Home");
+            return Json(new { success = true, message = "¡Bienvenido!" });
         }
 
         [HttpGet]
         public IActionResult Register()
         {
             if (User.Identity?.IsAuthenticated == true)
-            {
                 return RedirectToAction("Index", "Home");
-            }
 
             return View();
         }
@@ -116,21 +88,25 @@ namespace Proyecto_Apuestas.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
+                return View(model);
+
+            // Validar con Email y UserName 
+            if (await _context.UserAccounts.AnyAsync(u => u.Email == model.Email))
             {
+                ModelState.AddModelError(nameof(model.Email), "El correo ya está registrado.");
+                return View(model);
+            }
+
+            if (await _context.UserAccounts.AnyAsync(u => u.UserName == model.UserName))
+            {
+                ModelState.AddModelError(nameof(model.UserName), "El usuario ya existe.");
                 return View(model);
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Obtiene rol por defecto
-                var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Regular");
-                if (defaultRole == null)
-                {
-                    AddModelErrors("Error en la configuración del sistema");
-                    return View(model);
-                }
-
+                // Crear usuario
                 var user = new UserAccount
                 {
                     UserName = model.UserName,
@@ -142,7 +118,7 @@ namespace Proyecto_Apuestas.Controllers
                     PhoneNumber = model.PhoneNumber,
                     Country = model.Country,
                     BirthDate = model.BirthDate,
-                    RoleId = defaultRole.RoleId,
+                    RoleId = 2, // Rol "User"
                     CreditBalance = 0,
                     IsActive = true,
                     CreatedAt = DateTime.Now,
@@ -152,26 +128,26 @@ namespace Proyecto_Apuestas.Controllers
                 _context.UserAccounts.Add(user);
                 await _context.SaveChangesAsync();
 
-                // Envía notificaciones
                 await _notificationService.SendWelcomeNotificationAsync(user.UserId);
                 await _emailService.SendWelcomeEmailAsync(user.Email, user.UserName);
 
                 await transaction.CommitAsync();
 
-                // Auto login
                 await SignInAsync(user, false);
 
-                AddSuccessMessage("¡Registro exitoso! Bienvenido a Proyecto Apuestas.");
+                TempData["SuccessMessage"] = "¡Registro exitoso! Bienvenido a Proyecto Apuestas.";
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError(ex, "Error during user registration");
-                AddModelErrors("Ocurrió un error durante el registro. Por favor intenta nuevamente.");
+                _logger.LogError(ex, "Error durante el registro de usuario");
+                ModelState.AddModelError("", "Ocurrió un error durante el registro. Por favor intenta nuevamente.");
                 return View(model);
             }
         }
+
+
 
         [Authorize]
         public async Task<IActionResult> Logout()
@@ -312,14 +288,15 @@ namespace Proyecto_Apuestas.Controllers
         private async Task SignInAsync(UserAccount user, bool isPersistent)
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.RoleName)
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, "User")
+    };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = isPersistent,
@@ -331,5 +308,6 @@ namespace Proyecto_Apuestas.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
         }
+
     }
 }
