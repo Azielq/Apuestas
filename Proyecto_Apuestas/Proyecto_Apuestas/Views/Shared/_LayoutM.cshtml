@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Bet506 | Apuestas Deportivas Costa Rica</title>
 
+    @await RenderSectionAsync("Styles", required: false)
     @await Html.PartialAsync("_StylesCDN")
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/css/Layout.css" asp-append-version="true" />
 </head>
 <body>
 
@@ -173,7 +171,6 @@
 
     <!-- SCRIPTS -->
     @await Html.PartialAsync("_ScriptsCDN")
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function abrirLogin() {
             var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
