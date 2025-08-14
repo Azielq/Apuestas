@@ -1,263 +1,186 @@
 ﻿@using Proyecto_Apuestas.ViewModels.API
 @model SportEventsViewModel
 @{
+    Layout = "_LayoutM";
     ViewData["Title"] = $"Eventos - {Model.Sport?.Title ?? "Deportes"}";
     var regions = ViewBag.Regions as Dictionary<string, string>;
     var markets = ViewBag.Markets as Dictionary<string, string>;
 }
 
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
 
-<div class="container-fluid py-4">
+
+<div class="container py-4">
+
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb bg-dark-2 px-3 py-2">
-            <li class="breadcrumb-item"><a href="@Url.Action("Index", "OddsApi")">Cuotas API</a></li>
-            <li class="breadcrumb-item"><a href="@Url.Action("Sports", "OddsApi")">Deportes</a></li>
-            <li class="breadcrumb-item active">@Model.Sport?.Title</li>
+        <ol class="breadcrumb bg-dark text-white p-2 rounded">
+            <li class="breadcrumb-item"><a class="text-decoration-none text-white" href="@Url.Action("Index", "OddsApi")">Cuotas API</a></li>
+            <li class="breadcrumb-item"><a class="text-decoration-none text-white" href="@Url.Action("Sports", "OddsApi")">Deportes</a></li>
+            <li class="breadcrumb-item active text-white" aria-current="page">@Model.Sport?.Title</li>
         </ol>
     </nav>
 
     <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-dark-2 border-primary">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h2 class="mb-0">
-                                <i class="bi bi-calendar-event me-2"></i>@Model.Sport?.Title
-                            </h2>
-                            <p class="text-muted mb-0 mt-2">@Model.Sport?.Description</p>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <button class="btn btn-outline-primary" onclick="refreshEvents()">
-                                    <i class="bi bi-arrow-clockwise"></i> Actualizar
-                                </button>
-                                @if (User.Identity?.IsAuthenticated == true)
-                                {
-                                    <a href="@Url.Action("BetSlip", "Betting")" class="btn btn-primary">
-                                        <i class="bi bi-cart3"></i> Boleto (<span id="betCount">0</span>)
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white"><i class="bi bi-calendar-event me-2"></i>@Model.Sport?.Title</h2>
+        <div>
+            <button class="btn btn-outline-primary me-2" onclick="refreshEvents()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a href="@Url.Action("BetSlip", "Betting")" class="btn btn-primary"><i class="bi bi-cart3"></i> Boleto (<span id="betCount">0</span>)</a>
+            }
         </div>
     </div>
 
     <!-- Filtros -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-dark-3 border-secondary">
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label text-white-50">Región</label>
-                            <select id="regionFilter" class="form-select bg-dark-4 text-white border-secondary">
-                                @if (regions != null)
-                                {
-                                    @foreach (var region in regions)
-                                    {
-                                        @if (Model.Region == region.Key)
-                                        {
-                                            <option value="@region.Key" selected>@region.Value</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@region.Key">@region.Value</option>
-                                        }
-                                    }
-                                }
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-white-50">Tipo de Apuesta</label>
-                            <select id="marketFilter" class="form-select bg-dark-4 text-white border-secondary">
-                                @if (markets != null)
-                                {
-                                    @foreach (var market in markets)
-                                    {
-                                        @if (Model.Market == market.Key)
-                                        {
-                                            <option value="@market.Key" selected>@market.Value</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@market.Key">@market.Value</option>
-                                        }
-                                    }
-                                }
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-white-50">Ordenar por</label>
-                            <select id="sortBy" class="form-select bg-dark-4 text-white border-secondary">
-                                <option value="time">Hora del Evento</option>
-                                <option value="odds">Mejores Cuotas</option>
-                                <option value="team">Equipo</option>
-                            </select>
-                        </div>
-                    </div>
+    <div class="card bg-dark border-secondary mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label text-white-50">Región</label>
+                    <select id="regionFilter" class="form-select bg-dark text-white border-secondary">
+                        @if (regions != null)
+                        {
+                            @foreach (var region in regions)
+                            {
+                                <option value="@region.Key" selected="@(Model.Region == region.Key ? "selected" : null)">
+                                    @region.Value
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-white-50">Tipo de Apuesta</label>
+                    <select id="marketFilter" class="form-select bg-dark text-white border-secondary">
+                        @if (markets != null)
+                        {
+                            @foreach (var market in markets)
+                            {
+                                <option value="@market.Key" selected="@(Model.Market == market.Key ? "selected" : null)">
+                                    @market.Value
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-white-50">Ordenar por</label>
+                    <select id="sortBy" class="form-select bg-dark text-white border-secondary">
+                        <option value="time">Hora del Evento</option>
+                        <option value="odds">Mejores Cuotas</option>
+                        <option value="team">Equipo</option>
+                    </select>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Lista de Eventos -->
-    <div class="row">
-        <div class="col-12">
-            <h3 class="mb-3">
-                Próximos Eventos
-                <span class="badge bg-primary">@Model.Events.Count</span>
-            </h3>
-
-            @if (!Model.Events.Any())
+    <!-- Lista de eventos -->
+    @if (!Model.Events.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>No hay eventos disponibles en este momento.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var evt in Model.Events)
             {
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    No hay eventos disponibles en este momento.
-                </div>
-            }
-            else
-            {
-                <div class="row g-3">
-                    @foreach (var evt in Model.Events)
-                    {
-                        <div class="col-12">
-                            <div class="card bg-dark-3 border-secondary event-card">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <!-- Información del Evento -->
-                                        <div class="col-md-4">
-                                            <div class="d-flex flex-column">
-                                                <small class="text-primary mb-1">
-                                                    @evt.CommenceTime.ToString("dd/MM/yyyy HH:mm")
-                                                </small>
-                                                <h5 class="mb-2">
-                                                    <span class="team-name">@evt.HomeTeam</span>
-                                                    <span class="text-muted mx-2">vs</span>
-                                                    <span class="team-name">@evt.AwayTeam</span>
-                                                </h5>
-                                                @if (evt.CommenceTime <= DateTime.Now && evt.CommenceTime >= DateTime.Now.AddHours(-3))
-                                                {
-                                                    <span class="badge bg-danger">
-                                                        <i class="bi bi-broadcast"></i> EN VIVO
-                                                    </span>
-                                                }
-                                            </div>
-                                        </div>
+                <div class="col">
+                    <div class="card h-100 bg-dark text-white border-secondary shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-2">
+                                <small class="text-primary">@evt.CommenceTime.ToString("dd/MM/yyyy HH:mm")</small>
+                                @if (evt.CommenceTime <= DateTime.Now && evt.CommenceTime >= DateTime.Now.AddHours(-3))
+                                {
+                                    <span class="badge bg-danger ms-2"><i class="bi bi-broadcast"></i> EN VIVO</span>
+                                }
+                            </div>
 
-                                        <!-- Cuotas -->
-                                        <div class="col-md-6">
-                                            @if (evt.Bookmakers != null && evt.Bookmakers.Any())
+                            <h5 class="card-title mb-3 text-truncate">
+                                <span>@evt.HomeTeam</span> vs <span>@evt.AwayTeam</span>
+                            </h5>
+
+                            <!-- Cuotas -->
+                            <div class="mb-3">
+                                @if (evt.Bookmakers != null && evt.Bookmakers.Any())
+                                {
+                                    var bestBookmaker = evt.Bookmakers.FirstOrDefault();
+                                    var h2hMarket = bestBookmaker?.Markets?.FirstOrDefault(m => m.Key == "h2h");
+
+                                    if (h2hMarket != null && h2hMarket.Outcomes != null)
+                                    {
+                                        <div class="d-flex gap-2 flex-wrap justify-content-center">
+                                            @foreach (var outcome in h2hMarket.Outcomes)
                                             {
-                                                var bestBookmaker = evt.Bookmakers.FirstOrDefault();
-                                                var h2hMarket = bestBookmaker?.Markets?.FirstOrDefault(m => m.Key == "h2h");
-
-                                                if (h2hMarket != null && h2hMarket.Outcomes != null)
-                                                {
-                                                    <div class="d-flex gap-2 justify-content-center">
-                                                        @foreach (var outcome in h2hMarket.Outcomes)
-                                                        {
-                                                            var oddsValue = outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-                                                            <div class="odds-box">
-                                                                <small class="d-block text-white-50">@outcome.Name</small>
-                                                                <button class="btn btn-outline-primary btn-sm w-100 mt-1"
-                                                                        data-event-id="@evt.Id"
-                                                                        data-sport-key="@Model.SportKey"
-                                                                        data-team-name="@outcome.Name"
-                                                                        data-odds="@oddsValue"
-                                                                        onclick="addToBetSlip(this)">
-                                                                    <strong>@outcome.Price.ToString("0.00")</strong>
-                                                                </button>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                    <div class="text-center mt-2">
-                                                        <small class="text-muted">vía @bestBookmaker.Title</small>
-                                                    </div>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <div class="text-center text-muted">
-                                                    <i class="bi bi-clock-history"></i> Cuotas no disponibles
-                                                </div>
-                                            }
-                                        </div>
-
-                                        <!-- Acciones -->
-                                        <div class="col-md-2">
-                                            <div class="d-flex flex-column gap-2">
-                                                <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = Model.SportKey, eventId = evt.Id })"
-                                                   class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> Ver Detalles
-                                                </a>
-                                                <button class="btn btn-sm btn-outline-success"
+                                                <button class="btn btn-outline-primary btn-sm text-white"
                                                         data-event-id="@evt.Id"
                                                         data-sport-key="@Model.SportKey"
-                                                        onclick="syncEventToLocal(this)">
-                                                    <i class="bi bi-cloud-download"></i> Sincronizar
+                                                        data-team-name="@outcome.Name"
+                                                        data-odds="@outcome.Price"
+                                                        onclick="addToBetSlip(this)">
+                                                    @outcome.Name <br /> <strong>@outcome.Price.ToString("0.00")</strong>
                                                 </button>
-                                            </div>
+                                            }
                                         </div>
-                                    </div>
-                                </div>
+                                        <div class="text-center mt-2">
+                                            <small class="text-muted">vía @bestBookmaker.Title</small>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted"><i class="bi bi-clock-history"></i> Cuotas no disponibles</div>
+                                }
+                            </div>
+
+                            <!-- Acciones -->
+                            <div class="mt-auto d-flex justify-content-between">
+                                <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = Model.SportKey, eventId = evt.Id })"
+                                   class="btn btn-primary btn-sm"><i class="bi bi-eye"></i> Ver Detalles</a>
+                                <button class="btn btn-outline-success btn-sm"
+                                        data-event-id="@evt.Id"
+                                        data-sport-key="@Model.SportKey"
+                                        onclick="syncEventToLocal(this)">
+                                    <i class="bi bi-cloud-download"></i> Sincronizar
+                                </button>
                             </div>
                         </div>
-                    }
+                    </div>
                 </div>
-
-                <!-- Paginación (si tienes muchos eventos) -->
-                @if (Model.Events.Count > 20)
-                {
-                    <nav aria-label="Paginación de eventos" class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link bg-dark-3 border-secondary">Anterior</a>
-                            </li>
-                            <li class="page-item active">
-                                <a class="page-link bg-primary border-primary">1</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link bg-dark-3 border-secondary text-white">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link bg-dark-3 border-secondary text-white">Siguiente</a>
-                            </li>
-                        </ul>
-                    </nav>
-                }
             }
         </div>
-    </div>
+    }
 </div>
 
-<!-- Modal de Apuesta Rápida -->
+<!-- Modal Apuesta Rápida -->
 <div class="modal fade" id="quickBetModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark-2 text-white">
-            <div class="modal-header border-primary">
+        <div class="modal-content bg-dark text-white border-primary">
+            <div class="modal-header border-bottom border-primary">
                 <h5 class="modal-title">Apuesta Rápida</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div id="quickBetDetails"></div>
-                <div class="form-group mt-3">
-                    <label for="quickBetAmount">Monto a Apostar</label>
-                    <input type="number" class="form-control bg-dark-3 text-white" id="quickBetAmount" min="100" step="100">
-                    <small class="text-muted">Mínimo: ₡100</small>
-                </div>
-                <div class="mt-3">
+                <div id="quickBetDetails" class="mb-3"></div>
+                <label for="quickBetAmount" class="form-label">Monto a Apostar</label>
+                <input type="number" id="quickBetAmount" class="form-control bg-dark text-white mb-2" min="100" step="100">
+                <small class="text-muted">Mínimo: ₡100</small>
+                <div class="mt-2">
                     <strong>Ganancia Potencial: <span id="potentialWin">₡0</span></strong>
                 </div>
             </div>
-            <div class="modal-footer border-primary">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="confirmQuickBet()">Confirmar Apuesta</button>
+            <div class="modal-footer border-top border-primary">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmQuickBet()">Confirmar Apuesta</button>
             </div>
         </div>
     </div>
@@ -265,205 +188,77 @@
 
 @section Scripts {
     <script>
-        let currentBet = {};
+        function addToBetSlip(btn) {
+            const team = btn.dataset.teamName;
+            const odds = parseFloat(btn.dataset.odds);
+            const eventId = btn.dataset.eventId;
+            const sportKey = btn.dataset.sportKey;
 
-        $(document).ready(function() {
-            // Actualizar conteo de apuestas en el boleto
-            updateBetCount();
+            const modalEl = document.getElementById('quickBetModal');
+            const modal = new bootstrap.Modal(modalEl);
 
-            // Cambio de filtros
-            $('#regionFilter, #marketFilter').change(function() {
-                applyFilters();
-            });
+            document.getElementById('quickBetDetails').innerText = `Apostar a: ${team} (${odds.toFixed(2)})`;
+            document.getElementById('quickBetAmount').value = 100;
+            document.getElementById('potentialWin').innerText = `₡${(100 * odds).toFixed(0)}`;
 
-            // Ordenamiento
-            $('#sortBy').change(function() {
-                sortEvents($(this).val());
-            });
+            // Guardar datos
+            modalEl._eventId = eventId;
+            modalEl._sportKey = sportKey;
+            modalEl._team = team;
+            modalEl._odds = odds;
+
+            modal.show();
+        }
+
+        document.getElementById('quickBetAmount').addEventListener('input', function() {
+            const modalEl = document.getElementById('quickBetModal');
+            const amount = parseFloat(this.value) || 0;
+            document.getElementById('potentialWin').innerText = `₡${(amount * modalEl._odds).toFixed(0)}`;
         });
 
-        function refreshEvents() {
-            location.reload();
-        }
-
-        function applyFilters() {
-            var region = $('#regionFilter').val();
-            var market = $('#marketFilter').val();
-            var url = '@Url.Action("Events", "OddsApi", new { sportKey = Model.SportKey })';
-            url += '?region=' + region + '&market=' + market;
-            window.location.href = url;
-        }
-
-        function addToBetSlip(button) {
-            var eventId = $(button).data('event-id');
-            var sportKey = $(button).data('sport-key');
-            var teamName = $(button).data('team-name');
-            var odds = parseFloat($(button).data('odds'));
-
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                    <text>
-                    currentBet = {
-                        eventId: eventId,
-                        sportKey: sportKey,
-                        teamName: teamName,
-                        odds: odds
-                    };
-
-                    $('#quickBetDetails').html(`
-                        <p><strong>Equipo:</strong> ${teamName}</p>
-                        <p><strong>Cuota:</strong> ${odds}</p>
-                    `);
-
-                    $('#quickBetAmount').val(1000);
-                    calculatePotentialWin();
-
-                    $('#quickBetModal').modal('show');
-                    </text>
-            }
-            else
-            {
-                    <text>
-                    toastr.warning('Debe iniciar sesión para apostar');
-                    setTimeout(function() {
-                        window.location.href = '@Url.Action("Login", "Account")';
-                    }, 2000);
-                    </text>
-            }
-        }
-
-        function calculatePotentialWin() {
-            var amount = parseFloat($('#quickBetAmount').val()) || 0;
-            var potential = amount * currentBet.odds;
-            $('#potentialWin').text('₡' + potential.toFixed(2));
-        }
-
-        $('#quickBetAmount').on('input', calculatePotentialWin);
-
         function confirmQuickBet() {
-            var amount = parseFloat($('#quickBetAmount').val());
+            const modalEl = document.getElementById('quickBetModal');
+            const amount = parseFloat(document.getElementById('quickBetAmount').value);
 
-            if (amount < 100) {
-                toastr.error('El monto mínimo es ₡100');
-                return;
-            }
+            console.log(`Apostando ₡${amount} a ${modalEl._team} en evento ${modalEl._eventId}`);
+            // Aquí llama tu controlador para registrar la apuesta
 
-            var betData = {
-                ApiEventId: currentBet.eventId,
-                SportKey: currentBet.sportKey,
-                TeamName: currentBet.teamName,
-                Odds: currentBet.odds,
-                Stake: amount
-            };
-
-            // Redirigir a la página de confirmación de apuesta
-            var form = $('<form>', {
-                'method': 'GET',
-                'action': '@Url.Action("CreateBetFromApi", "OddsApi")'
-            });
-
-            $.each(betData, function(key, value) {
-                form.append($('<input>', {
-                    'type': 'hidden',
-                    'name': key,
-                    'value': value
-                }));
-            });
-
-            form.appendTo('body').submit();
-        }
-
-        function syncEventToLocal(button) {
-            var eventId = $(button).data('event-id');
-            var sportKey = $(button).data('sport-key');
-
-            @if (User.IsInRole("Admin"))
-            {
-                    <text>
-                    if (!confirm('¿Sincronizar este evento con la base de datos local?')) return;
-
-                    $.post('@Url.Action("SyncEvents", "OddsApi")', { sportKey: sportKey }, function(response) {
-                        if (response.success) {
-                            toastr.success('Evento sincronizado exitosamente');
-                        } else {
-                            toastr.error('Error al sincronizar el evento');
-                        }
-                    });
-                    </text>
-            }
-            else
-            {
-                    <text>
-                    toastr.info('Solo los administradores pueden sincronizar eventos');
-                    </text>
-            }
-        }
-
-        function updateBetCount() {
-            // Aquí podrías hacer una llamada AJAX para obtener el conteo real
-            // Por ahora es solo un ejemplo
-            $('#betCount').text('0');
-        }
-
-        function sortEvents(sortBy) {
-            // Implementar ordenamiento del lado del cliente si es necesario
-            console.log('Ordenar por: ' + sortBy);
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
         }
     </script>
 }
 
 @section Styles {
     <style>
-        .event-card {
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent !important;
+        body {
+            background-color: #121212;
+            color: #fff;
         }
 
-            .event-card:hover {
-                border-left-color: var(--bs-primary) !important;
-                transform: translateX(5px);
-            }
+        .card {
+            border-radius: 0.5rem;
+        }
 
-        .team-name {
+        .card-title {
             font-weight: 500;
+            color: #fff;
         }
 
-        .odds-box {
-            flex: 1;
-            max-width: 120px;
-            text-align: center;
+        .btn-outline-primary {
+            transition: transform 0.2s ease;
         }
 
-            .odds-box button {
-                transition: all 0.2s ease;
+            .btn-outline-primary:hover {
+                transform: scale(1.05);
             }
-
-                .odds-box button:hover {
-                    transform: scale(1.05);
-                    background-color: var(--bs-primary) !important;
-                    color: white !important;
-                }
 
         .badge {
             animation: pulse 2s infinite;
         }
 
-        @@keyframes pulse {
-            0% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.7;
-            }
-
-            100% {
-                opacity: 1;
-            }
-        }
-
-        .modal-content {
-            border: 1px solid var(--bs-primary);
+        .bg-dark {
+            background-color: #1e1e1e !important;
         }
     </style>
 }

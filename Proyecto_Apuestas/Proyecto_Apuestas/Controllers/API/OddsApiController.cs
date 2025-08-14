@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Proyecto_Apuestas.Models;
+using Proyecto_Apuestas.Models.API;
 using Proyecto_Apuestas.Services.Interfaces;
 using Proyecto_Apuestas.ViewModels;
-using System.Collections.Generic;
 using Proyecto_Apuestas.ViewModels.API;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Proyecto_Apuestas.Controllers
 {
@@ -94,30 +97,233 @@ namespace Proyecto_Apuestas.Controllers
         }
 
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> EventDetails(string sportKey, string eventId)
         {
-            var eventDetails = await _oddsApiService.GetEventAsync(sportKey, eventId);
-            if (eventDetails == null)
+            var demoEvents = CreateDemoEvents();
+            var simulatedEvents = new List<EventApiModel>();
+
+            if (sportKey == "basketball_nba" || sportKey == "baseball_mlb")
             {
-                return NotFound();
+                simulatedEvents = CreateSimulatedLiveEvents(
+                    sportKey,
+                    sportKey == "basketball_nba" ? "NBA" : "MLB"
+                );
             }
 
-            var viewModel = new OddsEventDetailsViewModel
-            {
-                Event = eventDetails,
-                SportKey = sportKey
-            };
+            var localEvent = demoEvents.Concat(simulatedEvents)
+                                       .FirstOrDefault(e => e.Id == eventId);
 
-            // Si el usuario está autenticado, verificar si puede apostar
-            if (User.Identity?.IsAuthenticated == true)
+            if (localEvent != null)
             {
-                var user = await _userService.GetCurrentUserAsync();
-                viewModel.UserBalance = user?.CreditBalance ?? 0;
-                viewModel.CanBet = viewModel.UserBalance > 0;
+                return View(localEvent);
             }
 
-            return View(viewModel);
+            var eventData = await _oddsApiService.GetEventAsync(sportKey, eventId);
+
+            if (eventData == null)
+            {
+                ViewBag.ErrorMessage = "El evento no existe o no está disponible.";
+                return View(); 
+            }
+
+            return View(eventData);
         }
+
+
+        private List<EventApiModel> CreateSimulatedLiveEvents(string sportKey, string sportTitle)
+        {
+            var random = new Random();
+            var liveEvents = new List<EventApiModel>();
+
+            if (sportKey == "baseball_mlb")
+            {
+                var mlbTeams = new[]
+                {
+                    ("New York Yankees", "Minnesota Twins"),
+                    ("Los Angeles Dodgers", "San Francisco Giants"),
+                    ("Boston Red Sox", "Tampa Bay Rays"),
+                    ("Houston Astros", "Oakland Athletics"),
+                    ("Chicago Cubs", "Milwaukee Brewers")
+                };
+
+                foreach (var (home, away) in mlbTeams.Take(3))
+                {
+                    var homeScore = random.Next(0, 8);
+                    var awayScore = random.Next(0, 8);
+
+                    liveEvents.Add(new EventApiModel
+                    {
+                        Id = $"sim_mlb_{Guid.NewGuid().ToString("N")[..8]}",
+                        SportKey = sportKey,
+                        SportTitle = sportTitle,
+                        CommenceTime = DateTime.UtcNow.AddMinutes(-random.Next(30, 180)),
+                        HomeTeam = home,
+                        AwayTeam = away,
+                        Completed = false,
+                        Scores = new ScoreModel
+                        {
+                            Score = $"{home} {homeScore} - {away} {awayScore}",
+                            Name = "Live Score"
+                        },
+                        Bookmakers = new List<BookmakerModel>
+                        {
+                            new BookmakerModel
+                            {
+                                Title = "Live Odds",
+                                Markets = new List<MarketModel>
+                                {
+                                    new MarketModel
+                                    {
+                                        Key = "h2h",
+                                        LastUpdate = DateTime.UtcNow,
+                                        Outcomes = new List<OutcomeModel>
+                                        {
+                                            new OutcomeModel { Name = home, Price = Math.Round((decimal)(1.5 + random.NextDouble()), 2) },
+                                            new OutcomeModel { Name = away, Price = Math.Round((decimal)(1.5 + random.NextDouble()), 2) }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            else if (sportKey == "basketball_nba")
+            {
+                var nbaTeams = new[]
+                {
+                    ("Los Angeles Lakers", "Boston Celtics"),
+                    ("Golden State Warriors", "Miami Heat"),
+                    ("Chicago Bulls", "New York Knicks"),
+                    ("Phoenix Suns", "Dallas Mavericks")
+                };
+
+                foreach (var (home, away) in nbaTeams.Take(2))
+                {
+                    var homeScore = random.Next(80, 130);
+                    var awayScore = random.Next(80, 130);
+
+                    liveEvents.Add(new EventApiModel
+                    {
+                        Id = $"sim_nba_{Guid.NewGuid().ToString("N")[..8]}",
+                        SportKey = sportKey,
+                        SportTitle = sportTitle,
+                        CommenceTime = DateTime.UtcNow.AddMinutes(-random.Next(30, 120)),
+                        HomeTeam = home,
+                        AwayTeam = away,
+                        Completed = false,
+                        Scores = new ScoreModel
+                        {
+                            Score = $"{home} {homeScore} - {away} {awayScore}",
+                            Name = "Live Score"
+                        },
+                        Bookmakers = new List<BookmakerModel>
+                        {
+                            new BookmakerModel
+                            {
+                                Title = "Live Odds",
+                                Markets = new List<MarketModel>
+                                {
+                                    new MarketModel
+                                    {
+                                        Key = "h2h",
+                                        LastUpdate = DateTime.UtcNow,
+                                        Outcomes = new List<OutcomeModel>
+                                        {
+                                            new OutcomeModel { Name = home, Price = Math.Round((decimal)(1.7 + random.NextDouble() * 0.6), 2) },
+                                            new OutcomeModel { Name = away, Price = Math.Round((decimal)(1.7 + random.NextDouble() * 0.6), 2) }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            return liveEvents;
+        }
+
+        private List<EventApiModel> CreateDemoEvents()
+        {
+            return new List<EventApiModel>
+            {
+                new EventApiModel
+                {
+                    Id = "demo_live_1",
+                    SportKey = "baseball_mlb",
+                    SportTitle = "MLB",
+                    CommenceTime = DateTime.UtcNow.AddMinutes(-30),
+                    HomeTeam = "New York Yankees",
+                    AwayTeam = "Minnesota Twins",
+                    Completed = false,
+                    Scores = new ScoreModel
+                    {
+                        Score = "Yankees 4 - Twins 2",
+                        Name = "Live Score"
+                    },
+                    Bookmakers = new List<BookmakerModel>
+                    {
+                        new BookmakerModel
+                        {
+                            Title = "Demo Bookmaker",
+                            Markets = new List<MarketModel>
+                            {
+                                new MarketModel
+                                {
+                                    Key = "h2h",
+                                    LastUpdate = DateTime.UtcNow,
+                                    Outcomes = new List<OutcomeModel>
+                                    {
+                                        new OutcomeModel { Name = "New York Yankees", Price = 1.75m },
+                                        new OutcomeModel { Name = "Minnesota Twins", Price = 2.10m }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                new EventApiModel
+                {
+                    Id = "demo_live_2",
+                    SportKey = "basketball_nba",
+                    SportTitle = "NBA",
+                    CommenceTime = DateTime.UtcNow.AddMinutes(-45),
+                    HomeTeam = "Los Angeles Lakers",
+                    AwayTeam = "Boston Celtics",
+                    Completed = false,
+                    Scores = new ScoreModel
+                    {
+                        Score = "Lakers 98 - Celtics 94",
+                        Name = "Live Score"
+                    },
+                    Bookmakers = new List<BookmakerModel>
+                    {
+                        new BookmakerModel
+                        {
+                            Title = "Demo Bookmaker",
+                            Markets = new List<MarketModel>
+                            {
+                                new MarketModel
+                                {
+                                    Key = "h2h",
+                                    LastUpdate = DateTime.UtcNow,
+                                    Outcomes = new List<OutcomeModel>
+                                    {
+                                        new OutcomeModel { Name = "Los Angeles Lakers", Price = 1.85m },
+                                        new OutcomeModel { Name = "Boston Celtics", Price = 1.95m }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> LiveEvents()

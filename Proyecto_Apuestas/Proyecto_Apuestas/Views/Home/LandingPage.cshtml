@@ -9,7 +9,6 @@
 
 <link rel="stylesheet" href="~/css/LandingP.css" />
 
-
 <!-- Barra de búsqueda -->
 <section class="search-section py-2">
     <div class="container">
@@ -24,7 +23,7 @@
 <!-- Sección Promocional -->
 <section class="promo-section pt-0">
     <div class="container-fluid px-0">
-        <div class="row g-0 align-items-stretch flyer-row">
+        <div class="row align-items-stretch flyer-row">
             <div class="col-md-6 text-section d-flex align-items-center justify-content-center">
                 <div class="promo-text w-100 ps-5">
                     <h6 class="promotions">SIGN UP & GET REWARD</h6>
@@ -32,7 +31,7 @@
                         <span class="text-white-bold">UP TO</span>
                         <span class="text-price">$20,000</span>
                     </h1>
-                    <a href="/account/register" class="btn btn-signup btn-lg">Create Account</a>
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-signup btn-lg">Create Account</a>
                 </div>
             </div>
             <div class="col-md-6 image-section d-flex align-items-center justify-content-center">
@@ -44,81 +43,239 @@
 
 <div class="container-fluid py-5">
 
-    @foreach (var sportGroup in Model.ActiveSports.GroupBy(s => s.Group))
+    <!-- Eventos EN VIVO -->
+    @if(ViewBag.LiveEvents != null)
     {
-        foreach (var sport in sportGroup)
+        var liveEvents = ViewBag.LiveEvents as Dictionary<string, List<EventApiModel>>;
+        if(liveEvents != null && liveEvents.Any())
         {
-            <div class="row mb-4 align-items-center">
-                <div class="col-md-6">
-                    <h3 class="text-white">@sport.Title</h3>
+            <div class="mb-5">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="text-white">
+                            <i class="fas fa-circle text-danger mr-2"></i>
+                            Eventos EN VIVO
+                            <span class="badge badge-danger ml-2">LIVE</span>
+                        </h2>
+                    </div>
                 </div>
-                <div class="col-md-6 text-end">
-                    <a href="@Url.Action("Events", "OddsApi", new { sportKey = sport.Key })" class="btn btn-outline-primary">
-                        Ver Todos
-                    </a>
-                </div>
-            </div>
 
-            <div class="row g-3 mb-5 event-cards" data-sport="@sport.Key">
-                @{
-                    var events = ViewBag.SportEvents[sport.Key] as List<EventApiModel>;
-                    if (events != null && events.Any())
+                @foreach(var sport in liveEvents)
+                {
+                    var sportTitle = sport.Key.Replace("_", " ").ToUpper();
+                    var sportInfo = Model.ActiveSports.FirstOrDefault(s => s.Key == sport.Key);
+                    if(sportInfo != null)
                     {
-                        foreach (var e in events)
+                        sportTitle = sportInfo.Title;
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h4 class="text-primary">@sportTitle</h4>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        @foreach(var evt in sport.Value)
                         {
-                            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                                <div class="card bg-dark-3 border-secondary h-100 shadow-sm">
-                                    <div class="card-header bg-dark-4 text-primary d-flex justify-content-between align-items-center">
-                                        @if(e.CommenceTime != DateTime.MinValue)
-                                        {
-                                            <span>@e.CommenceTime.ToString("dd/MM/yyyy HH:mm")</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Próximo</span>
-                                        }
-                                        <a href="@Url.Action("EventDetails", "OddsApi", new { id = e.Id })" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-box-arrow-in-right"></i>
-                                        </a>
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                                <div class="card bg-dark text-white border-danger">
+                                    <div class="card-header bg-danger">
+                                        <strong>EN VIVO</strong>
+                                        <small class="float-right">@evt.CommenceTime.ToString("HH:mm")</small>
                                     </div>
-                                    <div class="card-body d-flex flex-column justify-content-between">
-                                        <h6 class="text-white text-truncate">@e.HomeTeam vs @e.AwayTeam</h6>
-                                        <p class="text-success mb-2">
-                                            @if(e.Scores != null && !string.IsNullOrEmpty(e.Scores.Score))
+                                    <div class="card-body">
+                                        <h6>@evt.HomeTeam vs @evt.AwayTeam</h6>
+                                        @if(evt.Scores != null && !string.IsNullOrEmpty(evt.Scores.Score))
+                                        {
+                                            <p class="text-success"><strong>@evt.Scores.Score</strong></p>
+                                        }
+                                        @if(evt.Bookmakers != null && evt.Bookmakers.Any())
+                                        {
+                                            var bookmaker = evt.Bookmakers.First();
+                                            if(bookmaker.Markets != null && bookmaker.Markets.Any())
                                             {
-                                                @e.Scores.Score
-                                            }
-                                            else
-                                            {
-                                                <span>Próximo</span>
-                                            }
-                                        </p>
-                                        <div class="mt-auto">
-                                            @foreach(var bookmaker in e.Bookmakers.Take(1)) 
-                                            {
-                                                foreach(var market in bookmaker.Markets.Take(1))
+                                                var market = bookmaker.Markets.FirstOrDefault(m => m.Key == "h2h");
+                                                if(market != null && market.Outcomes != null)
                                                 {
-                                                    foreach(var outcome in market.Outcomes)
+                                                    foreach(var outcome in market.Outcomes.Take(2))
                                                     {
-                                                        <span class="badge bg-primary me-1 mb-1">@outcome.Name: @outcome.Price</span>
+                                                        <span class="badge badge-primary mr-1">@outcome.Name: @outcome.Price</span>
                                                     }
                                                 }
                                             }
+                                        }
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" class="btn btn-sm btn-outline-light">Ver Live</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         }
-                    }
-                    else
-                    {
-                        <div class="col-12">
-                            <div class="alert alert-warning">No hay eventos disponibles</div>
-                        </div>
-                    }
+                    </div>
                 }
             </div>
         }
+    }
+
+    <!-- Eventos PRÓXIMOS -->
+    @if(ViewBag.SportEvents != null)
+    {
+        var upcomingEvents = ViewBag.SportEvents as Dictionary<string, List<EventApiModel>>;
+        if(upcomingEvents != null && upcomingEvents.Any())
+        {
+            <div class="mb-5">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="text-white">
+                            <i class="fas fa-calendar text-primary mr-2"></i>
+                            Próximos Eventos
+                        </h2>
+                    </div>
+                </div>
+
+                @foreach(var sport in upcomingEvents)
+                {
+                    var sportTitle = sport.Key.Replace("_", " ").ToUpper();
+                    var sportInfo = Model.ActiveSports.FirstOrDefault(s => s.Key == sport.Key);
+                    if(sportInfo != null)
+                    {
+                        sportTitle = sportInfo.Title;
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h4 class="text-primary">@sportTitle</h4>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <a href="@Url.Action("Events", "OddsApi", new { sportKey = sport.Key })" class="btn btn-outline-primary">Ver Todos</a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        @foreach(var evt in sport.Value)
+                        {
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                                <div class="card bg-dark text-white border-secondary">
+                                    <div class="card-header bg-secondary">
+                                        @evt.CommenceTime.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                    <div class="card-body">
+                                        <h6>@evt.HomeTeam vs @evt.AwayTeam</h6>
+                                        @if(evt.Bookmakers != null && evt.Bookmakers.Any())
+                                        {
+                                            var bookmaker = evt.Bookmakers.First();
+                                            if(bookmaker.Markets != null && bookmaker.Markets.Any())
+                                            {
+                                                var market = bookmaker.Markets.FirstOrDefault(m => m.Key == "h2h");
+                                                if(market != null && market.Outcomes != null)
+                                                {
+                                                    foreach(var outcome in market.Outcomes.Take(3))
+                                                    {
+                                                        <span class="badge badge-primary mr-1">@outcome.Name: @outcome.Price</span>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        <div class="mt-2">
+                                            <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" class="btn btn-sm btn-outline-light">Ver Evento</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    <!-- Eventos DEMO -->
+    @if(ViewBag.DemoEvents != null)
+    {
+        var demoEvents = ViewBag.DemoEvents as List<EventApiModel>;
+        if(demoEvents != null && demoEvents.Any())
+        {
+            <div class="mb-5">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="text-white">
+                            <i class="fas fa-play text-warning mr-2"></i>
+                            Eventos Demo
+                            <span class="badge badge-warning text-dark ml-2">DEMO</span>
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    @foreach(var evt in demoEvents)
+                    {
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                            <div class="card bg-dark text-white border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    @if(evt.Scores != null)
+                                    {
+                                        <strong>DEMO LIVE</strong>
+                                    }
+                                    else
+                                    {
+                                        <span>DEMO - @evt.CommenceTime.ToString("dd/MM HH:mm")</span>
+                                    }
+                                </div>
+                                <div class="card-body">
+                                    <h6>@evt.HomeTeam vs @evt.AwayTeam</h6>
+                                    @if(evt.Scores != null && !string.IsNullOrEmpty(evt.Scores.Score))
+                                    {
+                                        <p class="text-success"><strong>@evt.Scores.Score</strong></p>
+                                    }
+                                    @if(evt.Bookmakers != null && evt.Bookmakers.Any())
+                                    {
+                                        var bookmaker = evt.Bookmakers.First();
+                                        if(bookmaker.Markets != null && bookmaker.Markets.Any())
+                                        {
+                                            var market = bookmaker.Markets.First();
+                                            if(market.Outcomes != null)
+                                            {
+                                                foreach(var outcome in market.Outcomes)
+                                                {
+                                                    <span class="badge badge-primary mr-1">@outcome.Name: @outcome.Price</span>
+                                                }
+                                            }
+                                        }
+                                    }
+                                    <div class="mt-2">
+                                        <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" class="btn btn-sm btn-outline-warning">Ver Demo</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Mensaje si no hay eventos -->
+    @{
+        var hasAnyEvents = (ViewBag.LiveEvents != null && ((Dictionary<string, List<EventApiModel>>)ViewBag.LiveEvents).Any())
+                        || (ViewBag.SportEvents != null && ((Dictionary<string, List<EventApiModel>>)ViewBag.SportEvents).Any())
+                        || (ViewBag.DemoEvents != null && ((List<EventApiModel>)ViewBag.DemoEvents).Any());
+    }
+
+    @if(!hasAnyEvents)
+    {
+        <div class="row">
+            <div class="col-12 text-center py-5">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body py-5">
+                        <i class="fas fa-calendar-times text-muted" style="font-size: 3rem;"></i>
+                        <h4 class="text-white mt-3">No hay eventos disponibles</h4>
+                        <p class="text-muted">No se encontraron eventos en este momento.</p>
+                        <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-primary">Explorar Deportes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 </div>
 
@@ -127,12 +284,16 @@
 $(document).ready(function() {
     $('#searchInput').on('input', function() {
         var search = $(this).val().toLowerCase();
-        $('.event-cards > div').each(function() {
+        $('.card').each(function() {
             var teamText = $(this).find('h6').text().toLowerCase();
-            $(this).toggle(teamText.indexOf(search) !== -1);
+            var cardContainer = $(this).closest('.col-12, .col-sm-6, .col-md-4, .col-lg-3');
+            if(teamText.indexOf(search) !== -1) {
+                cardContainer.show();
+            } else {
+                cardContainer.hide();
+            }
         });
     });
 });
 </script>
-
 }
