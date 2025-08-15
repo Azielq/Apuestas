@@ -1,0 +1,955 @@
+/*!
+ * Bet506 - Componentes CSS Unificados
+ * Formularios, Modales, Cards, Input Groups y Elementos Interactivos
+ * Version: 2.0 - Unificado (Incluye CSS de JavaScript)
+ */
+
+/* ========================================
+   FORMULARIOS Y CONTROLES DE ENTRADA
+======================================== */
+
+/* Form Controls Base */
+.form-control {
+    background-color: var(--dark-card-2);
+    border: 1px solid var(--dark-border);
+    color: var(--text-white);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    transition: var(--transition-normal);
+}
+
+.form-control:focus {
+    background-color: var(--dark-card-2);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+/* Form Labels */
+.form-label {
+    color: var(--text-white);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* Select Elements */
+select.form-control {
+    background-color: var(--dark-card-2);
+    border-color: var(--dark-border);
+    color: var(--text-white);
+}
+
+select.form-control option {
+    background-color: var(--dark-card-2);
+    color: var(--text-white);
+}
+
+/* Date Inputs */
+input[type="date"].form-control {
+    background-color: var(--dark-card-2);
+    border-color: var(--dark-border);
+    color: var(--text-white);
+}
+
+input[type="date"].form-control::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* Form Check (Checkboxes y Radio buttons) */
+.form-check-input {
+    background-color: var(--dark-card-2);
+    border-color: var(--dark-border);
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-check-label {
+    color: var(--text-white);
+    margin-left: 0.5rem;
+}
+
+/* ========================================
+   MODALES
+======================================== */
+
+.modal-content.bg-dark {
+    background-color: var(--dark-nav) !important;
+    border: 1px solid var(--dark-border);
+    color: var(--text-white);
+}
+
+.modal-content.bg-dark .modal-header {
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.modal-content.bg-dark .modal-title {
+    color: var(--text-white);
+}
+
+.modal-content.bg-dark .btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Form Controls en Modales Oscuros */
+.modal-content.bg-dark .form-control {
+    background-color: var(--dark-card-2) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--text-white) !important;
+}
+
+.modal-content.bg-dark .form-control:focus {
+    background-color: var(--dark-card-2) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-white) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.modal-content.bg-dark .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+    opacity: 1;
+}
+
+.modal-content.bg-dark .form-label {
+    color: var(--text-white) !important;
+}
+
+.modal-content.bg-dark .form-check-input {
+    background-color: var(--dark-card-2) !important;
+    border-color: var(--dark-border) !important;
+}
+
+.modal-content.bg-dark .form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.modal-content.bg-dark .form-check-label {
+    color: var(--text-white) !important;
+}
+
+.modal-content.bg-dark .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.modal-content.bg-dark a {
+    color: #66d9ef !important;
+}
+
+.modal-content.bg-dark a:hover {
+    color: #a6e7ff !important;
+}
+
+/* Profile Modals Enhancement Styles */
+#editProfileModal .modal-content {
+    border: 2px solid var(--bs-primary);
+    box-shadow: 0 10px 30px rgba(13, 110, 253, 0.3);
+}
+
+#editProfileModal .modal-header {
+    background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+}
+
+#changePasswordModal .modal-content {
+    border: 2px solid var(--bs-warning);
+    box-shadow: 0 10px 30px rgba(255, 193, 7, 0.3);
+}
+
+#changePasswordModal .modal-header {
+    background: linear-gradient(135deg, var(--bs-warning), var(--bs-orange));
+}
+
+.modal .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal .invalid-feedback {
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.modal .alert {
+    border-radius: 8px;
+    border: none;
+    font-weight: 500;
+}
+
+.modal .alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: var(--bs-success);
+    border: 1px solid var(--bs-success);
+}
+
+.modal .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--bs-danger);
+    border: 1px solid var(--bs-danger);
+}
+
+.modal .form-label i {
+    width: 16px;
+    text-align: center;
+    opacity: 0.8;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+.modal button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.modal button[disabled]:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* ========================================
+   FUNCIONALIDADES DE CONTRASEÑAS E INPUT GROUPS
+======================================== */
+
+/* Input Groups para contraseñas */
+.input-group .form-control {
+    border-right: none;
+}
+
+.input-group .btn-outline-secondary {
+    border-left: none;
+    background-color: transparent;
+    color: #adb5bd;
+    border-color: var(--dark-border);
+    transition: var(--transition-normal);
+}
+
+.input-group .btn-outline-secondary:hover {
+    background-color: var(--dark-border);
+    color: var(--text-white);
+    border-color: #6c757d;
+}
+
+.input-group .btn-outline-secondary:focus {
+    box-shadow: none;
+    border-color: var(--primary-color);
+}
+
+/* Estilos mejorados para botones de toggle de contraseña (del JS) */
+.input-group .btn {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    z-index: 1;
+}
+
+.input-group .btn:hover {
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+.input-group .btn.btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+    border-color: #0056b3;
+    color: white;
+}
+
+.input-group .btn.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    border-color: #004085;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.input-group .btn.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+    background: transparent;
+}
+
+.input-group .btn.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+}
+
+/* Estilos para íconos de contraseña */
+.input-group .btn i {
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-family: 'bootstrap-icons' !important;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.input-group .btn i.bi-eye::before {
+    content: "\f341" !important;
+}
+
+.input-group .btn i.bi-eye-slash::before {
+    content: "\f342" !important;
+}
+
+.input-group .btn.btn-primary i {
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.input-group .btn:active i {
+    transform: scale(0.9);
+}
+
+.input-group .btn i[class*="bi-eye"] {
+    display: inline-block !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    speak: never;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Estados de enfoque mejorados */
+.input-group .btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.input-group .btn.btn-primary:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.5);
+}
+
+.input-group .btn:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* Indicador de estado activo más prominente */
+.input-group .btn.btn-primary {
+    position: relative;
+}
+
+.input-group .btn.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: #28a745;
+    border-radius: 50%;
+    border: 1px solid white;
+    opacity: 0.9;
+}
+
+/* Efecto de resplandor sutil cuando está activo */
+.input-group .btn.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #0d6efd, #0056b3, #0d6efd);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.input-group .btn.btn-primary:hover::before {
+    opacity: 0.7;
+    animation: gradient-rotate 2s linear infinite;
+}
+
+/* Mejor contraste en modo oscuro */
+.modal-content.bg-dark .input-group .btn.btn-outline-secondary {
+    border-color: #adb5bd;
+    color: #adb5bd;
+}
+
+.modal-content.bg-dark .input-group .btn.btn-outline-secondary:hover {
+    background-color: #495057;
+    border-color: #495057;
+    color: white;
+}
+
+.modal .input-group .btn {
+    border: 1px solid #495057;
+}
+
+.modal .input-group .btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--bs-primary);
+}
+
+/* Estados de validación para botones de contraseña */
+.input-group .btn.validation-success {
+    border-color: #28a745;
+    box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.25);
+}
+
+.input-group .btn.validation-success.btn-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-color: #28a745;
+}
+
+.input-group .btn.validation-error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.25);
+}
+
+.input-group .btn.validation-error.btn-primary {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border-color: #dc3545;
+}
+
+.input-group .btn.validation-success,
+.input-group .btn.validation-error {
+    animation: validation-pulse 0.5s ease-out;
+}
+
+.input-group .btn.validation-success::before {
+    content: '?';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 1px solid white;
+}
+
+.input-group .btn.validation-error::before {
+    content: '?';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 1px solid white;
+}
+
+/* Estado de carga/procesando */
+.input-group .btn.processing {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.input-group .btn.processing::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Accesibilidad para botones */
+.input-group button[aria-label] {
+    cursor: pointer;
+}
+
+.input-group button[aria-label]:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   INDICADORES DE CONTRASEÑA
+======================================== */
+
+/* Indicador de fortaleza de contraseña */
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.password-strength .progress {
+    height: 8px !important;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.password-strength .progress-bar {
+    transition: width var(--transition-normal), background-color var(--transition-normal);
+}
+
+/* Requisitos de contraseña */
+.password-requirements {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--dark-card-2);
+    border-radius: 0.375rem;
+    border: 1px solid var(--dark-border);
+}
+
+.password-requirements .requirement {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    padding: 2px 0;
+    transition: all 0.3s ease;
+}
+
+.password-requirements .requirement:last-child {
+    margin-bottom: 0;
+}
+
+.password-requirements .requirement i {
+    width: 1rem;
+    text-align: center;
+}
+
+.password-requirements .requirement.text-success {
+    transform: scale(1.02);
+}
+
+/* Indicador de coincidencia de contraseñas */
+.password-match {
+    margin-top: 0.5rem;
+}
+
+.password-match small {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Estados de fortaleza */
+.text-strength-weak { color: var(--danger-color) !important; }
+.text-strength-fair { color: var(--warning-color) !important; }
+.text-strength-good { color: var(--info-color) !important; }
+.text-strength-strong { color: var(--success-color) !important; }
+
+/* ========================================
+   ELEMENTOS INTERACTIVOS
+======================================== */
+
+/* Dropdowns */
+.dropdown-menu-dark {
+    background-color: var(--dark-nav);
+    border: 1px solid var(--dark-border);
+}
+
+.dropdown-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: var(--transition-normal);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-white) !important;
+}
+
+.dropdown-divider {
+    border-color: var(--dark-border);
+}
+
+/* ========================================
+   ESTADOS DE VALIDACIÓN
+======================================== */
+
+.text-danger {
+    font-size: 0.8rem;
+    color: #ff6b6b;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.is-valid .form-control {
+    border-color: var(--success-color);
+}
+
+.is-invalid .form-control {
+    border-color: var(--danger-color);
+}
+
+.input-group.is-valid .form-control {
+    border-color: var(--success-color);
+}
+
+.input-group.is-valid .btn-outline-secondary {
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+.input-group.is-invalid .form-control {
+    border-color: var(--danger-color);
+}
+
+.input-group.is-invalid .btn-outline-secondary {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+/* Fix para mensajes de validación prematuros (del JS) */
+.invalid-feedback {
+    display: none !important;
+}
+
+.form-control.is-invalid ~ .invalid-feedback,
+.form-check-input.is-invalid ~ .invalid-feedback {
+    display: block !important;
+}
+
+/* Estados de focus y accesibilidad */
+.input-group:focus-within .form-control {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.input-group:focus-within .btn-outline-secondary {
+    border-color: var(--primary-color);
+}
+
+/* ========================================
+   CONTENEDORES DE FORMULARIOS
+======================================== */
+
+.registro-container, .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    padding: 20px;
+}
+
+.form-registro, .form-login {
+    background-color: #1a1233;
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    width: 700px;
+    max-width: 100%;
+}
+
+.form-registro h2, .form-login h2 {
+    color: var(--text-white);
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Elementos de navegación y enlaces */
+.volver-login, .links-adicionales {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.9rem;
+}
+
+.volver-login a, .links-adicionales a {
+    color: var(--success-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition-normal);
+}
+
+.volver-login a:hover, .links-adicionales a:hover {
+    text-decoration: underline;
+    color: var(--text-white);
+}
+
+/* ========================================
+   ANIMACIONES DE COMPONENTES
+======================================== */
+
+.password-feedback {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animación de pulso para feedback */
+@keyframes pulse-toggle {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(13, 110, 253, 0.2);
+    }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 15px rgba(13, 110, 253, 0);
+    }
+}
+
+@keyframes gradient-rotate {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}
+
+@keyframes validation-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Animación de entrada suave para botones */
+.input-group .btn {
+    animation: button-appear 0.3s ease-out;
+}
+
+@keyframes button-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Animaciones de JavaScript */
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes ripple-animation {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes tooltip-fade-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.toast-error, .toast-warning, .toast-success {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+.password-toggle-tooltip {
+    animation: tooltip-fade-in 0.3s ease-out;
+}
+
+/* Fallback mejorado para íconos si Bootstrap Icons no carga correctamente */
+.input-group .btn i.bi-eye.fallback::before {
+    content: "Show" !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    letter-spacing: 0.5px !important;
+}
+
+.input-group .btn i.bi-eye-slash.fallback::before {
+    content: "Hide" !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Alternativa con símbolos ASCII seguros */
+.input-group .btn i.bi-eye.ascii-fallback::before {
+    content: "[o]" !important;
+    font-family: monospace !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+}
+
+.input-group .btn i.bi-eye-slash.ascii-fallback::before {
+    content: "[x]" !important;
+    font-family: monospace !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+}
+
+/* Asegura que los íconos de Bootstrap Icons funcionen correctamente */
+.input-group .btn i.bi-eye:not(.fallback):not(.ascii-fallback)::before {
+    content: "\f341" !important;
+    font-family: 'bootstrap-icons' !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+.input-group .btn i.bi-eye-slash:not(.fallback):not(.ascii-fallback)::before {
+    content: "\f342" !important;
+    font-family: 'bootstrap-icons' !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Verificación y corrección automática para íconos problemáticos */
+.input-group .btn i[class*="bi-eye"] {
+    display: inline-block !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Elimina cualquier contenido de texto que pueda causar ???  */
+.input-group .btn i[class*="bi-eye"]:not(.fallback):not(.ascii-fallback) {
+    font-size: 1rem !important;
+    text-indent: 0 !important;
+    letter-spacing: normal !important;
+}
+
+/* Regla específica para combatir los tres signos de interrogación */
+.input-group .btn i[class*="bi-eye"]:not(.fallback):not(.ascii-fallback) {
+    text-rendering: auto !important;
+    speak: never !important;
+}
+
+/* ========================================
+   RESPONSIVE PARA COMPONENTES
+======================================== */
+
+@media (max-width: 768px) {
+    .form-registro, .form-login {
+        padding: 30px 25px;
+        width: 100%;
+    }
+    
+    .password-requirements {
+        padding: 0.375rem;
+        font-size: 0.8rem;
+    }
+    
+    .password-requirements .requirement {
+        font-size: 0.8rem;
+    }
+    
+    .input-group .btn {
+        padding: 0.375rem 0.5rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .input-group .btn i {
+        font-size: 1.1rem;
+    }
+    
+    .modal-dialog {
+        margin: 1rem;
+    }
+    
+    .modal-lg {
+        max-width: 95vw;
+        margin: 1rem auto;
+    }
+    
+    .modal .row .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    .modal .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-registro h2, .form-login h2 {
+        font-size: 1.5rem;
+    }
+    
+    .btn-enviar {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+}

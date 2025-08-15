@@ -1,0 +1,37 @@
+<!-- Scripts -->
+@await Html.PartialAsync("_ScriptsCDN")
+@await Html.PartialAsync("_ValidationScriptsPartial")
+
+<!-- ?? Core Scripts - Orden de carga importante -->
+<script src="~/js/app-config.js" asp-append-version="true"></script>
+<script src="~/js/form-manager.js" asp-append-version="true"></script>
+<script src="~/js/password-manager.js" asp-append-version="true"></script>
+<script src="~/js/modal-manager.js" asp-append-version="true"></script>
+<script src="~/js/debug-password-text.js" asp-append-version="true"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<!-- ? Solo inicialización de librerías externas -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS animation
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+            console.log('? AOS inicializado');
+        }
+
+        // Initialize Bootstrap tooltips
+        if (typeof bootstrap !== 'undefined') {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            console.log('? Bootstrap tooltips inicializados');
+        }
+
+        console.log('?? Layout completamente cargado');
+    });
+</script>
+
+@await RenderSectionAsync("Scripts", required: false)

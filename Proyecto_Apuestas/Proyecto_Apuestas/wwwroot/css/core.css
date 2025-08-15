@@ -1,0 +1,694 @@
+/*!
+ * Bet506 - CSS Core Unificado
+ * Estilos Base, Variables, Navegación y Layout Principal
+ * Version: 2.0 - Unificado
+ */
+
+/* ========================================
+   VARIABLES CSS Y CONFIGURACIÓN BASE
+======================================== */
+
+:root {
+    /* Colores primarios */
+    --primary-color: #007bff;
+    --primary-rgb: 0, 123, 255;
+    --secondary-color: #6c757d;
+    --success-color: #1BB96B;
+    --success-hover: #17a361;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    
+    /* Colores del tema */
+    --dark-bg: #0b0d1a;
+    --dark-nav: #130D25;
+    --dark-card: #1e1e1e;
+    --dark-card-2: #2b2b2b;
+    --dark-border: #495057;
+    
+    /* Colores de texto */
+    --text-white: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --text-primary: #007bff;
+    --text-success: #28a745;
+    --text-danger: #dc3545;
+    
+    /* Gradientes */
+    --gradient-primary: linear-gradient(45deg, var(--primary-color), #0056b3);
+    --gradient-success: linear-gradient(45deg, #28a745, #20c997);
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.3);
+    --shadow-primary: 0 4px 15px rgba(0, 123, 255, 0.4);
+    
+    /* Transiciones */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Fuentes */
+    --font-primary: 'Open Sans', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+    
+    /* Espaciado personalizado */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 3rem;
+    --spacing-xxl: 5rem;
+    
+    /* Bootstrap Variables Override */
+    --bs-primary: #007bff;
+    --bs-primary-rgb: 0, 123, 255;
+    --bs-secondary: #6c757d;
+    --bs-success: #28a745;
+    --bs-info: #17a2b8;
+    --bs-warning: #ffc107;
+    --bs-danger: #dc3545;
+    --bs-light: #f8f9fa;
+    --bs-dark: #343a40;
+    --bs-white: #ffffff;
+    --bs-body-color: #ffffff;
+    --bs-body-bg: #0b0d1a;
+}
+
+/* ========================================
+   RESET Y CONFIGURACIÓN GLOBAL
+======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-white);
+    font-family: var(--font-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ========================================
+   NAVEGACIÓN PRINCIPAL
+======================================== */
+
+.navbar {
+    background-color: var(--dark-nav);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    height: 80px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: white !important;
+    text-decoration: none;
+    transition: var(--transition-normal);
+}
+
+.navbar-brand:hover {
+    color: var(--success-color) !important;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 35px;
+    height: 80px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    margin-left: 50px;
+}
+
+.nav-links li {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-links li a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    padding: 0 6px;
+    height: 100%;
+    transition: var(--transition-normal);
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+    color: #1ddf73;
+}
+
+.nav-links li a i {
+    font-size: 18px;
+    transition: var(--transition-normal);
+}
+
+.nav-links li a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background-color: #1ddf73;
+    transition: var(--transition-normal);
+}
+
+.nav-links li a:hover::after,
+.nav-links li a.active::after {
+    width: 100%;
+}
+
+.promotions {
+    color: #f6c744 !important;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.navbar-underline {
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+}
+
+/* Selector de idioma */
+.lang-select {
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: var(--transition-normal);
+}
+
+.lang-select:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   BOTONES PRINCIPALES
+======================================== */
+
+.btn-login {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: var(--transition-normal);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-login:hover {
+    background-color: white;
+    color: var(--dark-nav);
+}
+
+.btn-signup {
+    background: var(--success-color);
+    color: white;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: var(--transition-normal);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-signup:hover {
+    background-color: var(--success-hover);
+}
+
+.btn-enviar {
+    background-color: var(--success-color);
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    transition: var(--transition-normal);
+    width: 100%;
+    cursor: pointer;
+}
+
+.btn-enviar:hover {
+    background-color: var(--success-hover);
+    box-shadow: 0 0 12px rgba(27, 185, 107, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color) !important;
+    color: var(--text-white) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* ========================================
+   LANDING PAGE - SECCIÓN PROMOCIONAL
+======================================== */
+
+.promo-section {
+    background-color: #060019;
+    margin-top: -25px;
+    margin-bottom: 30px;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-height: 300px !important;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.flyer-row {
+    height: 100% !important;
+    min-height: auto !important;
+}
+
+.text-section {
+    background: transparent !important;
+    height: 100% !important;
+    min-height: auto !important;
+    display: flex !important;
+    padding: 3rem !important;
+    text-align: center;
+}
+
+.image-section {
+    height: 100% !important;
+    min-height: auto !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.flyer-img {
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    animation: fadeInRight 1.2s ease forwards !important;
+    filter: brightness(0.8) contrast(1.1) !important;
+}
+
+.promo-text {
+    width: 100% !important;
+    max-width: 500px;
+    animation: fadeInLeft 1.2s ease forwards;
+}
+
+.promo-text h6 {
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    opacity: 0.9;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-white) !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.promo-text h1 {
+    font-size: 3.8rem;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 15px;
+    margin-bottom: 1.2rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.text-white-bold {
+    color: var(--text-white) !important;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.text-price {
+    color: var(--success-color);
+    font-weight: 900;
+    text-shadow: 0 0 15px rgba(27, 185, 107, 0.6);
+}
+
+/* ========================================
+   SECCIONES DE INFORMACIÓN
+======================================== */
+
+.info-hero-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-bottom: 3px solid var(--primary-color);
+    color: var(--text-white) !important;
+    position: relative;
+}
+
+.info-hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/images/pattern-bg.png') repeat;
+    opacity: 0.05;
+    z-index: 1;
+}
+
+.info-hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.info-hero-section h1 {
+    color: var(--text-white) !important;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.info-hero-section p {
+    color: var(--text-white) !important;
+    opacity: 0.9;
+}
+
+/* ========================================
+   TARJETAS Y COMPONENTES
+======================================== */
+
+.bg-dark-2 {
+    background-color: var(--dark-card) !important;
+    color: var(--text-white) !important;
+}
+
+.bg-dark-3 {
+    background-color: #2a2a2a !important;
+    color: var(--text-white) !important;
+}
+
+.bg-dark-4 {
+    background-color: #343434 !important;
+    color: var(--text-white) !important;
+}
+
+.stats-card {
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    border: 2px solid transparent;
+    background-color: var(--dark-card) !important;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-primary);
+}
+
+.stats-card h3 {
+    color: var(--text-white) !important;
+}
+
+.stats-card p {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.hover-card {
+    transition: all var(--transition-normal);
+}
+
+.hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.service-icon {
+    transition: transform var(--transition-normal), color var(--transition-normal);
+}
+
+.service-icon:hover {
+    transform: scale(1.1);
+    color: var(--primary-color) !important;
+}
+
+.step-number {
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-primary);
+    transition: transform var(--transition-normal);
+}
+
+.step-number:hover {
+    transform: scale(1.05);
+}
+
+.card.bg-dark-2 {
+    border: 1px solid rgba(0, 123, 255, 0.3);
+    background-color: var(--dark-card);
+}
+
+.card.bg-dark-2 .card-body h3 {
+    color: var(--text-white) !important;
+}
+
+.card.bg-dark-2 .card-body h5 {
+    color: var(--primary-color) !important;
+}
+
+.card.bg-dark-2 .card-body p {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ========================================
+   TIPOGRAFÍA Y TEXTOS
+======================================== */
+
+section h2 {
+    color: var(--text-white) !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+section h4, section h5 {
+    color: var(--text-white) !important;
+}
+
+section p {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-color), var(--info-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Asegura que todos los elementos en bg-dark-2 sean visibles */
+.bg-dark-2 h1, .bg-dark-2 h2, .bg-dark-2 h3, 
+.bg-dark-2 h4, .bg-dark-2 h5, .bg-dark-2 h6 {
+    color: #ffffff !important;
+}
+
+.bg-dark-2 p {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ========================================
+   FOOTER
+======================================== */
+
+footer {
+    background-color: var(--dark-nav) !important;
+    border-top: 3px solid var(--primary-color);
+}
+
+footer h5 {
+    color: var(--text-white) !important;
+}
+
+footer p, footer small {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+footer a {
+    color: rgba(255, 255, 255, 0.7) !important;
+    transition: var(--transition-normal);
+}
+
+footer a:hover {
+    color: var(--text-white) !important;
+}
+
+/* ========================================
+   ANIMACIONES CORE
+======================================== */
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.9);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 15px;
+        height: auto;
+        min-height: 80px;
+    }
+    
+    .nav-links {
+        margin-left: 0;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .promo-text h1 {
+        font-size: 2.5rem;
+        gap: 10px;
+    }
+    
+    .promo-text h6 {
+        font-size: 1rem;
+        letter-spacing: 2px;
+    }
+    
+    .text-section {
+        padding: 2rem !important;
+    }
+    
+    .info-hero-section {
+        padding: 3rem 0;
+    }
+    
+    .step-number {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    
+    .step-number span {
+        font-size: 1.5rem !important;
+    }
+    
+    .btn-login, .btn-signup {
+        padding: 4px 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .promo-section {
+        margin-top: 0;
+        max-width: 95% !important;
+    }
+    
+    .promo-text h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .navbar-right {
+        gap: 8px;
+    }
+    
+    .btn-enviar {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+}
