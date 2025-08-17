@@ -9,85 +9,362 @@
     @await RenderSectionAsync("Styles", required: false)
     @await Html.PartialAsync("_StylesCDN")
 </head>
-<body class="bg-dark text-white">
-    <!-- Header -->
-    <header class="sticky-top">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-primary">
-            <div class="container">
-                <a class="navbar-brand fw-bold" href="/">
-                    <img src="/images/LogoBet506.png" alt="Bet506" height="40">
-                </a>
-                
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/">Inicio</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="sportsDropdown" role="button" data-bs-toggle="dropdown">
-                                Deportes
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="/sports/football"><i class="bi bi-joystick me-2"></i>Fútbol</a></li>
-                                <li><a class="dropdown-item" href="/sports/basketball"><i class="bi bi-basketball me-2"></i>Basketball</a></li>
-                                <li><a class="dropdown-item" href="/sports/tennis"><i class="bi bi-tennisball me-2"></i>Tenis</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/sports"><i class="bi bi-list-ul me-2"></i>Todos los deportes</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/live">En Vivo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/promotions">Promociones</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/about">Nosotros</a>
-                        </li>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            
+            <ul class="nav-links">
+				<a class="navbar-brand fw-bold" href="/">
+					<img src="/images/LogoBet506.png" alt="Bet506" height="40">
+				</a>
+                <li><a href="@Url.Action("Index", "Home")" class="active"><i class="ri-home-line"></i> Inicio</a></li>
+                <li><a href="@Url.Action("Index", "Sport")"><i class="ri-football-line"></i> Deportes</a></li>
+                <li><a href="@Url.Action("Index", "LiveBetting")"><i class="ri-live-line"></i> En Vivo</a></li>
+                <li><a href="@Url.Action("About", "Home")"><i class="ri-book-2-line"></i> Nosotros</a></li>
+                <li><a href="@Url.Action("Contact", "Home")"><i class="ri-mail-line"></i> Contacto</a></li>
+                <li><a class="promotions" href="#"><i class="ri-star-smile-line"></i> Promociones</a></li>
+            </ul>
+        </div>
+
+        <div class="navbar-right">
+            <select class="lang-select">
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+            </select>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                        @User.Identity.Name
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                        <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("Index", "Betting")"><i class="bi bi-journal-check me-2"></i>Mis apuestas</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("Index", "Payment")"><i class="bi bi-wallet2 me-2"></i>Transacciones</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="@Url.Action("Logout", "Account")"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
                     </ul>
-                    
-                    <div class="d-flex align-items-center">
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <div class="dropdown">
-                                <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                                    <span class="me-2">@User.Identity.Name</span>
-                                    <i class="bi bi-person-circle"></i>
+                </div>
+            }
+            else
+            {
+                <button class="btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                <button class="btn-signup" data-bs-toggle="modal" data-bs-target="#registerModal">Sign up</button>
+            }
+        </div>
+    </nav>
+    <div class="navbar-underline"></div>
+
+    <!-- LOGIN MODAL -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-bottom border-primary">
+                    <h5 class="modal-title" id="loginModalLabel">
+                        <i class="bi bi-person-circle me-2 text-primary"></i>Iniciar sesión
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label for="EmailOrUsername" class="form-label">
+                                <i class="bi bi-person me-1"></i>Email o Nombre de Usuario
+                            </label>
+                            <input type="text" class="form-control" id="EmailOrUsername" name="EmailOrUsername" placeholder="email@ejemplo.com o usuario123" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Password" class="form-label">
+                                <i class="bi bi-lock me-1"></i>Contraseña
+                            </label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="Password" name="Password" placeholder="Mínimo 6 caracteres" required minlength="6" />
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordLogin" aria-label="Mostrar contraseña">
+                                    <i class="bi bi-eye" id="togglePasswordLoginIcon"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="/account/profile"><i class="bi bi-person me-2"></i>Perfil</a></li>
-                                    <li><a class="dropdown-item" href="/account/bets"><i class="bi bi-journal-check me-2"></i>Mis apuestas</a></li>
-                                    <li><a class="dropdown-item" href="/account/transactions"><i class="bi bi-wallet2 me-2"></i>Transacciones</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/account/logout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
-                                </ul>
                             </div>
-                            <div class="ms-3 d-flex align-items-center">
-                                <span class="badge bg-success rounded-pill p-2">₡25,000</span>
-                                <a href="/account/deposit" class="btn btn-sm btn-primary ms-2">+</a>
-                            </div>
-                        }
-                        else
-                        {
-                            <a href="/account/login" class="btn btn-outline-light me-2">Iniciar sesión</a>
-                            <a href="/account/register" class="btn btn-primary">Registrarse</a>
-                        }
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="RememberMe" name="RememberMe" />
+                            <label class="form-check-label" for="RememberMe">
+                                <i class="bi bi-clock-history me-1"></i>Recordarme
+                            </label>
+                        </div>
+                        <div id="loginError" class="alert alert-danger visually-hidden" role="alert"></div>
+                        <button type="submit" class="btn btn-primary w-100 hover-scale">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <div class="mb-2">
+                            <a href="#" onclick="switchToForgotPassword()" class="text-warning">
+                                <i class="bi bi-key me-1"></i>¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                        <small class="text-muted">
+                            ¿No tienes una cuenta? 
+                            <a href="#" onclick="switchToRegister()" class="text-primary">
+                                <i class="bi bi-person-plus me-1"></i>Regístrate aquí
+                            </a>
+                        </small>
                     </div>
                 </div>
             </div>
-        </nav>
-    </header>
+        </div>
+    </div>
 
-    <!-- Main Content -->
-    <main role="main">
+    <!-- FORGOT PASSWORD MODAL -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-bottom border-warning">
+                    <h5 class="modal-title" id="forgotPasswordModalLabel">
+                        <i class="bi bi-key me-2 text-warning"></i>Recuperar Contraseña
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>¿Olvidaste tu contraseña?</strong> No te preocupes, es normal. 
+                        Ingresa tu email y te enviaremos instrucciones para crear una nueva.
+                    </div>
+                    
+                    <form id="forgotPasswordForm" method="post" action="/Account/ForgotPassword" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label for="ForgotEmail" class="form-label">
+                                <i class="bi bi-envelope me-1"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="ForgotEmail" name="email" 
+                                   placeholder="ejemplo@correo.com" required 
+                                   autocomplete="email" />
+                            <div class="form-text text-muted">
+                                Ingresa el email que usaste para registrarte en Bet506
+                            </div>
+                            <div class="invalid-feedback">
+                                Por favor ingresa un email válido.
+                            </div>
+                        </div>
+
+                        <div id="forgotPasswordError" class="alert alert-danger visually-hidden" role="alert"></div>
+                        <div id="forgotPasswordSuccess" class="alert alert-success visually-hidden" role="alert"></div>
+                        
+                        <button type="submit" class="btn btn-warning w-100 mb-3 hover-scale">
+                            <i class="bi bi-send me-1"></i>Enviar Instrucciones
+                        </button>
+                    </form>
+                    
+                    <div class="text-center">
+                        <hr class="border-secondary">
+                        <small class="text-muted">
+                            ¿Recordaste tu contraseña? 
+                            <a href="#" onclick="switchToLogin()" class="text-primary">
+                                <i class="bi bi-arrow-left me-1"></i>Volver al Login
+                            </a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER MODAL -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-bottom border-success">
+                    <h5 class="modal-title" id="registerModalLabel">
+                        <i class="bi bi-person-plus-fill me-2 text-success"></i>Crear Cuenta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="RegisterFirstName" class="form-label">
+                                    <i class="bi bi-person me-1"></i>Nombre
+                                </label>
+                                <input type="text" class="form-control" id="RegisterFirstName" name="FirstName" 
+                                       placeholder="Ej: Juan" required maxlength="80" 
+                                       pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" 
+                                       title="Solo se permiten letras y espacios" />
+                                <div class="invalid-feedback">El nombre es requerido y solo puede contener letras</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterPrimerApellido" class="form-label">
+                                    <i class="bi bi-person-badge me-1"></i>Primer Apellido
+                                </label>
+                                <input type="text" class="form-control" id="RegisterPrimerApellido" name="PrimerApellido" 
+                                       placeholder="Ej: Castillo" required maxlength="45" 
+                                       pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" 
+                                       title="Solo se permiten letras y espacios" />
+                                <div class="invalid-feedback">El primer apellido es requerido y solo puede contener letras</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterSegundoApellido" class="form-label">
+                                    <i class="bi bi-person-lines-fill me-1"></i>Segundo Apellido <small class="text-muted">(opcional)</small>
+                                </label>
+                                <input type="text" class="form-control" id="RegisterSegundoApellido" name="SegundoApellido" 
+                                       placeholder="Ej: López" maxlength="45" 
+                                       pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" 
+                                       title="Solo se permiten letras y espacios" />
+                                <div class="invalid-feedback">Solo puede contener letras y espacios</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterBirthDate" class="form-label">
+                                    <i class="bi bi-calendar-date me-1"></i>Fecha de Nacimiento <small class="text-muted">(opcional)</small>
+                                </label>
+                                <input type="date" class="form-control" id="RegisterBirthDate" name="BirthDate" max="@DateTime.Now.AddYears(-18).ToString("yyyy-MM-dd")" />
+                                <div class="form-text text-muted">
+                                    Solo se requiere si eres menor de 21 años para verificar edad legal
+                                </div>
+                                <div class="invalid-feedback">Debes tener al menos 18 años para registrarte</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterEmail" class="form-label">
+                                    <i class="bi bi-envelope me-1"></i>Email
+                                </label>
+                                <input type="email" class="form-control" id="RegisterEmail" name="Email" 
+                                       placeholder="correo@ejemplo.com" required maxlength="45" />
+                                <div class="invalid-feedback">Ingresa un email válido (máximo 45 caracteres)</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterPhoneNumber" class="form-label">
+                                    <i class="bi bi-telephone me-1"></i>Teléfono <small class="text-muted">(opcional)</small>
+                                </label>
+                                <input type="tel" class="form-control" id="RegisterPhoneNumber" name="PhoneNumber" 
+                                       placeholder="+506 8888-8888" 
+                                       pattern="^(\+506\s?)?[2678]\d{3}[\-\s]?\d{4}$"
+                                       title="Formato válido: +506 8888-8888, 8888-8888, +506 2222-2222 o 2222-2222" />
+                                <div class="invalid-feedback">Formato de teléfono inválido. Use: +506 8888-8888, 8888-8888, +506 2222-2222 o 2222-2222</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterCountry" class="form-label">
+                                    <i class="bi bi-geo-alt me-1"></i>País
+                                </label>
+                                <select class="form-control" id="RegisterCountry" name="Country" required>
+                                    <option value="">Selecciona tu país</option>
+                                    <option value="Costa Rica" selected>Costa Rica</option>
+                                    <option value="Guatemala">Guatemala</option>
+                                    <option value="Honduras">Honduras</option>
+                                    <option value="El Salvador">El Salvador</option>
+                                    <option value="Nicaragua">Nicaragua</option>
+                                    <option value="Panamá">Panamá</option>
+                                </select>
+                                <div class="invalid-feedback">Debes seleccionar un país</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterUserName" class="form-label">
+                                    <i class="bi bi-at me-1"></i>Nombre de Usuario
+                                </label>
+                                <input type="text" class="form-control" id="RegisterUserName" name="UserName" 
+                                       placeholder="usuario123" required minlength="3" maxlength="45" 
+                                       pattern="^[a-zA-Z0-9_]+$" 
+                                       title="Solo letras, números y guión bajo. Entre 3-45 caracteres" />
+                                <div class="invalid-feedback">Entre 3-45 caracteres. Solo letras, números y guión bajo</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterPassword" class="form-label">
+                                    <i class="bi bi-lock me-1"></i>Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="RegisterPassword" name="Password" placeholder="Mínimo 8 caracteres" required minlength="8" />
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePasswordRegister" aria-label="Mostrar contraseña">
+                                        <i class="bi bi-eye" id="togglePasswordRegisterIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength mt-2" id="passwordStrength" style="display: none;">
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 0%" id="strengthBar"></div>
+                                    </div>
+                                    <small class="text-muted" id="strengthText">Fortaleza de la contraseña</small>
+                                </div>
+                                <div class="password-requirements mt-2" id="passwordRequirements" style="display: none;">
+                                    <small class="text-muted d-block">La contraseña debe contener:</small>
+                                    <small class="requirement d-block" id="req-length"><i class="bi bi-x-circle text-danger me-1"></i>Al menos 8 caracteres</small>
+                                    <small class="requirement d-block" id="req-uppercase"><i class="bi bi-x-circle text-danger me-1"></i>Una letra mayúscula</small>
+                                    <small class="requirement d-block" id="req-lowercase"><i class="bi bi-x-circle text-danger me-1"></i>Una letra minúscula</small>
+                                    <small class="requirement d-block" id="req-number"><i class="bi bi-x-circle text-danger me-1"></i>Un número</small>
+                                    <small class="requirement d-block" id="req-special"><i class="bi bi-x-circle text-danger me-1"></i>Un carácter especial</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="RegisterConfirmPassword" class="form-label">
+                                    <i class="bi bi-shield-lock me-1"></i>Confirmar Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="RegisterConfirmPassword" name="ConfirmPassword" placeholder="Repite la contraseña" required />
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePasswordConfirm" aria-label="Mostrar contraseña">
+                                        <i class="bi bi-eye" id="togglePasswordConfirmIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="password-match mt-2" id="passwordMatch" style="display: none;">
+                                    <small class="text-muted" id="matchText">Las contraseñas deben coincidir</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="form-check">
+                                <!-- Campo oculto para enviar false cuando no esté marcado -->
+                                <input type="hidden" name="AcceptTerms" value="false" />
+                                <input type="checkbox" class="form-check-input" id="RegisterTerms" name="AcceptTerms" value="true" required />
+                                <label class="form-check-label" for="RegisterTerms">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Acepto los <a href="@Url.Action("Terms", "Home")" target="_blank" class="text-primary">Términos y Condiciones</a> y la <a href="@Url.Action("Privacy", "Home")" target="_blank" class="text-primary">Política de Privacidad</a>
+                                </label>
+                                <div class="invalid-feedback">Debes aceptar los términos y condiciones</div>
+                            </div>
+                        </div>
+
+                        <div id="registerError" class="alert alert-danger visually-hidden mt-3" role="alert"></div>
+                        
+                        <button type="submit" class="btn btn-success w-100 mt-3 hover-scale">
+                            <i class="bi bi-person-plus me-1"></i>Crear Cuenta
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            ¿Ya tienes una cuenta? 
+                            <a href="#" onclick="switchToLogin()" class="text-primary">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Inicia sesión aquí
+                            </a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <main class="container-fluid mt-4">
         @RenderBody()
     </main>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer class="bg-dark text-white-50 border-top border-primary">
         <div class="container py-5">
             <div class="row">
@@ -104,29 +381,29 @@
                 <div class="col-6 col-md-3 col-lg-2 mb-4">
                     <h5 class="text-white mb-3">Apuestas</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/sports/football" class="text-white-50">Fútbol</a></li>
-                        <li class="mb-2"><a href="/sports/basketball" class="text-white-50">Basketball</a></li>
-                        <li class="mb-2"><a href="/sports/tennis" class="text-white-50">Tenis</a></li>
-                        <li class="mb-2"><a href="/sports/baseball" class="text-white-50">Béisbol</a></li>
-                        <li class="mb-2"><a href="/live" class="text-white-50">En vivo</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Sport", new { category = "football" })" class="text-white-50">Fútbol</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Sport", new { category = "basketball" })" class="text-white-50">Basketball</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Sport", new { category = "tennis" })" class="text-white-50">Tenis</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Sport", new { category = "baseball" })" class="text-white-50">Béisbol</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "LiveBetting")" class="text-white-50">En vivo</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-md-3 col-lg-2 mb-4">
                     <h5 class="text-white mb-3">Empresa</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/about" class="text-white-50">Nosotros</a></li>
-                        <li class="mb-2"><a href="/contact" class="text-white-50">Contacto</a></li>
-                        <li class="mb-2"><a href="/blog" class="text-white-50">Blog</a></li>
-                        <li class="mb-2"><a href="/careers" class="text-white-50">Carreras</a></li>
+                        <li class="mb-2"><a href="@Url.Action("About", "Home")" class="text-white-50">Nosotros</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Contact", "Home")" class="text-white-50">Contacto</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Blog", "Home")" class="text-white-50">Blog</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Careers", "Home")" class="text-white-50">Carreras</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-md-3 col-lg-2 mb-4">
                     <h5 class="text-white mb-3">Legal</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/terms" class="text-white-50">Términos</a></li>
-                        <li class="mb-2"><a href="/privacy" class="text-white-50">Privacidad</a></li>
-                        <li class="mb-2"><a href="/responsible-gaming" class="text-white-50">Juego responsable</a></li>
-                        <li class="mb-2"><a href="/faq" class="text-white-50">Preguntas frecuentes</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Terms", "Home")" class="text-white-50">Términos</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Privacy", "Home")" class="text-white-50">Privacidad</a></li>
+                        <li class="mb-2"><a href="@Url.Action("ResponsibleGaming", "Home")" class="text-white-50">Juego responsable</a></li>
+                        <li class="mb-2"><a href="@Url.Action("FAQ", "Home")" class="text-white-50">Preguntas frecuentes</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-md-3 col-lg-3 mb-4">
@@ -165,21 +442,9 @@
 
     <!-- Scripts -->
     @await Html.PartialAsync("_ScriptsCDN")
-    <script>
-        // Initialize AOS animation(These are initial tests)
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true
-        });
-        
-        // Initialize tooltips(These are initial tests)
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    </script>
-
+    @await Html.PartialAsync("_ValidationScriptsPartial")
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Las funciones de cambio de modal ahora están en app-core.js -->
 </body>
 </html>

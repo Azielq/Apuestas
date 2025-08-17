@@ -17,6 +17,8 @@ namespace Proyecto_Apuestas.Services.Interfaces
         // Gestión de usuarios
         Task<UserAccount?> GetUserByIdAsync(int userId);
         Task<UserAccount?> GetUserByEmailAsync(string email);
+        Task<UserAccount?> GetUserByUsernameAsync(string username);
+        Task<UserAccount?> GetUserByEmailOrUsernameAsync(string emailOrUsername);
         Task<UserProfileViewModel?> GetUserProfileAsync(int userId);
         Task<bool> UpdateUserProfileAsync(int userId, UpdateProfileViewModel model);
         Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);

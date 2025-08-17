@@ -2,7 +2,11 @@
 {
     public class LoginViewModel
     {
-        public string Email { get; set; } = string.Empty;
+        public string EmailOrUsername { get; set; } = string.Empty;
+        
+        // Propiedad calculada para mantener compatibilidad
+        public string Email => EmailOrUsername;
+        
         public string Password { get; set; } = string.Empty;
         public bool RememberMe { get; set; }
         public string? ReturnUrl { get; set; }

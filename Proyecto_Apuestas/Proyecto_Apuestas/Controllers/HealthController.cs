@@ -20,7 +20,7 @@ namespace Proyecto_Apuestas.Controllers
         }
 
         [HttpGet]
-        [HttpHead]  // Agregar soporte para HEAD requests
+        [HttpHead]  // Agrega soporte para HEAD requests
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
@@ -128,7 +128,7 @@ namespace Proyecto_Apuestas.Controllers
         }
 
         [HttpGet("status")]
-        [HttpHead("status")]  // Agregar soporte para HEAD requests
+        [HttpHead("status")]  // Agrega soporte para HEAD requests
         [AllowAnonymous]
         public IActionResult Status()
         {

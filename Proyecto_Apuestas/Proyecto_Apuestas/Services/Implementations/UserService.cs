@@ -69,6 +69,20 @@ namespace Proyecto_Apuestas.Services.Implementations
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<UserAccount?> GetUserByUsernameAsync(string username)
+        {
+            return await _context.UserAccounts
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserName == username);
+        }
+
+        public async Task<UserAccount?> GetUserByEmailOrUsernameAsync(string emailOrUsername)
+        {
+            return await _context.UserAccounts
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == emailOrUsername || u.UserName == emailOrUsername);
+        }
+
         public async Task<bool> IsUserInRoleAsync(int userId, string roleName)
         {
             return await _context.UserAccounts
@@ -191,7 +205,7 @@ namespace Proyecto_Apuestas.Services.Implementations
                 user.LockedUntil = until;
                 user.UpdatedAt = DateTime.Now;
 
-                // Note: Registrar en log
+                // Note: Registra en log
                 await _context.ReportLogs.AddAsync(new ReportLog
                 {
                     UserId = userId,

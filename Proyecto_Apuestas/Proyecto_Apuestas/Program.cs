@@ -111,7 +111,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=LandingPage}/{id?}")
+    pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 // Health check endpoint
@@ -180,9 +180,5 @@ if (app.Environment.IsDevelopment())
         return Results.Ok(overview);
     });
 }
-
-
-
-
 
 app.Run();
