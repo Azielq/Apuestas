@@ -3,19 +3,50 @@
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info bg-dark-2 border-info text-white">
-        <div class="d-flex align-items-center">
-            <i class="bi bi-info-circle-fill me-3 text-info fs-4"></i>
-            <div>
-                <h6 class="alert-heading mb-1">No hay resultados</h6>
-                <p class="mb-0">No se encontraron eventos que coincidan con tu búsqueda.</p>
+    <!-- Enhanced Empty State -->
+    <div class="search-empty-state">
+        <div class="empty-state-card glass-effect">
+            <div class="empty-state-animation">
+                <div class="search-icon-animation">
+                    <i class="bi bi-search"></i>
+                    <div class="search-pulse"></div>
+                </div>
+            </div>
+            <div class="empty-state-content">
+                <h4 class="empty-title">No se encontraron eventos</h4>
+                <p class="empty-subtitle">No hay eventos que coincidan con tu búsqueda en este momento</p>
+                <div class="empty-suggestions">
+                    <span class="suggestion-label">Prueba buscando:</span>
+                    <div class="suggestion-tags">
+                        <span class="suggestion-tag" onclick="quickSearch('Real Madrid')">Real Madrid</span>
+                        <span class="suggestion-tag" onclick="quickSearch('Barcelona')">Barcelona</span>
+                        <span class="suggestion-tag" onclick="quickSearch('Manchester')">Manchester</span>
+                        <span class="suggestion-tag" onclick="quickSearch('Lakers')">Lakers</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 }
 else
 {
-    <div class="list-group">
+    <!-- Enhanced Results Header -->
+    <div class="search-results-header">
+        <div class="results-summary glass-effect">
+            <div class="results-info">
+                <span class="results-count">@Model.Count</span>
+                <span class="results-label">eventos encontrados</span>
+            </div>
+            <div class="results-actions">
+                <button class="btn btn-sm btn-outline-primary" onclick="clearSearch()">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar búsqueda
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Event Cards Grid -->
+    <div class="search-results-grid">
         @foreach (var evt in Model)
         {
             var localTime = evt.CommenceTime.Kind == DateTimeKind.Utc ? 
@@ -26,86 +57,168 @@ else
             var isValidDate = evt.CommenceTime > DateTime.MinValue.AddYears(10);
             if (!isValidDate)
             {
-                localTime = DateTime.Now.AddHours(1); // Evento próximo por defecto
+                localTime = DateTime.Now.AddHours(1);
             }
             
-            <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" 
-               class="list-group-item list-group-item-action bg-dark-2 text-white border-secondary hover-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1 text-white fw-bold">
-                            <span class="text-primary">@evt.HomeTeam</span> 
-                            <span class="text-success mx-1">vs</span> 
-                            <span class="text-primary">@evt.AwayTeam</span>
-                        </h6>
-                        <div class="d-flex align-items-center gap-3">
-                            <small class="text-muted">
-                                <i class="bi bi-calendar3 me-1 text-primary"></i>
+            <div class="event-result-card animate-in">
+                <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" 
+                   class="event-card-link">
+                    <div class="event-card glass-effect">
+                        <!-- Event Header -->
+                        <div class="event-header">
+                            <div class="event-sport-badge">
+                                <i class="bi bi-@(evt.SportKey.Contains("soccer") ? "trophy" : evt.SportKey.Contains("basketball") ? "circle" : evt.SportKey.Contains("americanfootball") ? "shield" : "trophy")"></i>
+                                <span>@evt.SportTitle</span>
+                            </div>
+                            <div class="event-status">
                                 @if (!isValidDate)
                                 {
-                                    <span class="text-warning">Fecha por confirmar</span>
+                                    <span class="status-badge pending">
+                                        <i class="bi bi-clock"></i>
+                                        <span>Pendiente</span>
+                                    </span>
+                                }
+                                else if (DateTimeHelper.IsEventLive(localTime))
+                                {
+                                    <span class="status-badge live pulse">
+                                        <i class="bi bi-record-circle-fill"></i>
+                                        <span>EN VIVO</span>
+                                    </span>
+                                }
+                                else if (localTime <= DateTime.Now.AddHours(2))
+                                {
+                                    <span class="status-badge upcoming">
+                                        <i class="bi bi-clock-fill"></i>
+                                        <span>PRÓXIMO</span>
+                                    </span>
                                 }
                                 else
                                 {
-                                    @localTime.ToDisplayFormat()
+                                    <span class="status-badge scheduled">
+                                        <i class="bi bi-calendar-check"></i>
+                                        <span>PROGRAMADO</span>
+                                    </span>
                                 }
-                            </small>
-                            <small class="text-info">
-                                <i class="bi bi-clock me-1"></i>
-                                @if (!isValidDate)
-                                {
-                                    <span>Información pendiente</span>
-                                }
-                                else
-                                {
-                                    @DateTimeHelper.GetTimeUntilEvent(localTime)
-                                }
-                            </small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-end">
-                        <div class="d-flex flex-column align-items-end gap-1">
-                            <span class="badge bg-primary">
-                                <i class="bi bi-trophy me-1"></i>@evt.SportTitle
-                            </span>
-                            @if (DateTimeHelper.IsEventLive(localTime))
-                            {
-                                <span class="badge bg-danger pulse-animation">
-                                    <i class="bi bi-broadcast-pin me-1"></i>EN VIVO
-                                </span>
-                            }
-                            else if (localTime <= DateTime.Now.AddHours(2))
-                            {
-                                <span class="badge bg-warning text-dark">
-                                    <i class="bi bi-clock me-1"></i>PRÓXIMAMENTE
-                                </span>
-                            }
-                            @if (evt.Bookmakers != null && evt.Bookmakers.Any())
-                            {
-                                var h2hMarket = evt.Bookmakers.FirstOrDefault()?.Markets?.FirstOrDefault(m => m.Key == "h2h");
-                                if (h2hMarket != null && h2hMarket.Outcomes != null && h2hMarket.Outcomes.Any())
+
+                        <!-- Event Teams -->
+                        <div class="event-teams">
+                            <div class="team home-team">
+                                <div class="team-avatar">
+                                    <i class="bi bi-shield-fill"></i>
+                                </div>
+                                <span class="team-name">@evt.HomeTeam</span>
+                            </div>
+                            <div class="match-vs">
+                                <span class="vs-text">VS</span>
+                                <div class="vs-line"></div>
+                            </div>
+                            <div class="team away-team">
+                                <div class="team-avatar">
+                                    <i class="bi bi-shield-fill"></i>
+                                </div>
+                                <span class="team-name">@evt.AwayTeam</span>
+                            </div>
+                        </div>
+
+                        <!-- Event Details -->
+                        <div class="event-details">
+                            <div class="event-datetime">
+                                <div class="datetime-icon">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="datetime-info">
+                                    @if (!isValidDate)
+                                    {
+                                        <span class="event-date">Fecha por confirmar</span>
+                                        <span class="event-time">Información pendiente</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="event-date">@localTime.ToString("dddd, dd MMMM", new System.Globalization.CultureInfo("es-ES"))</span>
+                                        <span class="event-time">@localTime.ToString("HH:mm") • @DateTimeHelper.GetTimeUntilEvent(localTime)</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Odds Preview -->
+                            <div class="odds-preview">
+                                @if (evt.Bookmakers != null && evt.Bookmakers.Any())
                                 {
-                                    <small class="text-success">
-                                        <i class="bi bi-check-circle me-1"></i>Cuotas disponibles
-                                    </small>
+                                    var h2hMarket = evt.Bookmakers.FirstOrDefault()?.Markets?.FirstOrDefault(m => m.Key == "h2h");
+                                    if (h2hMarket != null && h2hMarket.Outcomes != null && h2hMarket.Outcomes.Any())
+                                    {
+                                        <div class="odds-available">
+                                            <div class="odds-icon">
+                                                <i class="bi bi-graph-up text-success"></i>
+                                            </div>
+                                            <div class="odds-info">
+                                                <span class="odds-label">Cuotas disponibles</span>
+                                                <span class="odds-count">@h2hMarket.Outcomes.Count mercados</span>
+                                            </div>
+                                            <div class="best-odds">
+                                                @{
+                                                    var bestOdd = h2hMarket.Outcomes.OrderByDescending(o => o.Price).FirstOrDefault();
+                                                }
+                                                @if (bestOdd != null)
+                                                {
+                                                    <span class="odds-value">@bestOdd.Price.ToString("0.00")</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="odds-unavailable">
+                                            <i class="bi bi-clock-history text-muted"></i>
+                                            <span>Cuotas no disponibles</span>
+                                        </div>
+                                    }
                                 }
                                 else
                                 {
-                                    <small class="text-muted">
-                                        <i class="bi bi-clock-history me-1"></i>Sin cuotas
-                                    </small>
+                                    <div class="odds-unavailable">
+                                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                                        <span>Sin datos de cuotas</span>
+                                    </div>
                                 }
-                            }
-                            else
-                            {
-                                <small class="text-muted">
-                                    <i class="bi bi-clock-history me-1"></i>Sin cuotas
-                                </small>
-                            }
+                            </div>
                         </div>
+
+                        <!-- Event Actions -->
+                        <div class="event-actions">
+                            <div class="action-buttons">
+                                <span class="action-btn primary">
+                                    <i class="bi bi-eye"></i>
+                                    <span>Ver detalles</span>
+                                </span>
+                                <span class="action-btn secondary">
+                                    <i class="bi bi-bookmark"></i>
+                                </span>
+                                <span class="action-btn secondary">
+                                    <i class="bi bi-share"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Hover Effect Overlay -->
+                        <div class="card-hover-overlay"></div>
                     </div>
-                </div>
-            </a>
+                </a>
+            </div>
         }
     </div>
+
+    <!-- Load More Button -->
+    @if (Model.Count >= 10)
+    {
+        <div class="load-more-section">
+            <button class="btn btn-outline-primary btn-lg load-more-btn" onclick="loadMoreResults()">
+                <i class="bi bi-arrow-down-circle me-2"></i>
+                <span>Cargar más resultados</span>
+                <div class="btn-shine"></div>
+            </button>
+        </div>
+    }
 }
