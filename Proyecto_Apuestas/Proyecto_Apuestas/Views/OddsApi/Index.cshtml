@@ -1,50 +1,380 @@
-﻿// Index.cshtml
-@using Proyecto_Apuestas.ViewModels.API
+﻿@using Proyecto_Apuestas.ViewModels.API
 @model OddsApiDashboardViewModel
 @{
-    ViewData["Title"] = "Cuotas en Vivo - The Odds API";
+    ViewData["Title"] = "Centro de Cuotas Internacionales - Bet506";
+    Layout = "_Layout";
 }
 
-<div class="container-fluid py-4">
-    <!-- Header con estado de API -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-dark-2 border-primary">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <h2 class="mb-0">
-                                <i class="bi bi-graph-up-arrow me-2"></i>Cuotas Internacionales en Vivo
-                            </h2>
-                            <p class="text-muted mb-0 mt-2">Powered by The Odds API</p>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container-fluid">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-8 col-xl-6">
+                <div class="hero-content">
+                    <div class="hero-badge mb-3">
+                        <span class="badge bg-gradient-primary px-3 py-2">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>EN TIEMPO REAL
+                        </span>
+                    </div>
+                    <h1 class="hero-title">
+                        Centro de <span class="text-gradient-primary">Cuotas</span><br>
+                        Internacionales
+                    </h1>
+                    <p class="hero-subtitle">
+                        Accede a las mejores cuotas deportivas de mercados internacionales. 
+                        Datos en tiempo real de más de 50 casas de apuestas globales.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="#sports-section" class="btn btn-primary btn-lg px-4 smooth-scroll">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Explorar Deportes
+                        </a>
+                        <a href="#featured-section" class="btn btn-outline-light btn-lg px-4 ms-3 smooth-scroll">
+                            <i class="bi bi-eye me-2"></i>Ver Destacados
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-xl-6 d-none d-lg-block">
+                <div class="hero-stats">
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-success">
+                            <i class="bi bi-graph-up-arrow"></i>
                         </div>
-                        <div class="col-md-6">
-                            <div class="text-md-end">
-                                @if (Model.IsApiAvailable)
-                                {
-                                    <span class="badge bg-success fs-6">
-                                        <i class="bi bi-check-circle me-1"></i>API Conectada
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger fs-6">
-                                        <i class="bi bi-x-circle me-1"></i>API No Disponible
-                                    </span>
-                                }
+                        <div class="stat-content">
+                            <div class="stat-number">@Model.ActiveSports.Count</div>
+                            <div class="stat-label">Deportes Activos</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-info">
+                            <i class="bi bi-globe-americas"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">4</div>
+                            <div class="stat-label">Regiones</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon @(Model.IsApiAvailable ? "bg-success" : "bg-danger")">
+                            <i class="bi bi-@(Model.IsApiAvailable ? "wifi" : "wifi-off")"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">@(Model.IsApiAvailable ? "LIVE" : "OFF")</div>
+                            <div class="stat-label">Estado API</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        Uso: @Model.ApiUsage.RequestsUsed / @(Model.ApiUsage.RequestsUsed + Model.ApiUsage.RequestsRemaining)
-                                    </small>
-                                    <div class="progress" style="height: 5px;">
-                                        @{
-                                            var percentage = Model.ApiUsage.RequestsUsed > 0
-                                            ? (double)Model.ApiUsage.RequestsUsed / (Model.ApiUsage.RequestsUsed + Model.ApiUsage.RequestsRemaining) * 100
-                                            : 0;
-                                            var progressColor = percentage > 80 ? "danger" : percentage > 60 ? "warning" : "success";
-                                        }
-                                        <div class="progress-bar bg-@progressColor" style="width: @percentage%"></div>
+<!-- API Status Section -->
+<section class="api-status-section">
+    <div class="container-fluid">
+        <div class="api-status-card glass-effect">
+            <div class="row align-items-center g-4">
+                <div class="col-md-3">
+                    <div class="status-indicator">
+                        @if (Model.IsApiAvailable)
+                        {
+                            <div class="status-dot status-success pulse"></div>
+                            <span class="status-text text-success fw-bold">Servicio Operativo</span>
+                        }
+                        else
+                        {
+                            <div class="status-dot status-danger"></div>
+                            <span class="status-text text-danger fw-bold">Servicio Interrumpido</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="usage-info">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-white fw-medium">Uso de API</span>
+                            <span class="text-muted">
+                                @Model.ApiUsage.RequestsUsed / @(Model.ApiUsage.RequestsUsed + Model.ApiUsage.RequestsRemaining) solicitudes
+                            </span>
+                        </div>
+                        @{
+                            var percentage = Model.ApiUsage.RequestsUsed > 0
+                                ? (double)Model.ApiUsage.RequestsUsed / (Model.ApiUsage.RequestsUsed + Model.ApiUsage.RequestsRemaining) * 100
+                                : 0;
+                            var progressColor = percentage > 80 ? "danger" : percentage > 60 ? "warning" : "success";
+                        }
+                        <div class="progress-modern">
+                            <div class="progress-bar bg-@progressColor" style="width: @percentage%">
+                                <span class="progress-shine"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <button class="btn btn-outline-primary btn-sm" onclick="updateApiStatus()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Actualizar Estado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section class="search-section" id="search-section">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="search-card glass-effect">
+                    <div class="search-header">
+                        <h3 class="search-title">
+                            <i class="bi bi-search me-2 text-primary"></i>Búsqueda Inteligente
+                        </h3>
+                        <p class="search-subtitle">Encuentra eventos de cualquier equipo o competición</p>
+                    </div>
+                    <div class="search-form">
+                        <div class="search-input-wrapper">
+                            <div class="search-icon">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <input type="text"
+                                   id="searchEvents"
+                                   class="search-input"
+                                   placeholder="Buscar equipos, eventos o competiciones..."
+                                   autocomplete="off">
+                            <div class="search-loading d-none">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                            </div>
+                            <button class="search-btn" type="button" onclick="searchEvents()">
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="search-suggestions">
+                            <span class="suggestion-tag" onclick="quickSearch('Real Madrid')">Real Madrid</span>
+                            <span class="suggestion-tag" onclick="quickSearch('Manchester City')">Manchester City</span>
+                            <span class="suggestion-tag" onclick="quickSearch('Lakers')">Lakers</span>
+                            <span class="suggestion-tag" onclick="quickSearch('Patriots')">Patriots</span>
+                        </div>
+                    </div>
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sports Section -->
+<section class="sports-section" id="sports-section">
+    <div class="container-fluid">
+        <div class="section-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="section-title">
+                        <span class="title-icon">
+                            <i class="bi bi-trophy-fill"></i>
+                        </span>
+                        Deportes Disponibles
+                    </h2>
+                    <p class="section-subtitle">Explora las mejores cuotas en deportes de todo el mundo</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="sport-filters">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="bi bi-grid-3x3-gap me-1"></i>Todos
+                        </button>
+                        <button class="filter-btn" data-filter="popular">
+                            <i class="bi bi-star me-1"></i>Populares
+                        </button>
+                        <button class="filter-btn" data-filter="live">
+                            <i class="bi bi-broadcast me-1"></i>En Vivo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sports-grid">
+            @foreach (var sportGroup in Model.ActiveSports.GroupBy(s => s.Group))
+            {
+                <div class="sport-category" data-category="@sportGroup.Key.ToLower()">
+                    <div class="category-header">
+                        <h4 class="category-title">
+                            <i class="bi bi-@(sportGroup.Key.ToLower().Contains("soccer") ? "trophy" : sportGroup.Key.ToLower().Contains("basketball") ? "circle" : sportGroup.Key.ToLower().Contains("american") ? "shield" : "trophy") me-2 text-primary"></i>
+                            @sportGroup.Key
+                        </h4>
+                        <span class="category-count">@sportGroup.Count() deportes</span>
+                    </div>
+                    <div class="row g-4">
+                        @foreach (var sport in sportGroup)
+                        {
+                            <div class="col-lg-4 col-xl-3">
+                                <div class="sport-card @(sport.Key.Contains("soccer") || sport.Key.Contains("basketball") || sport.Key.Contains("americanfootball") ? "popular" : "")">
+                                    <div class="sport-card-header">
+                                        <div class="sport-icon">
+                                            <i class="bi bi-@(sport.Key.Contains("soccer") ? "trophy" : sport.Key.Contains("basketball") ? "circle" : sport.Key.Contains("americanfootball") ? "shield" : sport.Key.Contains("baseball") ? "diamond" : sport.Key.Contains("tennis") ? "circle-fill" : "trophy")"></i>
+                                        </div>
+                                        <div class="sport-status">
+                                            @if (sport.Key.Contains("soccer") || sport.Key.Contains("basketball") || sport.Key.Contains("americanfootball"))
+                                            {
+                                                <span class="status-badge popular">
+                                                    <i class="bi bi-fire"></i>Popular
+                                                </span>
+                                            }
+                                            @if (sport.Key.Contains("soccer_epl") || sport.Key.Contains("basketball_nba"))
+                                            {
+                                                <span class="status-badge live pulse">
+                                                    <i class="bi bi-record-circle"></i>Live
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="sport-card-body">
+                                        <h5 class="sport-title">@sport.Title</h5>
+                                        <p class="sport-description">
+                                            @if (sport.Key.Contains("soccer"))
+                                            {
+                                                <text>El deporte más popular del mundo</text>
+                                            }
+                                            else if (sport.Key.Contains("basketball"))
+                                            {
+                                                <text>Acción rápida y emocionante</text>
+                                            }
+                                            else if (sport.Key.Contains("americanfootball"))
+                                            {
+                                                <text>Estrategia y fuerza combinadas</text>
+                                            }
+                                            else if (sport.Key.Contains("baseball"))
+                                            {
+                                                <text>El pasatiempo americano clásico</text>
+                                            }
+                                            else
+                                            {
+                                                <text>Emocionantes competiciones deportivas</text>
+                                            }
+                                        </p>
+                                        <div class="sport-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-number">12+</span>
+                                                <span class="stat-label">Eventos</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-number">25+</span>
+                                                <span class="stat-label">Casas</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="sport-card-footer">
+                                        <a href="@Url.Action("Events", "OddsApi", new { sportKey = sport.Key })" 
+                                           class="sport-btn">
+                                            <span>Ver Eventos</span>
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Featured Events Section -->
+<section class="featured-section" id="featured-section">
+    <div class="container-fluid">
+        <div class="section-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="section-title">
+                        <span class="title-icon">
+                            <i class="bi bi-star-fill"></i>
+                        </span>
+                        Eventos Destacados
+                    </h2>
+                    <p class="section-subtitle">Los eventos más populares y con mejores cuotas disponibles</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="@Url.Action("LiveEvents", "OddsApi")" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-broadcast me-2"></i>Ver Todos los Eventos en Vivo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="featuredEvents" class="featured-events-container">
+            <div class="loading-state">
+                <div class="loading-card glass-effect">
+                    <div class="loading-animation">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">
+                            <h4>Cargando eventos destacados...</h4>
+                            <p>Obteniendo las mejores cuotas internacionales</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (User.IsInRole("Admin"))
+{
+    <!-- Admin Panel -->
+    <section class="admin-section">
+        <div class="container-fluid">
+            <div class="admin-panel glass-effect">
+                <div class="admin-header">
+                    <div class="d-flex align-items-center">
+                        <div class="admin-icon">
+                            <i class="bi bi-gear-fill"></i>
+                        </div>
+                        <div class="admin-title">
+                            <h4>Panel de Administración</h4>
+                            <p>Gestión y sincronización de datos deportivos</p>
+                        </div>
+                    </div>
+                    <div class="admin-badge">
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-shield-check me-1"></i>ADMIN
+                        </span>
+                    </div>
+                </div>
+                <div class="admin-body">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="admin-action-card">
+                                <div class="action-icon bg-success">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </div>
+                                <div class="action-content">
+                                    <h5>Sincronizar Deportes</h5>
+                                    <p>Actualiza la lista completa de deportes disponibles</p>
+                                    <button class="btn btn-success" onclick="syncSports()">
+                                        <i class="bi bi-download me-1"></i>Sincronizar Ahora
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="admin-action-card">
+                                <div class="action-icon bg-primary">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="action-content">
+                                    <h5>Sincronizar Eventos</h5>
+                                    <p>Actualiza eventos de un deporte específico</p>
+                                    <div class="input-group">
+                                        <select id="sportToSync" class="form-select">
+                                            <option value="">Seleccionar deporte...</option>
+                                            @foreach (var sport in Model.ActiveSports)
+                                            {
+                                                <option value="@sport.Key">@sport.Title</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-primary" onclick="syncEvents()">
+                                            <i class="bi bi-sync me-1"></i>Sincronizar
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -53,182 +383,283 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Búsqueda rápida -->
-    <div class="row mb-4">
-        <div class="col-md-8 mx-auto">
-            <div class="input-group input-group-lg">
-                <span class="input-group-text bg-dark-3 border-primary">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text"
-                       id="searchEvents"
-                       class="form-control bg-dark-3 border-primary text-white"
-                       placeholder="Buscar equipo o evento...">
-                <button class="btn btn-primary" type="button" onclick="searchEvents()">
-                    Buscar
-                </button>
-            </div>
-            <div id="searchResults" class="mt-3"></div>
-        </div>
-    </div>
-
-    <!-- Deportes disponibles -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">Deportes Disponibles</h3>
-            <div class="row g-3">
-                @foreach (var sport in Model.ActiveSports.GroupBy(s => s.Group))
-                {
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card bg-dark-3 border-secondary h-100">
-                            <div class="card-header bg-dark-4 text-primary">
-                                <strong>@sport.Key</strong>
-                            </div>
-                            <div class="card-body">
-                                <div class="list-group list-group-flush">
-                                    @foreach (var s in sport)
-                                    {
-                                        <a href="@Url.Action("Events", "OddsApi", new { sportKey = s.Key })"
-                                           class="list-group-item list-group-item-action bg-dark-3 text-white border-0 py-2">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span>
-                                                    <i class="bi bi-trophy me-2"></i>@s.Title
-                                                </span>
-                                                <i class="bi bi-arrow-right text-primary"></i>
-                                            </div>
-                                        </a>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <!-- Eventos destacados -->
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Eventos Próximos Destacados</h3>
-                <a href="@Url.Action("LiveEvents", "OddsApi")" class="btn btn-outline-primary">
-                    <i class="bi bi-broadcast me-2"></i>Ver Eventos en Vivo
-                </a>
-            </div>
-
-            <div id="featuredEvents" class="row g-3">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando eventos...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if (User.IsInRole("Admin"))
-    {
-        <!-- Panel de administración -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="card bg-dark-2 border-warning">
-                    <div class="card-header bg-warning text-dark">
-                        <i class="bi bi-gear-fill me-2"></i>Panel de Administración
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <button class="btn btn-success w-100" onclick="syncSports()">
-                                    <i class="bi bi-arrow-repeat me-2"></i>Sincronizar Deportes
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <select id="sportToSync" class="form-select bg-dark-3 text-white">
-                                        <option value="">Seleccione un deporte...</option>
-                                        @foreach (var sport in Model.ActiveSports)
-                                        {
-                                            <option value="@sport.Key">@sport.Title</option>
-                                        }
-                                    </select>
-                                    <button class="btn btn-primary" onclick="syncEvents()">
-                                        Sincronizar Eventos
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
+    </section>
+}
 </div>
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            loadFeaturedEvents();
+        // Modern JavaScript with better UX
+        class OddsApiDashboard {
+            constructor() {
+                this.searchTimeout = null;
+                this.refreshInterval = null;
+                this.isLoading = false;
+                this.init();
+            }
 
-            // Auto-actualización cada 60 segundos
-            setInterval(function() {
-                loadFeaturedEvents();
-                updateApiStatus();
-            }, 60000);
+            init() {
+                this.setupEventListeners();
+                this.loadFeaturedEvents();
+                this.setupAutoRefresh();
+                this.setupSmoothScrolling();
+                this.setupSportFilters();
+                this.animateOnLoad();
+            }
 
-            // Búsqueda en tiempo real
-            $('#searchEvents').on('input', function() {
-                if ($(this).val().length >= 3) {
-                    searchEvents();
+            setupEventListeners() {
+                // Search with debouncing
+                $('#searchEvents').on('input', (e) => {
+                    clearTimeout(this.searchTimeout);
+                    const query = e.target.value;
+                    
+                    if (query.length === 0) {
+                        $('#searchResults').empty();
+                        $('.search-loading').addClass('d-none');
+                        return;
+                    }
+                    
+                    if (query.length >= 2) {
+                        $('.search-loading').removeClass('d-none');
+                        this.searchTimeout = setTimeout(() => this.searchEvents(query), 300);
+                    }
+                });
+
+                // Search on enter
+                $('#searchEvents').on('keypress', (e) => {
+                    if (e.which === 13) {
+                        this.searchEvents(e.target.value);
+                    }
+                });
+
+                // Sport filter buttons
+                $('.filter-btn').on('click', (e) => {
+                    this.filterSports(e.target.dataset.filter);
+                });
+            }
+
+            async searchEvents(query) {
+                if (query.length < 2) return;
+
+                try {
+                    $('.search-loading').removeClass('d-none');
+                    const response = await fetch(`@Url.Action("SearchEvents", "OddsApi")?query=${encodeURIComponent(query)}`);
+                    const data = await response.text();
+                    
+                    $('#searchResults').html(data).addClass('show');
+                    $('.search-loading').addClass('d-none');
+                    
+                    // Add animation to results
+                    this.animateSearchResults();
+                } catch (error) {
+                    console.error('Search error:', error);
+                    $('#searchResults').html(`
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Error en la búsqueda. Intente nuevamente.
+                        </div>
+                    `);
+                    $('.search-loading').addClass('d-none');
                 }
-            });
-        });
+            }
 
-        function loadFeaturedEvents() {
-            $.get('@Url.Action("Events", "OddsApi", new { sportKey = "soccer_epl", region = "us", market = "h2h" })', function(data) {
-                // Procesar y mostrar eventos destacados
-                // Este es un ejemplo simplificado
-                $('#featuredEvents').html('<div class="col-12"><p>Eventos cargados</p></div>');
-            }).fail(function() {
-                $('#featuredEvents').html('<div class="col-12"><div class="alert alert-warning">No se pudieron cargar los eventos</div></div>');
-            });
-        }
+            quickSearch(term) {
+                $('#searchEvents').val(term).trigger('input');
+            }
 
-        function searchEvents() {
-            var query = $('#searchEvents').val();
-            if (query.length < 3) return;
+            async loadFeaturedEvents() {
+                const container = $('#featuredEvents');
+                
+                try {
+                    // Show enhanced loading state
+                    const response = await fetch('@Url.Action("Events", "OddsApi", new { sportKey = "soccer_epl", region = "us", market = "h2h" })');
+                    
+                    if (response.ok) {
+                        container.html(`
+                            <div class="featured-success">
+                                <div class="success-card glass-effect">
+                                    <div class="success-icon">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    </div>
+                                    <div class="success-content">
+                                        <h4>Eventos Cargados Exitosamente</h4>
+                                        <p>Explore los eventos destacados de Premier League y otros deportes</p>
+                                        <div class="action-buttons">
+                                            <a href="@Url.Action("Events", "OddsApi", new { sportKey = "soccer_epl" })" 
+                                               class="btn btn-primary">
+                                                <i class="bi bi-trophy me-2"></i>Ver Premier League
+                                            </a>
+                                            <a href="@Url.Action("Events", "OddsApi", new { sportKey = "basketball_nba" })" 
+                                               class="btn btn-outline-primary ms-2">
+                                                <i class="bi bi-circle me-2"></i>Ver NBA
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    } else {
+                        throw new Error('Failed to load events');
+                    }
+                } catch (error) {
+                    container.html(`
+                        <div class="featured-error">
+                            <div class="error-card glass-effect">
+                                <div class="error-icon">
+                                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                </div>
+                                <div class="error-content">
+                                    <h4>Error al Cargar Eventos</h4>
+                                    <p>No se pudieron cargar los eventos destacados en este momento</p>
+                                    <button class="btn btn-outline-warning" onclick="dashboard.loadFeaturedEvents()">
+                                        <i class="bi bi-arrow-clockwise me-2"></i>Reintentar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+            }
 
-            $.get('@Url.Action("SearchEvents", "OddsApi")', { query: query }, function(data) {
-                $('#searchResults').html(data);
-            });
-        }
+            setupAutoRefresh() {
+                this.refreshInterval = setInterval(() => {
+                    this.updateApiStatus();
+                    if (!this.isLoading) {
+                        this.loadFeaturedEvents();
+                    }
+                }, 60000);
+            }
 
-        function updateApiStatus() {
-            $.get('@Url.Action("ApiStatus", "OddsApi")', function(data) {
-                // Actualizar el estado de la API en la UI
-            });
-        }
+            setupSmoothScrolling() {
+                $('.smooth-scroll').on('click', function(e) {
+                    e.preventDefault();
+                    const target = $(this.getAttribute('href'));
+                    if (target.length) {
+                        $('html, body').animate({
+                            scrollTop: target.offset().top - 80
+                        }, 800, 'easeInOutCubic');
+                    }
+                });
+            }
 
-        @if (User.IsInRole("Admin"))
-        {
-                <text>
-                function syncSports() {
-                    if (!confirm('¿Desea sincronizar todos los deportes con la base de datos local?')) return;
+            setupSportFilters() {
+                $('.filter-btn').on('click', function() {
+                    $('.filter-btn').removeClass('active');
+                    $(this).addClass('active');
+                });
+            }
 
-                    $.post('@Url.Action("SyncSports", "OddsApi")', function(response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            setTimeout(function() { location.reload(); }, 2000);
-                        } else {
-                            toastr.error(response.message);
+            filterSports(filter) {
+                const categories = $('.sport-category');
+                const cards = $('.sport-card');
+                
+                categories.hide();
+                cards.hide();
+                
+                setTimeout(() => {
+                    switch(filter) {
+                        case 'popular':
+                            cards.filter('.popular').closest('.sport-category').show();
+                            cards.filter('.popular').show();
+                            break;
+                        case 'live':
+                            cards.has('.status-badge.live').closest('.sport-category').show();
+                            cards.has('.status-badge.live').show();
+                            break;
+                        default:
+                            categories.show();
+                            cards.show();
+                    }
+                    
+                    // Animate visible cards
+                    cards.filter(':visible').each((i, card) => {
+                        setTimeout(() => {
+                            $(card).addClass('animate-in');
+                        }, i * 100);
+                    });
+                }, 150);
+            }
+
+            animateOnLoad() {
+                // Animate hero elements
+                gsap.timeline()
+                    .from('.hero-badge', { opacity: 0, y: 20, duration: 0.6 })
+                    .from('.hero-title', { opacity: 0, y: 30, duration: 0.8 }, '-=0.3')
+                    .from('.hero-subtitle', { opacity: 0, y: 20, duration: 0.6 }, '-=0.5')
+                    .from('.hero-actions .btn', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1 }, '-=0.3')
+                    .from('.stat-card', { opacity: 0, scale: 0.9, duration: 0.6, stagger: 0.1 }, '-=0.5');
+
+                // Animate sections on scroll
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('animate-in');
                         }
                     });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.sport-card, .search-card, .api-status-card').forEach(el => {
+                    observer.observe(el);
+                });
+            }
+
+            animateSearchResults() {
+                $('#searchResults .list-group-item').each((i, item) => {
+                    setTimeout(() => {
+                        $(item).addClass('animate-in');
+                    }, i * 50);
+                });
+            }
+
+            async updateApiStatus() {
+                try {
+                    const response = await fetch('@Url.Action("ApiStatus", "OddsApi")');
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Update API status UI with new data
+                        console.log('API Status updated:', data);
+                    }
+                } catch (error) {
+                    console.error('Failed to update API status:', error);
+                }
+            }
+
+            // Admin functions
+            @if (User.IsInRole("Admin"))
+            {
+                <text>
+                async syncSports() {
+                    if (!confirm('¿Desea sincronizar todos los deportes con la base de datos local?')) return;
+
+                    const btn = event.target;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-arrow-repeat spinning me-1"></i>Sincronizando...';
+                    btn.disabled = true;
+
+                    try {
+                        const response = await fetch('@Url.Action("SyncSports", "OddsApi")', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            toastr.success(result.message);
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            toastr.error(result.message);
+                        }
+                    } catch (error) {
+                        toastr.error('Error de conexión');
+                    } finally {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
                 }
 
-                function syncEvents() {
-                    var sportKey = $('#sportToSync').val();
+                async syncEvents() {
+                    const sportKey = $('#sportToSync').val();
                     if (!sportKey) {
                         toastr.warning('Seleccione un deporte');
                         return;
@@ -236,45 +667,894 @@
 
                     if (!confirm('¿Desea sincronizar los eventos de este deporte?')) return;
 
-                    $.post('@Url.Action("SyncEvents", "OddsApi")', { sportKey: sportKey }, function(response) {
-                        if (response.success) {
-                            toastr.success(response.message);
+                    const btn = event.target;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-sync spinning me-1"></i>Sincronizando...';
+                    btn.disabled = true;
+
+                    try {
+                        const response = await fetch('@Url.Action("SyncEvents", "OddsApi")', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sportKey })
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            toastr.success(result.message);
                         } else {
-                            toastr.error(response.message);
+                            toastr.error(result.message);
                         }
-                    });
+                    } catch (error) {
+                        toastr.error('Error de conexión');
+                    } finally {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
                 }
                 </text>
+            }
+        }
+
+        // Global functions for inline handlers
+        let dashboard;
+        
+        $(document).ready(function() {
+            dashboard = new OddsApiDashboard();
+        });
+
+        // Global functions
+        function quickSearch(term) { dashboard.quickSearch(term); }
+        function searchEvents() { dashboard.searchEvents($('#searchEvents').val()); }
+        function updateApiStatus() { dashboard.updateApiStatus(); }
+        
+        @if (User.IsInRole("Admin"))
+        {
+            <text>
+            function syncSports() { dashboard.syncSports(); }
+            function syncEvents() { dashboard.syncEvents(); }
+            </text>
         }
     </script>
 }
 
 @section Styles {
     <style>
-        .card {
-            transition: transform 0.3s ease;
+        /* Modern Design System */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --shadow-large: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
-            .card:hover {
-                transform: translateY(-5px);
-            }
-
-        .list-group-item-action:hover {
-            background-color: rgba(0, 123, 255, 0.1) !important;
+        /* Glass Effect */
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
         }
 
-        .progress {
-            background-color: rgba(255, 255, 255, 0.1);
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
         }
 
-        #searchResults {
-            max-height: 400px;
-            overflow-y: auto;
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
         }
 
-        .spinner-border {
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem 0;
+        }
+
+        .hero-badge .badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            background: var(--gradient-success) !important;
+            border: none;
+            animation: pulse 2s infinite;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .text-gradient-primary {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .hero-actions .btn {
+            border-radius: 50px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .hero-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+        }
+
+        /* Hero Stats */
+        .hero-stats {
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card {
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            display: block;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* API Status Section */
+        .api-status-section {
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .api-status-card {
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .status-success {
+            background: #10b981;
+        }
+
+        .status-danger {
+            background: #ef4444;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .progress-modern {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            transition: width 0.6s ease;
+        }
+
+        .progress-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @@keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Search Section */
+        .search-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        .search-card {
+            padding: 3rem;
+            border-radius: 25px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .search-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .search-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 3.5rem 1rem 3.5rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            color: #333;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .search-input:focus {
+            outline: none;
+            transform: scale(1.02);
+            box-shadow: var(--shadow-large);
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 1.25rem;
+        }
+
+        .search-loading {
+            position: absolute;
+            right: 4rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
             width: 3rem;
             height: 3rem;
+            border: none;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 1.25rem;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: var(--shadow-large);
+        }
+
+        .search-suggestions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .suggestion-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .suggestion-tag:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-results {
+            margin-top: 2rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 15px;
+        }
+
+        .search-results.show {
+            animation: slideDown 0.3s ease;
+        }
+
+        @@keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sports Section */
+        .sports-section {
+            padding: 5rem 0;
+            background: #0a0a0a;
+        }
+
+        .section-header {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .title-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sport-filters {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Sport Categories */
+        .sports-grid .sport-category {
+            margin-bottom: 4rem;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
+
+        .category-count {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        /* Sport Cards */
+        .sport-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 0;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            height: 100%;
+            position: relative;
+        }
+
+        .sport-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .sport-card:hover::before {
+            opacity: 1;
+        }
+
+        .sport-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-large);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sport-card.popular {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .sport-card-header {
+            padding: 1.5rem 1.5rem 0;
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+        }
+
+        .sport-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .sport-status {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 25px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-badge.popular {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-badge.live {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .sport-card-body {
+            padding: 1.5rem;
+        }
+
+        .sport-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.75rem;
+        }
+
+        .sport-description {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .sport-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #06b6d4;
+            display: block;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sport-card-footer {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .sport-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+
+        .sport-btn:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        /* Featured Section */
+        .featured-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+        }
+
+        .loading-card {
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .loading-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #06b6d4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text h4 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-text p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .success-card,
+        .error-card {
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .success-icon,
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .success-content h4,
+        .error-content h4 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .success-content p,
+        .error-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Admin Section */
+        .admin-section {
+            padding: 3rem 0;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .admin-panel {
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .admin-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #f59e0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            margin-right: 1rem;
+        }
+
+        .admin-title h4 {
+            color: white;
+            margin: 0;
+        }
+
+        .admin-title p {
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .admin-action-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .action-content h5 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-content p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        .animate-in {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .sport-filters {
+                flex-wrap: wrap;
+            }
+            
+            .admin-action-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .search-suggestions {
+                justify-content: flex-start;
+            }
+            
+            .hero-actions .btn {
+                display: block;
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .stat-card {
+                padding: 1.5rem;
+            }
+            
+            .search-card {
+                padding: 2rem;
+            }
+            
+            .admin-panel {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Accessibility */
+        @@media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @@media (prefers-contrast: high) {
+            .glass-effect {
+                background: rgba(0, 0, 0, 0.8);
+                border: 2px solid white;
+            }
+            
+            .sport-card {
+                border: 2px solid white;
+            }
         }
     </style>
 }

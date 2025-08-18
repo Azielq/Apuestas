@@ -170,12 +170,30 @@ namespace Proyecto_Apuestas.Services.Implementations
                 else
                     url += "&markets=h2h,spreads,totals"; // Mercados por defecto
 
+                _logger.LogInformation($"Calling Odds API: {url.Replace(_apiKey, "***")}");
+
                 var response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var odds = JsonConvert.DeserializeObject<List<OddsApiModel>>(content);
+                    
+                    // Log para depurar el contenido de la respuesta
+                    _logger.LogInformation($"API Response content (first 500 chars): {content.Substring(0, Math.Min(content.Length, 500))}");
+                    
+                    var settings = new JsonSerializerSettings
+                    {
+                        DateParseHandling = DateParseHandling.DateTime,
+                        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                    };
+                    var odds = JsonConvert.DeserializeObject<List<OddsApiModel>>(content, settings);
+
+                    // Log para verificar la deserialización
+                    if (odds != null && odds.Any())
+                    {
+                        var firstEvent = odds.First();
+                        _logger.LogInformation($"First event deserialized - ID: {firstEvent.Id}, CommenceTime: {firstEvent.CommenceTime}, HomeTeam: {firstEvent.HomeTeam}");
+                    }
 
                     LogApiUsage(response.Headers);
 

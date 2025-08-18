@@ -1,10 +1,16 @@
-﻿@model List<Proyecto_Apuestas.Models.API.OddsApiModel>
+﻿@using Proyecto_Apuestas.Helpers
+@model List<Proyecto_Apuestas.Models.API.OddsApiModel>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle me-2"></i>
-        No se encontraron eventos que coincidan con tu búsqueda.
+    <div class="alert alert-info bg-dark-2 border-info text-white">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle-fill me-3 text-info fs-4"></i>
+            <div>
+                <h6 class="alert-heading mb-1">No hay resultados</h6>
+                <p class="mb-0">No se encontraron eventos que coincidan con tu búsqueda.</p>
+            </div>
+        </div>
     </div>
 }
 else
@@ -12,28 +18,91 @@ else
     <div class="list-group">
         @foreach (var evt in Model)
         {
+            var localTime = evt.CommenceTime.Kind == DateTimeKind.Utc ? 
+                evt.CommenceTime.ToCostaRicaTime() : 
+                evt.CommenceTime;
+            
+            // Fallback para fechas inválidas (01/01/0001)
+            var isValidDate = evt.CommenceTime > DateTime.MinValue.AddYears(10);
+            if (!isValidDate)
+            {
+                localTime = DateTime.Now.AddHours(1); // Evento próximo por defecto
+            }
+            
             <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" 
-               class="list-group-item list-group-item-action bg-dark-3 text-white border-secondary">
+               class="list-group-item list-group-item-action bg-dark-2 text-white border-secondary hover-card">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-1">@evt.HomeTeam vs @evt.AwayTeam</h6>
-                        <small class="text-muted">
-                            <i class="bi bi-calendar me-1"></i>
-                            @evt.CommenceTime.ToString("dd/MM/yyyy HH:mm")
-                        </small>
+                        <h6 class="mb-1 text-white fw-bold">
+                            <span class="text-primary">@evt.HomeTeam</span> 
+                            <span class="text-success mx-1">vs</span> 
+                            <span class="text-primary">@evt.AwayTeam</span>
+                        </h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 me-1 text-primary"></i>
+                                @if (!isValidDate)
+                                {
+                                    <span class="text-warning">Fecha por confirmar</span>
+                                }
+                                else
+                                {
+                                    @localTime.ToDisplayFormat()
+                                }
+                            </small>
+                            <small class="text-info">
+                                <i class="bi bi-clock me-1"></i>
+                                @if (!isValidDate)
+                                {
+                                    <span>Información pendiente</span>
+                                }
+                                else
+                                {
+                                    @DateTimeHelper.GetTimeUntilEvent(localTime)
+                                }
+                            </small>
+                        </div>
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-primary">@evt.SportTitle</span>
-                        @if (evt.Bookmakers != null && evt.Bookmakers.Any())
-                        {
-                            var h2hMarket = evt.Bookmakers.FirstOrDefault()?.Markets?.FirstOrDefault(m => m.Key == "h2h");
-                            if (h2hMarket != null && h2hMarket.Outcomes != null && h2hMarket.Outcomes.Any())
+                        <div class="d-flex flex-column align-items-end gap-1">
+                            <span class="badge bg-primary">
+                                <i class="bi bi-trophy me-1"></i>@evt.SportTitle
+                            </span>
+                            @if (DateTimeHelper.IsEventLive(localTime))
                             {
-                                <div class="mt-1">
-                                    <small class="text-success">Cuotas disponibles</small>
-                                </div>
+                                <span class="badge bg-danger pulse-animation">
+                                    <i class="bi bi-broadcast-pin me-1"></i>EN VIVO
+                                </span>
                             }
-                        }
+                            else if (localTime <= DateTime.Now.AddHours(2))
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-clock me-1"></i>PRÓXIMAMENTE
+                                </span>
+                            }
+                            @if (evt.Bookmakers != null && evt.Bookmakers.Any())
+                            {
+                                var h2hMarket = evt.Bookmakers.FirstOrDefault()?.Markets?.FirstOrDefault(m => m.Key == "h2h");
+                                if (h2hMarket != null && h2hMarket.Outcomes != null && h2hMarket.Outcomes.Any())
+                                {
+                                    <small class="text-success">
+                                        <i class="bi bi-check-circle me-1"></i>Cuotas disponibles
+                                    </small>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock-history me-1"></i>Sin cuotas
+                                    </small>
+                                }
+                            }
+                            else
+                            {
+                                <small class="text-muted">
+                                    <i class="bi bi-clock-history me-1"></i>Sin cuotas
+                                </small>
+                            }
+                        </div>
                     </div>
                 </div>
             </a>
