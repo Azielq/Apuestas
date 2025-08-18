@@ -114,7 +114,17 @@
             </div>
             <div class="filter-body">
                 <div class="row g-4">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="bi bi-search text-warning me-2"></i>Buscar Eventos
+                            </label>
+                            <input type="text" id="searchFilter" class="filter-select" 
+                                   placeholder="Buscar por equipos..." 
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
                         <div class="filter-group">
                             <label class="filter-label">
                                 <i class="bi bi-geo-alt-fill text-primary me-2"></i>Región
@@ -173,7 +183,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="filter-group">
                             <label class="filter-label">
                                 <i class="bi bi-graph-up-arrow text-success me-2"></i>Tipo de Apuesta
@@ -224,7 +234,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="filter-group">
                             <label class="filter-label">
                                 <i class="bi bi-sort-down text-info me-2"></i>Ordenar por
@@ -576,6 +586,33 @@
                 var $this = $(this);
                 $this.css('color', $this.val() ? '#ffffff' : '#6c757d');
             });
+
+            // Funcionalidad de búsqueda
+            console.log('Setting up search filter...');
+            var searchFilter = $('#searchFilter');
+            console.log('Search filter element found:', searchFilter.length);
+            
+            searchFilter.on('input', function() {
+                var searchTerm = $(this).val().toLowerCase().trim();
+                console.log('Search input event triggered. Term:', searchTerm);
+                filterEvents(searchTerm);
+            });
+
+            // Limpiar búsqueda al pulsar Escape
+            searchFilter.on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    console.log('Escape pressed, clearing search');
+                    $(this).val('');
+                    filterEvents('');
+                }
+            });
+
+            // Test inicial para verificar que todo funciona
+            console.log('Testing filterEvents function...');
+            setTimeout(function() {
+                var testCards = $('.col-12').has('.event-card-modern');
+                console.log('Initial test - found cards:', testCards.length);
+            }, 1000);
         });
 
         function refreshEvents() {
@@ -727,9 +764,14 @@
             $('#regionFilter').val('');
             $('#marketFilter').val('');
             $('#sortBy').val('');
+            $('#searchFilter').val('');
             
             // Actualizar colores
             $('#regionFilter, #marketFilter, #sortBy').css('color', '#6c757d');
+            
+            // Mostrar todos los eventos
+            $('.col-12').has('.event-card-modern').show();
+            $('#noResultsMessage').remove();
             
             // Navegar a la URL sin filtros
             var sportKey = '@Model.SportKey';
@@ -742,31 +784,98 @@
             window.location.href = url;
         }
 
+        function filterEvents(searchTerm) {
+            console.log('filterEvents called with term:', searchTerm);
+            
+            // Buscar los contenedores de eventos
+            var $eventCards = $('.col-12').has('.event-card-modern');
+            console.log('Found event cards:', $eventCards.length);
+            
+            var visibleCount = 0;
+            
+            // Remover mensaje anterior de sin resultados
+            $('#noResultsMessage').remove();
+            
+            if (searchTerm === '') {
+                // Si no hay término de búsqueda, mostrar todos los eventos
+                $eventCards.show();
+                visibleCount = $eventCards.length;
+                console.log('Showing all events:', visibleCount);
+            } else {
+                // Filtrar eventos por término de búsqueda
+                $eventCards.each(function() {
+                    var $eventContainer = $(this);
+                    var $eventCard = $eventContainer.find('.event-card-modern');
+                    
+                    // Buscar específicamente en los nombres de equipos
+                    var homeTeam = $eventCard.find('.home-team .team-name').text().toLowerCase();
+                    var awayTeam = $eventCard.find('.away-team .team-name').text().toLowerCase();
+                    
+                    console.log('Checking:', homeTeam, 'vs', awayTeam, 'for term:', searchTerm);
+                    
+                    // Buscar en nombres de equipos
+                    var matchesSearch = homeTeam.includes(searchTerm) || awayTeam.includes(searchTerm);
+                    
+                    if (matchesSearch) {
+                        $eventContainer.show();
+                        visibleCount++;
+                        console.log('Match found, showing event');
+                    } else {
+                        $eventContainer.hide();
+                        console.log('No match, hiding event');
+                    }
+                });
+            }
+            
+            console.log('Visible events after filter:', visibleCount);
+            
+            // Actualizar contador de eventos visibles
+            $('.section-title .badge').text(visibleCount);
+            
+            // Mostrar mensaje si no hay resultados
+            if (visibleCount === 0 && searchTerm !== '') {
+                var noResultsHtml = `
+                    <div id="noResultsMessage" class="col-12">
+                        <div class="alert alert-info bg-dark-2 border-info text-white text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="bi bi-search me-3 text-info fs-4"></i>
+                                <div>
+                                    <h5 class="alert-heading mb-1">No se encontraron eventos</h5>
+                                    <p class="mb-0">No hay eventos que coincidan con "<strong>${searchTerm}</strong>". Prueba con otros términos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                $('.events-section .row').append(noResultsHtml);
+                console.log('No results message added');
+            }
+        }
+
         function sortEvents(sortBy) {
             if (!sortBy) return;
-            var $items = $('.event-card').closest('.col-12');
+            var $items = $('.col-12').has('.event-card-modern');
             var $container = $items.parent();
 
             var compareFn = function(a, b) { return 0; };
             switch (sortBy) {
                 case 'time':
                     compareFn = function(a, b) {
-                        var ta = parseInt($(a).find('.event-card').attr('data-time')) || 0;
-                        var tb = parseInt($(b).find('.event-card').attr('data-time')) || 0;
+                        var ta = parseInt($(a).find('.event-card-modern').attr('data-time')) || 0;
+                        var tb = parseInt($(b).find('.event-card-modern').attr('data-time')) || 0;
                         return ta - tb;
                     };
                     break;
                 case 'team':
                     compareFn = function(a, b) {
-                        var ta = ($(a).find('.event-card').attr('data-team') || '').toLowerCase();
-                        var tb = ($(b).find('.event-card').attr('data-team') || '').toLowerCase();
+                        var ta = ($(a).find('.event-card-modern').attr('data-team') || '').toLowerCase();
+                        var tb = ($(b).find('.event-card-modern').attr('data-team') || '').toLowerCase();
                         return ta.localeCompare(tb);
                     };
                     break;
                 case 'odds':
                     compareFn = function(a, b) {
-                        var oa = parseFloat($(a).find('.event-card').attr('data-odds')) || 0;
-                        var ob = parseFloat($(b).find('.event-card').attr('data-odds')) || 0;
+                        var oa = parseFloat($(a).find('.event-card-modern').attr('data-odds')) || 0;
+                        var ob = parseFloat($(b).find('.event-card-modern').attr('data-odds')) || 0;
                         return ob - oa; // Descendente
                     };
                     break;
@@ -1013,6 +1122,20 @@
         .filter-select option {
             background: #2d2d2d;
             color: white;
+        }
+
+        /* Search Input Specific Styles */
+        .filter-select[type="text"] {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .filter-select[type="text"]:focus {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .filter-select[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
         }
 
         /* Events Section */

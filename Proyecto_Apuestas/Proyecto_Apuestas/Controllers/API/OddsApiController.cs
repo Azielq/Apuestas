@@ -12,18 +12,21 @@ namespace Proyecto_Apuestas.Controllers
         private readonly IOddsApiService _oddsApiService;
         private readonly IEventService _eventService;
         private readonly IBettingService _bettingService;
+        private readonly IApiBettingService _apiBettingService;
         private readonly IUserService _userService;
 
         public OddsApiController(
             IOddsApiService oddsApiService,
             IEventService eventService,
             IBettingService bettingService,
+            IApiBettingService apiBettingService,
             IUserService userService,
             ILogger<OddsApiController> logger) : base(logger)
         {
             _oddsApiService = oddsApiService;
             _eventService = eventService;
             _bettingService = bettingService;
+            _apiBettingService = apiBettingService;
             _userService = userService;
         }
 
@@ -175,36 +178,80 @@ namespace Proyecto_Apuestas.Controllers
                 return View(model);
             }
 
-            // Primero sincronizar el evento con la base de datos local
-            await _oddsApiService.SyncEventsWithDatabaseAsync(model.SportKey);
-
-            // Buscar el evento local
-            var localEvent = await _eventService.GetEventByExternalIdAsync(model.ApiEventId);
-            if (localEvent == null)
+            try
             {
-                AddErrorMessage("No se pudo procesar la apuesta. Intente nuevamente.");
+                // Usar el servicio de apuestas de API directamente sin sincronización
+                var result = await _apiBettingService.PlaceBetAsync(model);
+
+                if (result.Success)
+                {
+                    AddSuccessMessage("¡Apuesta realizada con éxito!");
+                    return RedirectToAction("ApiBetDetails", "OddsApi", new { id = result.ApiBetId });
+                }
+
+                AddModelErrors(result.ErrorMessage ?? "Error al procesar la apuesta");
+                var user = await _userService.GetCurrentUserAsync();
+                model.UserBalance = user?.CreditBalance ?? 0;
                 return View(model);
             }
-
-            // Crear la apuesta usando el sistema existente
-            var betModel = new CreateBetViewModel
+            catch (Exception ex)
             {
-                EventId = localEvent.EventId,
-                TeamId = localEvent.Teams.First(t => t.TeamName == model.TeamName).TeamId,
-                Stake = model.Stake,
-                Odds = model.Odds
-            };
+                _logger.LogError(ex, "Error creating API bet for user {UserId}", _userService.GetCurrentUserId());
+                AddErrorMessage("Error interno del sistema. Intente nuevamente.");
+                var user = await _userService.GetCurrentUserAsync();
+                model.UserBalance = user?.CreditBalance ?? 0;
+                return View(model);
+            }
+        }
 
-            var result = await _bettingService.PlaceBetAsync(betModel);
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ApiBetDetails(int id)
+        {
+            var userId = _userService.GetCurrentUserId();
+            var apiBetDetails = await _apiBettingService.GetApiBetDetailsAsync(id, userId);
 
-            if (result.Success)
+            if (apiBetDetails == null)
             {
-                AddSuccessMessage("¡Apuesta realizada con éxito!");
-                return RedirectToAction("Details", "Betting", new { id = result.BetId });
+                AddErrorMessage("Apuesta no encontrada.");
+                return RedirectToAction("Index");
             }
 
-            AddModelErrors(result.ErrorMessage ?? "Error al procesar la apuesta");
-            return View(model);
+            return View(apiBetDetails);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ApiBetHistory(int page = 1, string? status = null, string? sportKey = null)
+        {
+            var userId = _userService.GetCurrentUserId();
+            var filter = new ApiBetHistoryFilter
+            {
+                Status = status,
+                SportKey = sportKey
+            };
+
+            var history = await _apiBettingService.GetUserApiBetHistoryAsync(userId, page, 20, filter);
+            return View(history);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> CancelApiBet(int id)
+        {
+            var userId = _userService.GetCurrentUserId();
+            var success = await _apiBettingService.CancelApiBetAsync(id, userId);
+
+            if (success)
+            {
+                AddSuccessMessage("Apuesta cancelada exitosamente.");
+            }
+            else
+            {
+                AddErrorMessage("No se pudo cancelar la apuesta. Verifica que el evento no haya iniciado.");
+            }
+
+            return RedirectToAction("ApiBetDetails", new { id });
         }
 
         [Authorize(Roles = "Admin")]
