@@ -231,10 +231,10 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
 }
 
 /* ========================================
-   FUNCIONALIDADES DE CONTRASEÑAS E INPUT GROUPS
+   FUNCIONALIDADES DE CONTRASEï¿½AS E INPUT GROUPS
 ======================================== */
 
-/* Input Groups para contraseñas */
+/* Input Groups para contraseï¿½as */
 .input-group .form-control {
     border-right: none;
 }
@@ -258,7 +258,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     border-color: var(--primary-color);
 }
 
-/* Estilos mejorados para botones de toggle de contraseña (del JS) */
+/* Estilos mejorados para botones de toggle de contraseï¿½a (del JS) */
 .input-group .btn {
     transition: all 0.2s ease-in-out;
     position: relative;
@@ -295,7 +295,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
 }
 
-/* Estilos para íconos de contraseña */
+/* Estilos para ï¿½conos de contraseï¿½a */
 .input-group .btn i {
     transition: all 0.2s ease;
     font-size: 1rem;
@@ -352,7 +352,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     outline-offset: 2px;
 }
 
-/* Indicador de estado activo más prominente */
+/* Indicador de estado activo mï¿½s prominente */
 .input-group .btn.btn-primary {
     position: relative;
 }
@@ -370,7 +370,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     opacity: 0.9;
 }
 
-/* Efecto de resplandor sutil cuando está activo */
+/* Efecto de resplandor sutil cuando estï¿½ activo */
 .input-group .btn.btn-primary::before {
     content: '';
     position: absolute;
@@ -411,7 +411,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     border-color: var(--bs-primary);
 }
 
-/* Estados de validación para botones de contraseña */
+/* Estados de validaciï¿½n para botones de contraseï¿½a */
 .input-group .btn.validation-success {
     border-color: #28a745;
     box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.25);
@@ -504,10 +504,10 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
 }
 
 /* ========================================
-   INDICADORES DE CONTRASEÑA
+   INDICADORES DE CONTRASEï¿½A
 ======================================== */
 
-/* Indicador de fortaleza de contraseña */
+/* Indicador de fortaleza de contraseï¿½a */
 .password-strength {
     margin-top: 0.5rem;
 }
@@ -523,7 +523,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     transition: width var(--transition-normal), background-color var(--transition-normal);
 }
 
-/* Requisitos de contraseña */
+/* Requisitos de contraseï¿½a */
 .password-requirements {
     margin-top: 0.5rem;
     padding: 0.5rem;
@@ -552,7 +552,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     transform: scale(1.02);
 }
 
-/* Indicador de coincidencia de contraseñas */
+/* Indicador de coincidencia de contraseï¿½as */
 .password-match {
     margin-top: 0.5rem;
 }
@@ -593,7 +593,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
 }
 
 /* ========================================
-   ESTADOS DE VALIDACIÓN
+   ESTADOS DE VALIDACIï¿½N
 ======================================== */
 
 .text-danger {
@@ -629,7 +629,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     color: var(--danger-color);
 }
 
-/* Fix para mensajes de validación prematuros (del JS) */
+/* Fix para mensajes de validaciï¿½n prematuros (del JS) */
 .invalid-feedback {
     display: none !important;
 }
@@ -678,7 +678,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     margin-bottom: 30px;
 }
 
-/* Elementos de navegación y enlaces */
+/* Elementos de navegaciï¿½n y enlaces */
 .volver-login, .links-adicionales {
     text-align: center;
     margin-top: 16px;
@@ -716,7 +716,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     }
 }
 
-/* Animación de pulso para feedback */
+/* Animaciï¿½n de pulso para feedback */
 @keyframes pulse-toggle {
     0% {
         transform: scale(1);
@@ -758,7 +758,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     100% { transform: rotate(360deg); }
 }
 
-/* Animación de entrada suave para botones */
+/* Animaciï¿½n de entrada suave para botones */
 .input-group .btn {
     animation: button-appear 0.3s ease-out;
 }
@@ -816,7 +816,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     animation: tooltip-fade-in 0.3s ease-out;
 }
 
-/* Fallback mejorado para íconos si Bootstrap Icons no carga correctamente */
+/* Fallback mejorado para ï¿½conos si Bootstrap Icons no carga correctamente */
 .input-group .btn i.bi-eye.fallback::before {
     content: "Show" !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
@@ -833,7 +833,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     letter-spacing: 0.5px !important;
 }
 
-/* Alternativa con símbolos ASCII seguros */
+/* Alternativa con sï¿½mbolos ASCII seguros */
 .input-group .btn i.bi-eye.ascii-fallback::before {
     content: "[o]" !important;
     font-family: monospace !important;
@@ -848,7 +848,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     font-weight: bold !important;
 }
 
-/* Asegura que los íconos de Bootstrap Icons funcionen correctamente */
+/* Asegura que los ï¿½conos de Bootstrap Icons funcionen correctamente */
 .input-group .btn i.bi-eye:not(.fallback):not(.ascii-fallback)::before {
     content: "\f341" !important;
     font-family: 'bootstrap-icons' !important;
@@ -871,7 +871,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     -moz-osx-font-smoothing: grayscale !important;
 }
 
-/* Verificación y corrección automática para íconos problemáticos */
+/* Verificaciï¿½n y correcciï¿½n automï¿½tica para ï¿½conos problemï¿½ticos */
 .input-group .btn i[class*="bi-eye"] {
     display: inline-block !important;
     font-style: normal !important;
@@ -889,7 +889,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     letter-spacing: normal !important;
 }
 
-/* Regla específica para combatir los tres signos de interrogación */
+/* Regla especï¿½fica para combatir los tres signos de interrogaciï¿½n */
 .input-group .btn i[class*="bi-eye"]:not(.fallback):not(.ascii-fallback) {
     text-rendering: auto !important;
     speak: never !important;
@@ -941,6 +941,344 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
         font-size: 0.9rem;
         padding: 0.5rem 1rem;
     }
+}
+
+/* ========================================
+   EVENT CARDS (Compartido entre vistas)
+======================================== */
+
+/* Tarjeta de evento con borde lateral animado y hover consistente */
+.event-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: linear-gradient(45deg, var(--primary-color), var(--success-color));
+    transition: height 0.3s ease;
+}
+
+.event-card:hover::before {
+    height: 100%;
+}
+
+.event-card:hover {
+    transform: translateX(8px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+}
+
+/* Nombres de equipo con realce en hover */
+.team-name {
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.event-card:hover .team-name {
+    color: var(--primary-color) !important;
+}
+
+/* Cuadros de cuotas uniformes */
+.odds-box {
+    flex: 1;
+    max-width: 140px;
+    text-align: center;
+}
+
+.odds-box button {
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary-color);
+    background: rgba(0, 123, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.odds-box button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: var(--primary-color);
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.odds-box button:hover::before {
+    width: 200%;
+    height: 200%;
+}
+
+.odds-box button:hover {
+    transform: scale(1.05);
+    color: white !important;
+    border-color: var(--primary-color);
+}
+
+.odds-box button strong {
+    position: relative;
+    z-index: 1;
+}
+
+/* Breadcrumb y filtros (consistencia visual) */
+.breadcrumb {
+    background: linear-gradient(135deg, var(--dark-card), var(--dark-card-2)) !important;
+    border: 1px solid rgba(0, 123, 255, 0.2);
+}
+
+.breadcrumb-item a {
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--success-color) !important;
+    text-decoration: none;
+}
+
+.form-select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Hover scale utilitaria */
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+
+/* PaginaciÃ³n consistente */
+.page-link:hover {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Responsividad especÃ­fica para tarjetas de eventos */
+@media (max-width: 768px) {
+    .event-card:hover {
+        transform: translateX(4px);
+    }
+    .odds-box {
+        max-width: 100px;
+    }
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* ========================================
+   EVENT CARDS - MODERN VARIANT
+======================================== */
+.event-card-modern {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    position: relative;
+}
+
+.event-card-modern::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.event-card-modern .event-card-body {
+    padding: 1.25rem 1.25rem 1rem;
+}
+
+.event-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.event-sport-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(0, 123, 255, 0.12);
+    border: 1px solid rgba(0, 123, 255, 0.25);
+    color: #9ecbff;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.event-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.event-status .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.status-badge.live { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.status-badge.upcoming { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+.status-badge.scheduled { background: rgba(0, 123, 255, 0.12); color: #9ecbff; border: 1px solid rgba(0, 123, 255, 0.25); }
+
+.event-teams {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.team-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e2e8f0;
+    font-weight: 800;
+}
+
+.team-name {
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Center teams horizontally inside modern cards */
+.event-card-modern .event-teams {
+    justify-items: center;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.event-card-modern .team {
+    justify-content: center;
+    text-align: center;
+    gap: 0.4rem;
+}
+
+.event-card-modern .vs-divider .line { width: 18px; }
+
+.vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.vs-divider .vs {
+    font-weight: 900;
+    color: var(--success-color);
+}
+
+.vs-divider .line {
+    width: 28px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.event-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 0.85rem;
+}
+
+.event-odds {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 0.75rem;
+}
+
+.odds-chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.5rem;
+}
+
+.odds-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.odds-chip .chip-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.odds-chip .chip-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 100%;
+    border: 1px solid rgba(0, 123, 255, 0.5);
+    background: rgba(0, 123, 255, 0.1);
+    color: #dbeafe;
+    padding: 0.45rem 0.6rem;
+    border-radius: 10px;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.odds-chip .chip-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(0, 123, 255, 0.2);
+    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.18);
+}
+
+.event-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.9rem;
+}
+
+.event-footer .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.event-footer .cta .btn {
+    border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+    .event-card-modern .event-card-body { padding: 1rem; }
+    .team-avatar { width: 32px; height: 32px; }
 }
 
 @media (max-width: 576px) {

@@ -134,16 +134,29 @@ namespace Proyecto_Apuestas.Services.Implementations
         {
             try
             {
-                var url = $"v4/sports/{sportKey}/events/{eventId}?apiKey={_apiKey}";
-                var response = await _httpClient.GetAsync(url);
+                // Preferir endpoint con cuotas del evento específico
+                var oddsUrl = $"v4/sports/{sportKey}/events/{eventId}/odds?apiKey={_apiKey}&regions=us&markets=h2h,spreads,totals";
+                _logger.LogInformation($"Calling Odds API (event odds): {oddsUrl.Replace(_apiKey, "***")}");
+                var oddsResponse = await _httpClient.GetAsync(oddsUrl);
 
-                if (response.IsSuccessStatusCode)
+                if (oddsResponse.IsSuccessStatusCode)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
+                    var content = await oddsResponse.Content.ReadAsStringAsync();
                     var eventModel = JsonConvert.DeserializeObject<EventApiModel>(content);
+                    LogApiUsage(oddsResponse.Headers);
+                    return eventModel;
+                }
 
-                    LogApiUsage(response.Headers);
+                // Fallback: detalles básicos del evento (puede no incluir cuotas)
+                var detailsUrl = $"v4/sports/{sportKey}/events/{eventId}?apiKey={_apiKey}";
+                _logger.LogInformation($"Calling Odds API (event details): {detailsUrl.Replace(_apiKey, "***")}");
+                var detailsResponse = await _httpClient.GetAsync(detailsUrl);
 
+                if (detailsResponse.IsSuccessStatusCode)
+                {
+                    var content = await detailsResponse.Content.ReadAsStringAsync();
+                    var eventModel = JsonConvert.DeserializeObject<EventApiModel>(content);
+                    LogApiUsage(detailsResponse.Headers);
                     return eventModel;
                 }
 
