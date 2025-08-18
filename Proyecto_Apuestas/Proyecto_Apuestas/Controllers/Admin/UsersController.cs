@@ -91,155 +91,274 @@ namespace Proyecto_Apuestas.Controllers.Admin
             return View(model);
         }
 
-        public async Task<IActionResult> Details(int id)
-        {
-            var user = await _context.UserAccounts
-                .Include(u => u.Role)
-                .Include(u => u.Bets)
-                .Include(u => u.PaymentTransactions)
-                .Include(u => u.LoginAttempts)
-                .FirstOrDefaultAsync(u => u.UserId == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var profile = await _userService.GetUserProfileAsync(id);
-            ViewBag.RecentActivity = await GetUserRecentActivity(id);
-
-            return View(profile);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var user = await _context.UserAccounts.FindAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _context.UserAccounts.FindAsync(id);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "Usuario no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                user.IsActive = !user.IsActive;
+                user.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                var status = user.IsActive == true ? "activada" : "desactivada";
+                TempData["SuccessMessage"] = $"Cuenta de {user.UserName} {status} exitosamente";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al cambiar el estado de la cuenta";
+                // Log del error si tienes logging configurado
             }
 
-            user.IsActive = !user.IsActive;
-            user.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-
-            var status = user.IsActive == true ? "activada" : "desactivada";
-            AddSuccessMessage($"Cuenta {status} exitosamente");
-
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LockAccount(int id, int hours, string reason)
         {
-            var until = DateTime.Now.AddHours(hours);
-            var success = await _userService.LockUserAccountAsync(id, until, reason);
-
-            if (success)
+            try
             {
-                await _notificationService.SendNotificationAsync(id,
-                    $"Tu cuenta ha sido bloqueada temporalmente hasta {until:dd/MM/yyyy HH:mm}. Motivo: {reason}");
+                var user = await _context.UserAccounts.FindAsync(id);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "Usuario no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                AddSuccessMessage("Cuenta bloqueada exitosamente");
+                var until = DateTime.Now.AddHours(hours);
+                var success = await _userService.LockUserAccountAsync(id, until, reason);
+
+                if (success)
+                {
+                    await _notificationService.SendNotificationAsync(id,
+                        $"Tu cuenta ha sido bloqueada temporalmente hasta {until:dd/MM/yyyy HH:mm}. Motivo: {reason}");
+
+                    TempData["SuccessMessage"] = $"Cuenta de {user.UserName} bloqueada exitosamente por {hours} horas";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Error al bloquear la cuenta";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                AddErrorMessage("Error al bloquear la cuenta");
+                TempData["ErrorMessage"] = "Error al bloquear la cuenta";
+                // Log del error si tienes logging configurado
             }
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnlockAccount(int id)
         {
-            var success = await _userService.UnlockUserAccountAsync(id);
-
-            if (success)
+            try
             {
-                await _notificationService.SendNotificationAsync(id,
-                    "Tu cuenta ha sido desbloqueada. Ya puedes acceder nuevamente.");
+                var user = await _context.UserAccounts.FindAsync(id);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "Usuario no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                AddSuccessMessage("Cuenta desbloqueada exitosamente");
+                var success = await _userService.UnlockUserAccountAsync(id);
+
+                if (success)
+                {
+                    await _notificationService.SendNotificationAsync(id,
+                        "Tu cuenta ha sido desbloqueada. Ya puedes acceder nuevamente.");
+
+                    TempData["SuccessMessage"] = $"Cuenta de {user.UserName} desbloqueada exitosamente";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Error al desbloquear la cuenta";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                AddErrorMessage("Error al desbloquear la cuenta");
+                TempData["ErrorMessage"] = "Error al desbloquear la cuenta";
+                // Log del error si tienes logging configurado
             }
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeRole(int id, int roleId)
         {
-            var user = await _context.UserAccounts.FindAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _context.UserAccounts.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == id);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "Usuario no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var newRole = await _context.Roles.FindAsync(roleId);
+                if (newRole == null)
+                {
+                    TempData["ErrorMessage"] = "Rol no válido";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var oldRoleName = user.Role?.RoleName ?? "Sin rol";
+                user.RoleId = roleId;
+                user.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Rol de {user.UserName} cambiado de '{oldRoleName}' a '{newRole.RoleName}' exitosamente";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al cambiar el rol";
+                // Log del error si tienes logging configurado
             }
 
-            user.RoleId = roleId;
-            user.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-
-            AddSuccessMessage("Rol actualizado exitosamente");
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdjustBalance(int id, decimal amount, string type, string reason)
         {
-            var transactionType = type == "add" ? "DEPOSIT" : "WITHDRAWAL";
-            var success = await _userService.UpdateUserBalanceAsync(id, Math.Abs(amount), transactionType);
-
-            if (success)
+            try
             {
-                await _notificationService.SendNotificationAsync(id,
-                    $"Ajuste de saldo: {(type == "add" ? "+" : "-")}${Math.Abs(amount):N2}. Motivo: {reason}");
+                if (amount <= 0)
+                {
+                    TempData["ErrorMessage"] = "La cantidad debe ser mayor a 0";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                AddSuccessMessage("Saldo ajustado exitosamente");
+                var user = await _context.UserAccounts.FindAsync(id);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "Usuario no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var transactionType = type == "add" ? "DEPOSIT" : "WITHDRAWAL";
+                var adjustAmount = type == "add" ? Math.Abs(amount) : -Math.Abs(amount);
+
+                // Verificar que no quede en negativo al restar
+                if (type == "subtract" && user.CreditBalance < amount)
+                {
+                    TempData["ErrorMessage"] = $"No se puede restar ${amount:N2}. Balance actual: ${user.CreditBalance:N2}";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var success = await _userService.UpdateUserBalanceAsync(id, Math.Abs(amount), transactionType);
+
+                if (success)
+                {
+                    await _notificationService.SendNotificationAsync(id,
+                        $"Ajuste de saldo: {(type == "add" ? "+" : "-")}${Math.Abs(amount):N2}. Motivo: {reason}");
+
+                    var action = type == "add" ? "agregado" : "restado";
+                    TempData["SuccessMessage"] = $"${Math.Abs(amount):N2} {action} al balance de {user.UserName} exitosamente";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Error al ajustar el saldo";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                AddErrorMessage("Error al ajustar el saldo");
+                TempData["ErrorMessage"] = "Error al ajustar el saldo";
+                // Log del error si tienes logging configurado
             }
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Método opcional para obtener detalles de usuario via AJAX
+        [HttpGet]
+        public async Task<IActionResult> GetUserDetails(int id)
+        {
+            try
+            {
+                var user = await _context.UserAccounts
+                    .Include(u => u.Role)
+                    .Include(u => u.Bets)
+                    .Include(u => u.PaymentTransactions)
+                    .FirstOrDefaultAsync(u => u.UserId == id);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var recentActivity = await GetUserRecentActivity(id);
+
+                var userDetails = new
+                {
+                    user.UserId,
+                    user.UserName,
+                    user.Email,
+                    RoleName = user.Role?.RoleName ?? "Sin rol",
+                    user.CreditBalance,
+                    user.IsActive,
+                    user.LockedUntil,
+                    user.LastBet,
+                    user.CreatedAt,
+                    TotalBets = user.Bets?.Count ?? 0,
+                    TotalWagered = user.Bets?.Sum(b => b.Stake) ?? 0,
+                    RecentActivity = recentActivity
+                };
+
+                return Json(userDetails);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al obtener detalles del usuario");
+            }
         }
 
         private async Task<List<object>> GetUserRecentActivity(int userId)
         {
-            var activities = new List<object>();
+            try
+            {
+                var activities = new List<object>();
 
-            // Últimas apuestas
-            var recentBets = await _context.Bets
-                .Where(b => b.Users.Any(u => u.UserId == userId))
-                .OrderByDescending(b => b.CreatedAt)
-                .Take(5)
-                .Select(b => new { Type = "Bet", Date = b.CreatedAt, Amount = b.Stake, Status = b.BetStatus })
-                .ToListAsync();
+                // Últimas apuestas
+                var recentBets = await _context.Bets
+                    .Where(b => b.Users.Any(u => u.UserId == userId))
+                    .OrderByDescending(b => b.CreatedAt)
+                    .Take(5)
+                    .Select(b => new { Type = "Bet", Date = b.CreatedAt, Amount = b.Stake, Status = b.BetStatus })
+                    .ToListAsync();
 
-            // Últimas transacciones
-            var recentTransactions = await _context.PaymentTransactions
-                .Where(t => t.UserId == userId)
-                .OrderByDescending(t => t.CreatedAt)
-                .Take(5)
-                .Select(t => new { Type = t.TransactionType, Date = t.CreatedAt, t.Amount, t.Status })
-                .ToListAsync();
+                // Últimas transacciones
+                var recentTransactions = await _context.PaymentTransactions
+                    .Where(t => t.UserId == userId)
+                    .OrderByDescending(t => t.CreatedAt)
+                    .Take(5)
+                    .Select(t => new { Type = t.TransactionType, Date = t.CreatedAt, t.Amount, t.Status })
+                    .ToListAsync();
 
-            activities.AddRange(recentBets);
-            activities.AddRange(recentTransactions);
+                activities.AddRange(recentBets);
+                activities.AddRange(recentTransactions);
 
-            return activities.OrderByDescending(a => ((dynamic)a).Date).Take(10).ToList();
+                return activities.OrderByDescending(a => ((dynamic)a).Date).Take(10).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Log del error si tienes logging configurado
+                return new List<object>();
+            }
         }
     }
 }

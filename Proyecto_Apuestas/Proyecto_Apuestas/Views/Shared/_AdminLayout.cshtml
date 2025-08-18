@@ -1,0 +1,102 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Admin Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+    <link href="~/css/Admin.css" rel="stylesheet" />
+
+    @RenderSection("Styles", required: false) <!-- Para CSS adicional de vistas específicas -->
+</head>
+<body>
+    <div id="wrapper">
+        <nav id="sidebar">
+            <div class="sidebar-header d-flex align-items-center">
+                <a href="@Url.Action("Index", "Home")" class="d-flex align-items-center text-white text-decoration-none">
+                    <img src="~/images/LogoBet506.png" alt="Logo" class="me-2" style="height:35px; width:auto;" />
+                    <span>Admin Portal</span>
+                </a>
+            </div>
+            <ul>
+                <li><a href="@Url.Action("Index", "Home")"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="@Url.Action("Index", "Users")"><i class="fas fa-users"></i> Usuarios</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-content-wrapper">
+            <nav class="navbar shadow-sm">
+                <button class="toggle-btn" id="btnToggleSidebar" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="navbar-links d-flex align-items-center">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="dropdown me-3">
+                            <button class="btn btn-outline-black dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                                <span class="me-2">@User.Identity.Name</span>
+                                <i class="fas fa-user-circle"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("CambiarPassword", "Admin")"><i class="fas fa-lock me-2"></i>Cambiar contraseña</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Logout", "Account")" class="btn btn-sm btn-outline-light">Iniciar sesión</a>
+                    }
+                </div>
+            </nav>
+
+            <main class="container py-4">
+                @RenderBody() <!-- Aquí se renderiza el contenido de cada vista -->
+            </main>
+        </div>
+    </div>
+
+    <div id="overlay"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const wrapper = document.getElementById('wrapper');
+        const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+        const overlay = document.getElementById('overlay');
+
+        btnToggleSidebar.addEventListener('click', () => {
+            wrapper.classList.toggle('sidebar-hidden');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            wrapper.classList.add('sidebar-hidden');
+            overlay.classList.remove('active');
+        });
+
+        function checkWindowSize() {
+            if (window.innerWidth <= 991) {
+                wrapper.classList.add('sidebar-hidden');
+            } else {
+                wrapper.classList.remove('sidebar-hidden');
+                overlay.classList.remove('active');
+            }
+        }
+
+        window.addEventListener('resize', checkWindowSize);
+        window.addEventListener('load', checkWindowSize);
+    </script>
+
+    @RenderSection("Scripts", required: false) <!-- Para JS adicional de vistas específicas -->
+</body>
+</html>
