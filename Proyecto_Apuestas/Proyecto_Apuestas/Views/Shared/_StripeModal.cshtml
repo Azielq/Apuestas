@@ -1,0 +1,26 @@
+﻿<div class="modal fade" id="stripeModal" tabindex="-1" aria-hidden="true" aria-labelledby="stripeModalLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="min-height: 520px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stripeModalLabel">Completar pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body position-relative">
+                <!-- Overlay (oculto por defecto) -->
+                <div id="stripe-loading-spinner"
+                     class="stripe-overlay"
+                     aria-hidden="true">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status" aria-hidden="true"></div>
+                        <div class="mt-2">Cargando...</div>
+                    </div>
+                </div>
+
+                <!-- Contenedor del checkout -->
+                <div id="checkout" class="w-100" style="min-height: 420px;"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,108 +1,124 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿// Services/Implementations/StripeService.cs
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Proyecto_Apuestas.Services.Interfaces;
 using Stripe;
+using Stripe.Checkout;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Proyecto_Apuestas.Services.Implementations
 {
     public class StripeService : IStripeService
     {
-        private readonly IConfiguration _configuration;
         private readonly string _secretKey;
-        private readonly string _publicKey;
         private readonly ILogger<StripeService> _logger;
 
-
-        public StripeService(IConfiguration configuration, ILogger<StripeService> logger)
+        public StripeService(IConfiguration cfg, ILogger<StripeService> logger)
         {
-            _configuration = configuration;
             _logger = logger;
-
-            _secretKey = _configuration["Payment:Stripe:SecretKey"];
-            _publicKey = _configuration["Payment:Stripe:PublicKey"];
-
-            if (string.IsNullOrWhiteSpace(_secretKey))
-            {
-                _logger.LogError("Stripe SecretKey is missing or empty.");
-                throw new ArgumentNullException("Stripe SecretKey is missing or empty in configuration");
-            }
-
+            _secretKey = cfg["Payment:Stripe:SecretKey"]
+                ?? throw new ArgumentNullException("Stripe SecretKey missing");
             if (!_secretKey.StartsWith("sk_test_") && !_secretKey.StartsWith("sk_live_"))
-            {
-                _logger.LogError("Stripe SecretKey format is invalid: {SecretKey}", _secretKey);
                 throw new ArgumentException("Stripe SecretKey format is invalid");
-            }
-
-            if (string.IsNullOrWhiteSpace(_publicKey))
-            {
-                _logger.LogError("Stripe PublicKey is missing or empty.");
-                throw new ArgumentNullException("Stripe PublicKey is missing or empty in configuration");
-            }
-
-            if (!_publicKey.StartsWith("pk_test_") && !_publicKey.StartsWith("pk_live_"))
-            {
-                _logger.LogError("Stripe SecretKey format is invalid: {SecretKey}", _secretKey);
-                throw new ArgumentException("Stripe PublicKey format is invalid");
-            }
-
         }
 
-        public async Task<string> CreatePaymentIntentAsync(decimal amount, string currency = "usd")
+        public async Task<string> CreateCheckoutSessionAsync(
+            string priceId,
+            string originBaseUrl,
+            string userId,
+            string packageId)
         {
-            var client = new StripeClient(_secretKey); // <- crea cliente con la clave correcta
+            if (string.IsNullOrWhiteSpace(priceId) || !priceId.StartsWith("price_"))
+                throw new ArgumentException("PriceId invalido.");
+            if (string.IsNullOrWhiteSpace(originBaseUrl))
+                throw new ArgumentException("Origin invalido.");
 
-            var options = new PaymentIntentCreateOptions
+            StripeConfiguration.ApiKey = _secretKey;
+
+            var options = new SessionCreateOptions
             {
-                Amount = (long)(amount * 100),
-                Currency = currency,
-                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                UiMode = "embedded",
+                Mode = "payment",
+                LineItems = new List<SessionLineItemOptions>
                 {
-                    Enabled = true
+                    new SessionLineItemOptions { Price = priceId, Quantity = 1 }
+                },
+                ReturnUrl = $"{originBaseUrl}/StripeCheckout/Success?session_id={{CHECKOUT_SESSION_ID}}",
+
+                // metadata para acreditacion server-side
+                ClientReferenceId = userId,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["userId"] = userId,
+                    ["packageId"] = packageId
                 }
             };
 
-            var service = new PaymentIntentService(client); // <- usa el cliente
-            var intent = await service.CreateAsync(options);
-            return intent.ClientSecret;
-        }
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
 
+            if (string.IsNullOrWhiteSpace(session.ClientSecret))
+                throw new Exception("Stripe no devolvio clientSecret.");
 
-        public async Task<PaymentIntent?> RetrievePaymentIntentAsync(string intentId)
-        {
-            var service = new PaymentIntentService();
-            try
-            {
-                return await service.GetAsync(intentId);
-            }
-            catch (StripeException)
-            {
-                return null;
-            }
+            _logger.LogInformation("Embedded Checkout Session creada: {SessionId}", session.Id);
+            return session.ClientSecret!;
         }
 
         public async Task<Refund?> RefundPaymentAsync(string paymentIntentId, decimal? amount = null)
         {
-            var service = new RefundService();
+            StripeConfiguration.ApiKey = _secretKey;
+            var svc = new RefundService();
+            var opts = new RefundCreateOptions { PaymentIntent = paymentIntentId };
+            if (amount.HasValue) opts.Amount = (long)(amount.Value * 100);
+            try { return await svc.CreateAsync(opts); }
+            catch (StripeException ex) { _logger.LogError(ex, "Error creando refund"); return null; }
+        }
+        // Services/Implementations/StripeService.cs
+        public async Task<string> CreateCheckoutSessionInlinePriceAsync(
+            long unitAmount, string currency, string productName,
+            string originBaseUrl, string userId, string packageId)
+        {
+            StripeConfiguration.ApiKey = _secretKey;
 
-            var options = new RefundCreateOptions
+            var options = new SessionCreateOptions
             {
-                PaymentIntent = paymentIntentId
+                UiMode = "embedded",
+                Mode = "payment",
+                LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    Currency = currency,
+                    UnitAmount = unitAmount, // en centavos
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = productName
+                    }
+                },
+                Quantity = 1
+            }
+        },
+                ReturnUrl = $"{originBaseUrl}/StripeCheckout/Success?session_id={{CHECKOUT_SESSION_ID}}",
+                ClientReferenceId = userId,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["userId"] = userId,
+                    ["packageId"] = packageId
+                }
             };
 
-            if (amount.HasValue)
-            {
-                options.Amount = (long)(amount.Value * 100);
-            }
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
+            if (string.IsNullOrWhiteSpace(session.ClientSecret))
+                throw new Exception("Stripe no devolvio clientSecret.");
 
-            try
-            {
-                return await service.CreateAsync(options);
-            }
-            catch (StripeException)
-            {
-                return null;
-            }
+            _logger.LogInformation("Embedded Checkout Session (inline price) creada: {SessionId}", session.Id);
+            return session.ClientSecret!;
         }
+
     }
 }

@@ -9,24 +9,48 @@ using Proyecto_Apuestas.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// MVC
 builder.Services.AddControllersWithViews();
 
-// IMPORTANT: Esto es lo que se Agrega para Entity Framework con MySQL para su correcto funcionamiento
+// DbContext (MySQL)
 builder.Services.AddDbContext<apuestasDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    )
+);
 
-// Register application services, AutoMapper, Authentication, Authorization, and Session
+// App services (AutoMapper, Auth, etc.)
 builder.Services.AddApplicationServices(builder.Configuration);
 
-// Stripe Service
+// Stripe + Products (our own services, not Stripe SDK ProductService)
 builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddSingleton<IProductService, ProductService>();
 
+// CORS for localhost
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ApiPolicy", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+// Session (in-memory)
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
-// Initialize configuration helper with both configuration and service provider
+// Stripe secret key (fully qualified name to avoid conflicts)
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["Payment:Stripe:SecretKey"];
+
+// Initialize configuration helper
 ConfigurationHelper.Initialize(builder.Configuration);
 ConfigurationHelper.Initialize(app.Services);
 
@@ -35,8 +59,7 @@ using (var scope = app.Services.CreateScope())
 {
     var validationService = scope.ServiceProvider.GetRequiredService<IStartupValidationService>();
     var diagnosticsService = scope.ServiceProvider.GetRequiredService<IConfigurationDiagnosticsService>();
-    
-    // Validate JSON files first
+
     var jsonValid = await diagnosticsService.ValidateJsonFilesAsync();
     if (!jsonValid)
     {
@@ -44,39 +67,36 @@ using (var scope = app.Services.CreateScope())
     }
 
     var isValid = await validationService.ValidateAllConfigurationsAsync();
-    
+
     if (!isValid)
     {
         var errors = await validationService.GetValidationErrorsAsync();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogCritical("Application startup failed due to configuration errors: {Errors}", 
+        logger.LogCritical("Application startup failed due to configuration errors: {Errors}",
             string.Join(", ", errors));
-        
+
         if (!app.Environment.IsDevelopment())
         {
             throw new InvalidOperationException($"Configuration validation failed: {string.Join(", ", errors)}");
         }
         else
         {
-            logger.LogWarning("Development mode: Continuing despite configuration errors");
-            
-            // Generate diagnostics report in development
+            logger.LogWarning("Development mode: continuing despite configuration errors");
             var report = await diagnosticsService.GenerateConfigurationReportAsync();
-            logger.LogInformation("Configuration Diagnostics Report:\n{Report}", report);
+            logger.LogInformation("Configuration diagnostics report:\n{Report}", report);
         }
     }
     else
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("? All configuration validations passed successfully");
+        logger.LogInformation("All configuration validations passed successfully");
     }
 }
 
-// Configure the HTTP request pipeline.
+// HTTP pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 else
@@ -84,19 +104,15 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-// NOTE: Esto es para servir archivos estáticos desde la carpeta wwwroot
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseHttpsRedirection();
 app.UseRouting();
 
-// Add CORS before authentication
 app.UseCors("ApiPolicy");
 
-// Add session middleware before authentication
 app.UseSession();
 
-// Add authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -107,18 +123,18 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Health check endpoint
-app.MapGet("/health", () => Results.Ok(new { 
-    Status = "Healthy", 
+// Health check
+app.MapGet("/health", () => Results.Ok(new
+{
+    Status = "Healthy",
     Timestamp = DateTime.UtcNow,
     Version = ConfigurationHelper.ApplicationSettingsTyped.Version,
     Environment = ConfigurationHelper.ApplicationSettingsTyped.Environment
 }));
 
-// Development-only endpoints
+// Dev-only endpoints
 if (app.Environment.IsDevelopment())
 {
-    // Configuration validation endpoint
     app.MapGet("/config/validate", async (IStartupValidationService validationService) =>
     {
         var errors = await validationService.GetValidationErrorsAsync();
@@ -130,21 +146,18 @@ if (app.Environment.IsDevelopment())
         });
     });
 
-    // Configuration diagnostics endpoint
     app.MapGet("/config/diagnostics", async (IConfigurationDiagnosticsService diagnosticsService) =>
     {
         var diagnostics = await diagnosticsService.RunDiagnosticsAsync();
         return Results.Ok(diagnostics);
     });
 
-    // Configuration report endpoint
     app.MapGet("/config/report", async (IConfigurationDiagnosticsService diagnosticsService) =>
     {
         var report = await diagnosticsService.GenerateConfigurationReportAsync();
         return Results.Text(report, "text/plain");
     });
 
-    // Configuration settings overview (non-sensitive data only)
     app.MapGet("/config/overview", () =>
     {
         var overview = new
@@ -168,10 +181,9 @@ if (app.Environment.IsDevelopment())
             },
             Timestamp = DateTime.UtcNow
         };
-        
+
         return Results.Ok(overview);
     });
 }
 
 app.Run();
-

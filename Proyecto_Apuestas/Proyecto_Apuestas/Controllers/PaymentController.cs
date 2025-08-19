@@ -4,9 +4,11 @@ using Proyecto_Apuestas.Services;
 using Proyecto_Apuestas.Services.Implementations;
 using Proyecto_Apuestas.Services.Interfaces;
 using Proyecto_Apuestas.ViewModels;
+using Proyecto_Apuestas.Models;
 
 namespace Proyecto_Apuestas.Controllers
 {
+
     [Authorize]
     public class PaymentController : BaseController
     {
@@ -15,8 +17,7 @@ namespace Proyecto_Apuestas.Controllers
         private readonly INotificationService _notificationService;
         private readonly IStripeService _stripeService;
         private readonly IProductService _productService;
-
-
+        private readonly IConfiguration _configuration;
 
         public PaymentController(
             IPaymentService paymentService,
@@ -24,13 +25,15 @@ namespace Proyecto_Apuestas.Controllers
             INotificationService notificationService,
             IStripeService stripeService,
             IProductService productService,
+            IConfiguration configuration,
             ILogger<PaymentController> logger) : base(logger)
         {
             _paymentService = paymentService;
             _userService = userService;
             _notificationService = notificationService;
             _stripeService = stripeService;
-            _productService = productService; // ✅ Aquí lo guardás
+            _productService = productService;
+            _configuration = configuration;
         }
 
 
@@ -40,6 +43,7 @@ namespace Proyecto_Apuestas.Controllers
             var userId = _userService.GetCurrentUserId();
             var paymentMethods = await _paymentService.GetUserPaymentMethodsAsync(userId);
             var user = await _userService.GetCurrentUserAsync();
+
 
             ViewBag.Balance = user?.CreditBalance ?? 0;
             return View(paymentMethods);
@@ -240,52 +244,60 @@ namespace Proyecto_Apuestas.Controllers
         }
 
         //Seccion Stripe ------------------------------------------------------------------
-
-        //PruebaStripe
         [HttpGet]
         [AllowAnonymous] 
-
-        public async Task<IActionResult> TestStripe()
+        public IActionResult Products()
         {
-            try
-            {
-                decimal montoDePrueba = 50m;
-                var clientSecret = await _stripeService.CreatePaymentIntentAsync(montoDePrueba);
-
-                return Content($"Stripe funciono correctamente. ClientSecret generado: {clientSecret}");
-            }
-            catch (Exception ex)
-            {
-                return Content($"Error al probar Stripe: {ex.Message}");
-            }
+            var productos = _productService.GetAvailableProducts();
+            ViewBag.StripePublicKey = _configuration["Payment:Stripe:PublicKey"];
+            return View(productos);
         }
 
-        //Stripe Payment Intent
+        // Controllers/PaymentController.cs
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateStripePaymentIntent([FromBody] decimal amount)
+        [Route("payment/create-checkout-session")]
+        public async Task<IActionResult> CreateCheckoutSession([FromBody] ProductPaymentRequest request)
         {
-            if (amount <= 0)
-                return JsonError("El monto debe ser mayor a 0");
+            var product = _productService.GetById(request.ProductId);
+            if (product == null)
+                return JsonError("Producto no encontrado");
 
             try
             {
-                var clientSecret = await _stripeService.CreatePaymentIntentAsync(amount);
+                var origin = $"{Request.Scheme}://{Request.Host}";
+                var userId = _userService.GetCurrentUserId();
+                var userIdStr = userId > 0 ? userId.ToString() : "0";
+
+                string clientSecret;
+
+                if (!string.IsNullOrWhiteSpace(product.StripePriceId) && product.StripePriceId.StartsWith("price_"))
+                {
+                    // Camino normal: Price ID de Stripe
+                    clientSecret = await _stripeService.CreateCheckoutSessionAsync(
+                        product.StripePriceId, origin, userIdStr, product.Id.ToString());
+                }
+                else
+                {
+                    // Fallback temporal: price_data inline con el monto del catalogo
+                    clientSecret = await _stripeService.CreateCheckoutSessionInlinePriceAsync(
+                        unitAmount: product.PriceInCents,
+                        currency: "usd",                  // ajusta si usas otra moneda
+                        productName: product.Name,
+                        originBaseUrl: origin,
+                        userId: userIdStr,
+                        packageId: product.Id.ToString());
+                }
+
                 return JsonSuccess(new { clientSecret });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al crear el PaymentIntent de Stripe");
-                return JsonError("No se pudo crear el pago con Stripe");
+                _logger.LogError(ex, "Error al crear CheckoutSession Embedded");
+                return JsonError("No se pudo crear la sesion de Stripe");
             }
         }
-
-        public IActionResult Products()
-        {
-            var productos = _productService.GetAvailableProducts();
-            return View(productos);
-        }
-
 
 
 

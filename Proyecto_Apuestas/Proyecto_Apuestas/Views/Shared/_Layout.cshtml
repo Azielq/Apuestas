@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Bet506 | Apuestas Deportivas Costa Rica</title>
 
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)  
     @await Html.PartialAsync("_StylesCDN")
 </head>
 <body class="bg-dark text-white">

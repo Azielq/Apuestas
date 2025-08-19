@@ -1,38 +1,48 @@
-﻿@model List<Proyecto_Apuestas.Models.ChipProduct>
-
+﻿@model IEnumerable<Proyecto_Apuestas.Models.ChipProduct>
 @{
-    ViewBag.Title = "Comprar Chips";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Comprar chips";
+    var pk = ViewBag.StripePublicKey as string ?? "";
 }
 
-<div class="container py-5">
-    <h1 class="text-center mb-4">Selecciona tu paquete de chips</h1>
+@section Styles {
+    <!-- CSS especifico del modal/overlay de Stripe -->
+    <link rel="stylesheet" href="~/css/stripe.css" asp-append-version="true" />
+}
 
-    <div class="row justify-content-center">
-        @foreach (var producto in Model)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow border-primary">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">@producto.Name</h5>
-                        <p class="card-text">@producto.Description</p>
-                        <p class="card-text">
-                            <strong>@producto.Chips</strong> chips por
-                            <strong>@(producto.PriceInCents / 100.0M):C</strong>
-                        </p>
-                        <button class="btn btn-primary btn-comprar"
-                                data-product-id="@producto.Id"
-                                data-product-name="@producto.Name"
-                                data-product-amount="@producto.PriceInCents">
+<h2 class="mb-3">Comprar chips</h2>
+
+<div class="row g-3">
+    @foreach (var p in Model)
+    {
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-1">@p.Name</h5>
+                    <p class="text-muted mb-2">@p.Description</p>
+                    <div class="mt-auto">
+                        <div class="mb-2">
+                            <strong>@String.Format("{0:C}", (decimal)p.PriceInCents / 100m)</strong>
+                            — @p.Chips chips
+                        </div>
+                        <button type="button"
+                                class="btn btn-primary w-100 btn-comprar"
+                                data-product-id="@p.Id">
                             Comprar
                         </button>
                     </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>
 
-@section Scripts {
-    <script src="~/js/products.js"></script>
-}
+@* Modal de Stripe (partial con #stripeModal, #checkout y #stripe-loading-spinner) *@
+@await Html.PartialAsync("_StripeModal")
+
+@* Antiforgery para que product.js lo envíe en el header *@
+@Html.AntiForgeryToken()
+
+<!-- Stripe.js + tu script -->
+<script>window.STRIPE_PUBLIC_KEY='@pk';</script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="~/js/product.js" asp-append-version="true"></script>

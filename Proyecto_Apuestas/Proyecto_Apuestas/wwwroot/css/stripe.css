@@ -1,0 +1,42 @@
+﻿/* Overlay del loader dentro del modal de Stripe */
+#stripeModal .modal-content {
+    background-color: var(--bs-dark-2);
+    color: #fff;
+}
+
+#stripeModal .modal-header {
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+#checkout {
+    min-height: 420px;
+    position: relative;
+}
+
+/* Oculto por defecto: no bloquea clics */
+.stripe-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    pointer-events: none;
+    z-index: 10;
+}
+
+    /* Visible: muestra velo y sí bloquea clics */
+    .stripe-overlay.is-visible {
+        display: flex !important;
+        background: rgba(255,255,255,0.75);
+        pointer-events: auto;
+    }
+
+#stripeModal .btn-close {
+    filter: invert(1);
+    opacity: .9;
+}
+
+    #stripeModal .btn-close:hover {
+        opacity: 1;
+    }

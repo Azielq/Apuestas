@@ -1,12 +1,7 @@
-﻿using Stripe;
-using System.Threading.Tasks;
-
-namespace Proyecto_Apuestas.Services.Interfaces
+﻿// Services/Interfaces/IStripeService.cs
+public interface IStripeService
 {
-    public interface IStripeService
-    {
-        Task<string> CreatePaymentIntentAsync(decimal amount, string currency = "usd");
-        Task<PaymentIntent?> RetrievePaymentIntentAsync(string intentId);
-        Task<Refund?> RefundPaymentAsync(string paymentIntentId, decimal? amount = null);
-    }
+    Task<string> CreateCheckoutSessionAsync(string priceId, string originBaseUrl, string userId, string packageId);
+    Task<string> CreateCheckoutSessionInlinePriceAsync(long unitAmount, string currency, string productName, string originBaseUrl, string userId, string packageId); // NUEVO
+    Task<Stripe.Refund?> RefundPaymentAsync(string paymentIntentId, decimal? amount = null);
 }
