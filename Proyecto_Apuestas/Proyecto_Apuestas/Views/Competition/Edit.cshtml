@@ -1,0 +1,250 @@
+﻿@model Proyecto_Apuestas.Models.Competition
+@{
+    ViewData["Title"] = "Editar Competición";
+    Layout = "_AdminLayout";
+}
+
+<link rel="stylesheet" href="~/css/User.css" />
+
+<div class="user-management-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-edit"></i>
+            Editar Competición
+        </h1>
+    </div>
+
+    <!-- Alertas -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Formulario de edición -->
+    <div class="filters-section">
+        <div class="glass-card">
+            <form asp-action="Edit" class="filters-form" style="grid-template-columns: repeat(2, 1fr);">
+                <div asp-validation-summary="ModelOnly" class="text-danger" style="grid-column: 1/-1;"></div>
+
+                <input type="hidden" asp-for="CompetitionId" />
+                <input type="hidden" asp-for="CreatedAt" />
+
+                <div class="filter-group">
+                    <label asp-for="Name" class="control-label">
+                        <i class="fas fa-trophy"></i> Nombre de la Competición
+                    </label>
+                    <input asp-for="Name" class="form-control" placeholder="Ingrese el nombre de la competición" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="filter-group">
+                    <label asp-for="SportId" class="control-label">
+                        <i class="fas fa-futbol"></i> Deporte
+                    </label>
+                    <select asp-for="SportId" class="form-control" asp-items="ViewBag.Sports">
+                        <option value="">Seleccione un deporte</option>
+                    </select>
+                    <span asp-validation-for="SportId" class="text-danger"></span>
+                </div>
+
+                <div class="filter-group">
+                    <label asp-for="StartDate" class="control-label">
+                        <i class="fas fa-calendar-alt"></i> Fecha de Inicio
+                    </label>
+                    <input asp-for="StartDate" class="form-control" type="date" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+
+                <div class="filter-group">
+                    <label asp-for="EndDate" class="control-label">
+                        <i class="fas fa-calendar-times"></i> Fecha de Fin
+                    </label>
+                    <input asp-for="EndDate" class="form-control" type="date" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+
+                <div class="filter-group" style="grid-column: 1/-1;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <input type="checkbox" id="isActiveCheckbox" name="IsActive" value="true" @(Model.IsActive == true ? "checked" : "") style="width: auto; margin: 0;" />
+                        <input type="hidden" name="IsActive" value="false" />
+                        <label for="isActiveCheckbox" class="control-label" style="margin: 0;">
+                            <i class="fas fa-toggle-on"></i> Competición Activa
+                        </label>
+                    </div>
+                    <small class="text-muted">Marque esta opción si la competición está activa y disponible</small>
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+
+                <div class="filter-group" style="grid-column: 1/-1; display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver a Lista
+                    </a>
+                    <a href="@Url.Action("Details", new { id = Model.CompetitionId })" class="btn-info">
+                        <i class="fas fa-eye"></i> Ver Detalles
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="filters-section">
+        <div class="glass-card">
+            <h4 style="color: var(--text-primary); margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Información de la Competición
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div class="filter-group">
+                    <label style="color: var(--text-secondary);">ID de la Competición</label>
+                    <div style="color: var(--text-primary); font-weight: 600;">@Model.CompetitionId</div>
+                </div>
+                <div class="filter-group">
+                    <label style="color: var(--text-secondary);">Fecha de Creación</label>
+                    <div style="color: var(--text-primary);">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+                <div class="filter-group">
+                    <label style="color: var(--text-secondary);">Última Actualización</label>
+                    <div style="color: var(--text-primary);">@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+                <div class="filter-group">
+                    <label style="color: var(--text-secondary);">Estado Actual</label>
+                    <div>
+                        @if (Model.IsActive == true)
+                        {
+                            <span class="status-badge active">
+                                <i class="fas fa-check-circle"></i> Activa
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge inactive">
+                                <i class="fas fa-times-circle"></i> Inactiva
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.filters-form');
+        const startDateInput = document.querySelector('input[name="StartDate"]');
+        const endDateInput = document.querySelector('input[name="EndDate"]');
+        const checkbox = document.getElementById('isActiveCheckbox');
+
+        // Validar que la fecha de fin sea posterior a la fecha de inicio
+        function validateDates() {
+            if (startDateInput && endDateInput && startDateInput.value && endDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+
+                if (endDate <= startDate) {
+                    endDateInput.setCustomValidity('La fecha de fin debe ser posterior a la fecha de inicio');
+                    endDateInput.style.borderColor = '#dc3545';
+                } else {
+                    endDateInput.setCustomValidity('');
+                    endDateInput.style.borderColor = '';
+                }
+            }
+        }
+
+        // Event listeners para validación de fechas
+        if (startDateInput) startDateInput.addEventListener('change', validateDates);
+        if (endDateInput) endDateInput.addEventListener('change', validateDates);
+
+        // Validar antes de enviar el formulario
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                validateDates();
+
+                const nameInput = document.querySelector('input[name="Name"]');
+                const sportSelect = document.querySelector('select[name="SportId"]');
+
+                // Validar nombre
+                if (nameInput && !nameInput.value.trim()) {
+                    e.preventDefault();
+                    nameInput.focus();
+                    nameInput.style.borderColor = '#dc3545';
+                    alert('El nombre de la competición es requerido');
+                    return false;
+                } else if (nameInput) {
+                    nameInput.style.borderColor = '';
+                }
+
+                // Validar deporte
+                if (sportSelect && !sportSelect.value) {
+                    e.preventDefault();
+                    sportSelect.focus();
+                    sportSelect.style.borderColor = '#dc3545';
+                    alert('Debe seleccionar un deporte');
+                    return false;
+                } else if (sportSelect) {
+                    sportSelect.style.borderColor = '';
+                }
+            });
+        }
+
+        // Estilo dinámico para el checkbox
+        if (checkbox) {
+            function updateCheckboxStyle() {
+                const label = checkbox.nextElementSibling.nextElementSibling; // Skip hidden input
+                const icon = label ? label.querySelector('i') : null;
+
+                if (icon) {
+                    if (checkbox.checked) {
+                        icon.className = 'fas fa-toggle-on';
+                        label.style.color = '#28a745'; // Verde para activo
+                    } else {
+                        icon.className = 'fas fa-toggle-off';
+                        label.style.color = '#6c757d'; // Gris para inactivo
+                    }
+                }
+            }
+
+            checkbox.addEventListener('change', updateCheckboxStyle);
+            
+            // Establecer estado inicial
+            updateCheckboxStyle();
+        }
+
+        // Mejorar experiencia visual en inputs
+        const allInputs = form ? form.querySelectorAll('input, select') : [];
+        allInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#007bff';
+            });
+
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.style.borderColor = '';
+                }
+            });
+        });
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
