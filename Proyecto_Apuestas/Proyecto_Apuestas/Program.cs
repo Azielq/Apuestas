@@ -31,6 +31,14 @@ builder.Services.AddHttpClient<IOddsApiService, OddsApiService>(client =>
     client.DefaultRequestHeaders.Add("User-Agent", "ProyectoApuestas/1.0");
 });
 
+
+// Stripe + Products (our own services, not Stripe SDK ProductService)
+builder.Services.AddScoped<IStripeService, StripeService>();
+builder.Services.AddSingleton<IProductService, ProductService>();
+
+
+
+
 var app = builder.Build();
 
 // Initialize configuration helper with both configuration and service provider

@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Proyecto_Apuestas.Models.Payment.ChipProduct>
+@{
+    ViewData["Title"] = "Comprar chips";
+    var pk = ViewBag.StripePublicKey as string ?? "";
+}
+
+@section Styles {
+    <!-- CSS especifico del modal/overlay de Stripe -->
+    <link rel="stylesheet" href="~/css/stripe.css" asp-append-version="true" />
+}
+
+<h2 class="mb-3">Comprar chips</h2>
+
+<div class="row g-3">
+    @foreach (var p in Model)
+    {
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-1">@p.Name</h5>
+                    <p class="text-muted mb-2">@p.Description</p>
+                    <div class="mt-auto">
+                        <div class="mb-2">
+                            <strong>@String.Format("{0:C}", (decimal)p.PriceInCents / 100m)</strong>
+                            — @p.Chips chips
+                        </div>
+                        <button type="button"
+                                class="btn btn-primary w-100 btn-comprar"
+                                data-product-id="@p.Id">
+                            Comprar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* Modal de Stripe (partial con #stripeModal, #checkout y #stripe-loading-spinner) *@
+@await Html.PartialAsync("_StripeModal")
+
+@* Antiforgery para que product.js lo envíe en el header *@
+@Html.AntiForgeryToken()
+
+<!-- Stripe.js + tu script -->
+<script>window.STRIPE_PUBLIC_KEY='@pk';</script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="~/js/product.js" asp-append-version="true"></script>

@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Proyecto_Apuestas.Services.Interfaces;
 using Proyecto_Apuestas.ViewModels;
-
-namespace Proyecto_Apuestas.Controllers
+using Proyecto_Apuestas.Services.Implementations;
+using Proyecto_Apuestas.Models.Payment;
+namespace Proyecto_Apuestas.Controllers.Payment
 {
     [Authorize]
     public class PaymentController : BaseController
@@ -11,16 +12,25 @@ namespace Proyecto_Apuestas.Controllers
         private readonly IPaymentService _paymentService;
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
+        private readonly IStripeService _stripeService;
+        private readonly IProductService _productService;
+        private readonly IConfiguration _configuration;
 
         public PaymentController(
-            IPaymentService paymentService,
-            IUserService userService,
-            INotificationService notificationService,
-            ILogger<PaymentController> logger) : base(logger)
+           IPaymentService paymentService,
+           IUserService userService,
+           INotificationService notificationService,
+           IStripeService stripeService,
+           IProductService productService,
+           IConfiguration configuration,
+           ILogger<PaymentController> logger) : base(logger)
         {
             _paymentService = paymentService;
             _userService = userService;
             _notificationService = notificationService;
+            _stripeService = stripeService;
+            _productService = productService;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -227,6 +237,65 @@ namespace Proyecto_Apuestas.Controllers
 
             return View(stats);
         }
+
+        //Seccion Stripe ------------------------------------------------------------------
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Products()
+        {
+            var productos = _productService.GetAvailableProducts();
+            ViewBag.StripePublicKey = _configuration["Payment:Stripe:PublicKey"];
+            return View(productos);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        [Route("payment/create-checkout-session")]
+        public async Task<IActionResult> CreateCheckoutSession([FromBody] ProductPaymentRequest request)
+        {
+            var product = _productService.GetById(request.ProductId);
+            if (product == null)
+                return JsonError("Producto no encontrado");
+
+            try
+            {
+                var origin = $"{Request.Scheme}://{Request.Host}";
+                var userId = _userService.GetCurrentUserId();
+                var userIdStr = userId > 0 ? userId.ToString() : "0";
+
+                string clientSecret;
+
+                if (!string.IsNullOrWhiteSpace(product.StripePriceId) && product.StripePriceId.StartsWith("price_"))
+                {
+                    clientSecret = await _stripeService.CreateCheckoutSessionAsync(
+                        product.StripePriceId, origin, userIdStr, product.Id.ToString());
+                }
+                else
+                {
+                    clientSecret = await _stripeService.CreateCheckoutSessionInlinePriceAsync(
+                        unitAmount: product.PriceInCents,
+                        currency: "usd",                  
+                        productName: product.Name,
+                        originBaseUrl: origin,
+                        userId: userIdStr,
+                        packageId: product.Id.ToString());
+                }
+
+                return JsonSuccess(new { clientSecret });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear CheckoutSession Embedded");
+                return JsonError("No se pudo crear la sesion de Stripe");
+            }
+        }
+
+
+
+
+
+
 
         // Métodos privados
         private async Task LoadDepositViewData(DepositViewModel model)
