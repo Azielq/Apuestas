@@ -142,9 +142,10 @@ namespace Proyecto_Apuestas.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> CreateBetFromApi(string sportKey, string eventId, string teamName, decimal odds)
+        [Route("OddsApi/CreateBetFromApi")]
+        public async Task<IActionResult> CreateBetFromApi(string sportKey, string ApiEventId, string teamName, decimal odds)
         {
-            var apiEvent = await _oddsApiService.GetEventAsync(sportKey, eventId);
+            var apiEvent = await _oddsApiService.GetEventAsync(sportKey, ApiEventId);
             if (apiEvent == null)
             {
                 return NotFound();
@@ -154,7 +155,7 @@ namespace Proyecto_Apuestas.Controllers
 
             var model = new CreateBetFromApiViewModel
             {
-                ApiEventId = eventId,
+                ApiEventId = ApiEventId,
                 SportKey = sportKey,
                 EventName = $"{apiEvent.HomeTeam} vs {apiEvent.AwayTeam}",
                 EventDate = apiEvent.CommenceTime,
@@ -163,16 +164,27 @@ namespace Proyecto_Apuestas.Controllers
                 UserBalance = user?.CreditBalance ?? 0
             };
 
+            // Prefijar un monto por defecto válido para facilitar la confirmación
+            var preferred = 1000m;
+            var defaultStake = Math.Min(model.UserBalance, preferred);
+            model.Stake = defaultStake >= 100m ? defaultStake : model.UserBalance >= 100m ? 100m : 0m;
+
             return View(model);
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("OddsApi/CreateBetFromApi")]
         public async Task<IActionResult> CreateBetFromApi(CreateBetFromApiViewModel model)
         {
+            _logger.LogInformation("CreateBetFromApi POST called with model: ApiEventId={ApiEventId}, Stake={Stake}, TeamName={TeamName}", 
+                model.ApiEventId, model.Stake, model.TeamName);
+
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("ModelState is invalid: {Errors}", 
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                 var user = await _userService.GetCurrentUserAsync();
                 model.UserBalance = user?.CreditBalance ?? 0;
                 return View(model);
@@ -180,15 +192,23 @@ namespace Proyecto_Apuestas.Controllers
 
             try
             {
+                _logger.LogInformation("Calling ApiBettingService.PlaceBetAsync for user {UserId}", _userService.GetCurrentUserId());
+                
                 // Usar el servicio de apuestas de API directamente sin sincronización
                 var result = await _apiBettingService.PlaceBetAsync(model);
+
+                _logger.LogInformation("PlaceBetAsync result: Success={Success}, ApiBetId={ApiBetId}, Error={Error}", 
+                    result.Success, result.ApiBetId, result.ErrorMessage);
 
                 if (result.Success)
                 {
                     AddSuccessMessage("¡Apuesta realizada con éxito!");
-                    return RedirectToAction("ApiBetDetails", "OddsApi", new { id = result.ApiBetId });
+                    _logger.LogInformation("Redirecting to ApiBetDetails with id={ApiBetId}", result.ApiBetId);
+                    // Redirección explícita a la ruta con atributo: OddsApi/ApiBetDetails/{id}
+                    return Redirect($"/OddsApi/ApiBetDetails/{result.ApiBetId}");
                 }
 
+                _logger.LogWarning("Bet placement failed: {Error}", result.ErrorMessage);
                 AddModelErrors(result.ErrorMessage ?? "Error al procesar la apuesta");
                 var user = await _userService.GetCurrentUserAsync();
                 model.UserBalance = user?.CreditBalance ?? 0;
@@ -206,6 +226,7 @@ namespace Proyecto_Apuestas.Controllers
 
         [Authorize]
         [HttpGet]
+        [Route("OddsApi/ApiBetDetails/{id}")]
         public async Task<IActionResult> ApiBetDetails(int id)
         {
             var userId = _userService.GetCurrentUserId();

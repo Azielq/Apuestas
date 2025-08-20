@@ -207,8 +207,8 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            const odds = @Model.Odds;
-            const maxBalance = @Model.UserBalance;
+            const odds = @Html.Raw(Json.Serialize(Model.Odds));
+            const maxBalance = @Html.Raw(Json.Serialize(Model.UserBalance));
             
             // Calculate and display payout
             function updatePayout() {

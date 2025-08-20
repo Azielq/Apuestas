@@ -155,8 +155,11 @@ namespace Proyecto_Apuestas.Services.Implementations
                 if (detailsResponse.IsSuccessStatusCode)
                 {
                     var content = await detailsResponse.Content.ReadAsStringAsync();
-                    var eventModel = JsonConvert.DeserializeObject<EventApiModel>(content);
+                    var events = JsonConvert.DeserializeObject<List<EventApiModel>>(content);
                     LogApiUsage(detailsResponse.Headers);
+                    
+                    // Buscar el evento específico por ID
+                    var eventModel = events?.FirstOrDefault(e => e.Id == eventId);
                     return eventModel;
                 }
 

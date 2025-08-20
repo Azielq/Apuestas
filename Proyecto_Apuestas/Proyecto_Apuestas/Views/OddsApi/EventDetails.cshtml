@@ -142,14 +142,31 @@
                                             <div class="odds-chips">
                                                 @foreach (var go in groupedOutcomes)
                                                 {
-                                                    var oddsValue = go.Best.Outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-                                                    <a class="chip-btn best"
-                                                       href="@Url.Action("CreateBetFromApi", "OddsApi", new { sportKey = sportKey, eventId = evt.Id, teamName = go.Name, odds = go.Best.Outcome.Price })">
-                                                        <i class="bi bi-graph-up"></i>
-                                                        <strong>@go.Best.Outcome.Price.ToString("0.00")</strong>
-                                                        <span class="ms-1">@go.Name</span>
-                                                        <span class="ms-2 text-muted">(@go.Best.BookTitle)</span>
-                                                    </a>
+                                                    var oddsValStr = go.Best.Outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                                                    if (User.Identity?.IsAuthenticated == true)
+                                                    {
+                                                        <form method="get" asp-controller="OddsApi" asp-action="CreateBetFromApi" class="chip-form">
+                                                            <input type="hidden" name="sportKey" value="@sportKey" />
+                                                            <input type="hidden" name="ApiEventId" value="@evt.Id" />
+                                                            <input type="hidden" name="teamName" value="@go.Name" />
+                                                            <input type="hidden" name="odds" value="@oddsValStr" />
+                                                            <button type="submit" class="chip-btn best">
+                                                                <i class="bi bi-graph-up"></i>
+                                                                <strong>@go.Best.Outcome.Price.ToString("0.00")</strong>
+                                                                <span class="ms-1">@go.Name</span>
+                                                                <span class="ms-2 text-muted">(@go.Best.BookTitle)</span>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="chip-btn best" href="@Url.Action("Login", "Account")" title="Inicia sesión para apostar">
+                                                            <i class="bi bi-graph-up"></i>
+                                                            <strong>@go.Best.Outcome.Price.ToString("0.00")</strong>
+                                                            <span class="ms-1">@go.Name</span>
+                                                            <span class="ms-2 text-muted">(@go.Best.BookTitle)</span>
+                                                        </a>
+                                                    }
                                                 }
                                             </div>
                                         </div>
@@ -178,17 +195,20 @@
                                                                         var isBest = _best != null && _best.Best.Outcome.Price == outcome.Price;
                                                                         @if (User.Identity?.IsAuthenticated == true)
                                                                         {
-                                                                            <a class="chip-btn @(isBest ? "best" : "")" title="@(isBest ? "Mejor cuota" : string.Empty)"
-                                                                               href="@Url.Action("CreateBetFromApi", "OddsApi", new { sportKey = sportKey, eventId = evt.Id, teamName = outcome.Name, odds = outcome.Price })">
-                                                                                <span>@outcome.Name</span>
-                                                                                <strong class="ms-1">@outcome.Price.ToString("0.00")</strong>
-                                                                            </a>
+                                                                            <form method="get" asp-controller="OddsApi" asp-action="CreateBetFromApi" class="chip-form">
+                                                                                <input type="hidden" name="sportKey" value="@sportKey" />
+                                                                                <input type="hidden" name="ApiEventId" value="@evt.Id" />
+                                                                                <input type="hidden" name="teamName" value="@outcome.Name" />
+                                                                                <input type="hidden" name="odds" value="@oddsValue" />
+                                                                                <button type="submit" class="chip-btn @(isBest ? "best" : "")" title="@(isBest ? "Mejor cuota" : string.Empty)">
+                                                                                    <span>@outcome.Name</span>
+                                                                                    <strong class="ms-1">@outcome.Price.ToString("0.00")</strong>
+                                                                                </button>
+                                                                            </form>
                                                                         }
                                                                         else
                                                                         {
-                                                                            <a class="chip-btn @(isBest ? "best" : "")" title="@(isBest ? "Mejor cuota" : string.Empty)"
-                                                                               href="@Url.Action("Login", "Account")"
-                                                                               title="Inicia sesión para apostar">
+                                                                            <a class="chip-btn @(isBest ? "best" : "")" href="@Url.Action("Login", "Account")" title="Inicia sesión para apostar">
                                                                                 <span>@outcome.Name</span>
                                                                                 <strong class="ms-1">@outcome.Price.ToString("0.00")</strong>
                                                                             </a>

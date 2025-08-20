@@ -91,7 +91,7 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-// NOTE: Esto es para servir archivos estáticos desde la carpeta wwwroot
+// NOTE: Esto es para servir archivos estï¿½ticos desde la carpeta wwwroot
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
@@ -182,6 +182,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-
 
 
