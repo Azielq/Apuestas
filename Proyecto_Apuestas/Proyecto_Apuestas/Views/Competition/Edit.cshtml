@@ -207,16 +207,16 @@
         // Estilo dinámico para el checkbox
         if (checkbox) {
             function updateCheckboxStyle() {
-                const label = checkbox.nextElementSibling.nextElementSibling; // Skip hidden input
+                const label = checkbox.nextElementSibling.nextElementSibling; 
                 const icon = label ? label.querySelector('i') : null;
 
                 if (icon) {
                     if (checkbox.checked) {
                         icon.className = 'fas fa-toggle-on';
-                        label.style.color = '#28a745'; // Verde para activo
+                        label.style.color = '#28a745'; 
                     } else {
                         icon.className = 'fas fa-toggle-off';
-                        label.style.color = '#6c757d'; // Gris para inactivo
+                        label.style.color = '#6c757d'; 
                     }
                 }
             }
