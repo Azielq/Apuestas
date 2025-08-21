@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Proyecto_Apuestas.Attributes;
 using Proyecto_Apuestas.Services.Interfaces;
 
 namespace Proyecto_Apuestas.Controllers.Admin
@@ -20,6 +21,7 @@ namespace Proyecto_Apuestas.Controllers.Admin
             _bettingService = bettingService;
         }
 
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> Index()
         {
             var dashboard = await _reportService.GetAdminDashboardDataAsync();

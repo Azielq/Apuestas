@@ -391,6 +391,7 @@
                 <div class="col-6 col-md-3 col-lg-2 mb-4">
                     <h5 class="text-white mb-3">Empresa</h5>
                     <ul class="list-unstyled">
+                        <li class="mb-2"><a href="@Url.Action("Index", "Dashboard")" class="text-white-50">Admin portal</a></li>
                         <li class="mb-2"><a href="@Url.Action("About", "Home")" class="text-white-50">Nosotros</a></li>
                         <li class="mb-2"><a href="@Url.Action("Contact", "Home")" class="text-white-50">Contacto</a></li>
                         <li class="mb-2"><a href="@Url.Action("Blog", "Home")" class="text-white-50">Blog</a></li>
@@ -445,6 +446,26 @@
     @await Html.PartialAsync("_ValidationScriptsPartial")
     @await RenderSectionAsync("Scripts", required: false)
 
-    <!-- Las funciones de cambio de modal ahora están en app-core.js -->
+    @using System.Text.Json
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var alertMessage = @JsonSerializer.Serialize(TempData["AlertMessage"]);
+            if (alertMessage && alertMessage !== "null") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso denegado',
+                    text: alertMessage,
+                    confirmButtonColor: '#5C4B8B'
+                });
+            }
+
+            var showLoginModal = @JsonSerializer.Serialize(TempData["LoginModal"]) === "true";
+            if (showLoginModal) {
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            }
+        });
+    </script>
+
 </body>
 </html>

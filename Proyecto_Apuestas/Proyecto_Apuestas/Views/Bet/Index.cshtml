@@ -1,0 +1,384 @@
+﻿@model IEnumerable<Proyecto_Apuestas.Models.Bet>
+@{
+    ViewData["Title"] = "Gestión de Apuestas";
+    Layout = "_AdminLayout";
+}
+
+<link rel="stylesheet" href="~/css/User.css" />
+
+<div class="user-management-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-dice"></i>
+            Gestión de Apuestas
+        </h1>
+    </div>
+
+    <!-- Alertas no sirven -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Estadísticas -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-dice-d6"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.TotalBets</div>
+                <div class="stat-label">Total Apuestas</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.ActiveBets</div>
+                <div class="stat-label">Activas</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, var(--success-color), #00C853);">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.WonBets</div>
+                <div class="stat-label">Ganadas</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon locked">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.LostBets</div>
+                <div class="stat-label">Perdidas</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, var(--warning-color), #FF8F00);">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.PendingBets</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, var(--info-color), #0097A7);">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">$@ViewBag.TotalStake?.ToString("N2")</div>
+                <div class="stat-label">Total Apostado</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, var(--success-color), #00C853);">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">$@ViewBag.TotalPayout?.ToString("N2")</div>
+                <div class="stat-label">Total Pagado</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+        <div class="glass-card">
+            <form method="get" class="filters-form">
+                <div class="filter-group">
+                    <label for="searchTerm"><i class="fas fa-search"></i> Búsqueda</label>
+                    <input type="text" id="searchTerm" name="searchTerm" value="@ViewBag.SearchTerm" 
+                           placeholder="Buscar por evento o usuario..." class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <label for="betStatus"><i class="fas fa-flag"></i> Estado</label>
+                    <select id="betStatus" name="betStatus" class="form-select">
+                        <option value="">Todos los estados</option>
+                        @foreach (var status in ViewBag.BetStatuses as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            <option value="@status.Value" selected="@(ViewBag.BetStatus == status.Value)">@status.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="eventId"><i class="fas fa-calendar-alt"></i> Evento</label>
+                    <select id="eventId" name="eventId" class="form-select">
+                        <option value="0">Todos los eventos</option>
+                        @foreach (var evt in ViewBag.Events as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            <option value="@evt.Value" selected="@(ViewBag.EventId.ToString() == evt.Value)">@evt.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="minStake"><i class="fas fa-money-bill-wave"></i> Apuesta Mínima</label>
+                    <input type="number" id="minStake" name="minStake" value="@ViewBag.MinStake" 
+                           step="0.01" class="form-control" placeholder="0.00">
+                </div>
+
+                <div class="filter-group">
+                    <label for="maxStake"><i class="fas fa-money-bill-wave"></i> Apuesta Máxima</label>
+                    <input type="number" id="maxStake" name="maxStake" value="@ViewBag.MaxStake" 
+                           step="0.01" class="form-control" placeholder="1000.00">
+                </div>
+
+                <div class="filter-group">
+                    <label for="fromDate"><i class="fas fa-calendar"></i> Desde</label>
+                    <input type="date" id="fromDate" name="fromDate" value="@ViewBag.FromDate" class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <label for="toDate"><i class="fas fa-calendar"></i> Hasta</label>
+                    <input type="date" id="toDate" name="toDate" value="@ViewBag.ToDate" class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Apuestas -->
+    <div class="table-section">
+        <div class="glass-card">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> ID</th>
+                                <th><i class="fas fa-calendar-alt"></i> Evento</th>
+                                <th><i class="fas fa-users"></i> Usuarios</th>
+                                <th><i class="fas fa-money-bill-wave"></i> Apuesta</th>
+                                <th><i class="fas fa-percentage"></i> Cuotas</th>
+                                <th><i class="fas fa-coins"></i> Payout</th>
+                                <th><i class="fas fa-flag"></i> Estado</th>
+                                <th><i class="fas fa-calendar"></i> Fecha</th>
+                                <th><i class="fas fa-cog"></i> Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bet in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="user-avatar">@bet.BetId</div>
+                                    </td>
+                                    <td>
+                                        <div class="user-details">
+                                            <div class="user-name">@(bet.Event?.ExternalEventId ?? $"Evento {bet.EventId}")</div>
+                                            <div class="user-id">@bet.Event?.Date.ToString("dd/MM/yyyy")</div>
+                                            <div class="user-id">ID: @bet.EventId</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (bet.Users.Any())
+                                        {
+                                            <div class="user-details">
+                                                @foreach (var user in bet.Users.Take(2))
+                                                {
+                                                    <div class="user-name">@user.UserName</div>
+                                                }
+                                                @if (bet.Users.Count > 2)
+                                                {
+                                                    <div class="user-id">+@(bet.Users.Count - 2) más</div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-text inactive">Sin usuarios</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="balance-amount">$@bet.Stake.ToString("N2")</div>
+                                    </td>
+                                    <td>
+                                        <div class="balance">@bet.Odds.ToString("F2")</div>
+                                    </td>
+                                    <td>
+                                        <div class="balance-amount">$@bet.Payout.ToString("N2")</div>
+                                    </td>
+                                    <td>
+                                        @switch (bet.BetStatus)
+                                        {
+                                            case "A":
+                                                <span class="status-badge active">
+                                                    <i class="fas fa-play-circle"></i> Activa
+                                                </span>
+                                                break;
+                                            case "W":
+                                                <span class="status-badge" style="background: linear-gradient(135deg, var(--success-color), #00C853);">
+                                                    <i class="fas fa-trophy"></i> Ganada
+                                                </span>
+                                                break;
+                                            case "L":
+                                                <span class="status-badge inactive">
+                                                    <i class="fas fa-times-circle"></i> Perdida
+                                                </span>
+                                                break;
+                                            case "P":
+                                                <span class="status-badge" style="background: linear-gradient(135deg, var(--warning-color), #FF8F00);">
+                                                    <i class="fas fa-clock"></i> Pendiente
+                                                </span>
+                                                break;
+                                            case "C":
+                                                <span class="status-badge locked">
+                                                    <i class="fas fa-ban"></i> Cancelada
+                                                </span>
+                                                break;
+                                            default:
+                                                <span class="status-badge locked">@bet.BetStatus</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="created-date">@bet.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="@Url.Action("Details", new { id = bet.BetId })" 
+                                               class="btn-action btn-info" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="@Url.Action("Edit", new { id = bet.BetId })" 
+                                               class="btn-action btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if (bet.BetStatus != "W" && bet.BetStatus != "L")
+                                            {
+                                                <a href="@Url.Action("Delete", new { id = bet.BetId })" 
+                                                   class="btn-action btn-danger" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <div class="pagination-section">
+                        <nav class="pagination-nav">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    page = ViewBag.CurrentPage - 1, 
+                                    searchTerm = ViewBag.SearchTerm,
+                                    betStatus = ViewBag.BetStatus,
+                                    eventId = ViewBag.EventId,
+                                    minStake = ViewBag.MinStake,
+                                    maxStake = ViewBag.MaxStake,
+                                    fromDate = ViewBag.FromDate,
+                                    toDate = ViewBag.ToDate
+                                })" class="page-link">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            }
+
+                            @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    page = i,
+                                    searchTerm = ViewBag.SearchTerm,
+                                    betStatus = ViewBag.BetStatus,
+                                    eventId = ViewBag.EventId,
+                                    minStake = ViewBag.MinStake,
+                                    maxStake = ViewBag.MaxStake,
+                                    fromDate = ViewBag.FromDate,
+                                    toDate = ViewBag.ToDate
+                                })" class="page-link @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    @i
+                                </a>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    page = ViewBag.CurrentPage + 1, 
+                                    searchTerm = ViewBag.SearchTerm,
+                                    betStatus = ViewBag.BetStatus,
+                                    eventId = ViewBag.EventId,
+                                    minStake = ViewBag.MinStake,
+                                    maxStake = ViewBag.MaxStake,
+                                    fromDate = ViewBag.FromDate,
+                                    toDate = ViewBag.ToDate
+                                })" class="page-link">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            }
+                        </nav>
+                        <div class="pagination-info">
+                            Mostrando @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) - 
+                            @Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalCount) 
+                            de @ViewBag.TotalCount apuestas
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-results">
+                    <i class="fas fa-dice-d6"></i>
+                    <h3>No se encontraron apuestas</h3>
+                    <p>No hay apuestas que coincidan con los filtros aplicados.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-submit del formulario de filtros
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.filters-form');
+        const inputs = form.querySelectorAll('input, select');
+        
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Optional: Auto-submit form on filter change
+                // form.submit();
+            });
+        });
+    });
+</script>
