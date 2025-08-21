@@ -3,9 +3,9 @@
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info bg-dark-2 border-info text-white">
+    <div class="alert alert-info bg-dark-2 border-info text-white search-no-results">
         <div class="d-flex align-items-center">
-            <i class="bi bi-info-circle-fill me-3 text-info fs-4"></i>
+            <i class="bi bi-search me-3 text-info fs-4"></i>
             <div>
                 <h5 class="alert-heading mb-1">No se encontraron eventos</h5>
                 <p class="mb-0">No hay eventos que coincidan con tu búsqueda en este momento. Prueba con otros términos.</p>
@@ -15,148 +15,158 @@
 }
 else
 {
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h5 class="mb-0 text-white">
-            <i class="bi bi-calendar2-event me-2 text-primary"></i>Resultados de la búsqueda
-            <span class="badge bg-primary ms-2 pulse-animation">@Model.Count</span>
-        </h5>
-        <div>
-            <button class="btn btn-sm btn-outline-primary" onclick="clearSearch()">
-                <i class="bi bi-x-circle me-1"></i>Limpiar búsqueda
-            </button>
+    <div class="search-results-header">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="mb-0 text-white">
+                <i class="bi bi-calendar2-event me-2 text-primary"></i>Resultados de la búsqueda
+                <span class="badge bg-gradient-primary ms-2 pulse-animation">@Model.Count</span>
+            </h5>
+            <div>
+                <button class="btn btn-sm btn-outline-primary search-clear-btn" onclick="clearSearch()">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="row g-3">
-        @foreach (var evt in Model)
-        {
-            var localTime = evt.CommenceTime.Kind == DateTimeKind.Utc ?
-                evt.CommenceTime.ToCostaRicaTime() :
-                evt.CommenceTime;
-
-            var isValidDate = evt.CommenceTime > DateTime.MinValue.AddYears(10);
-            if (!isValidDate)
+    <div class="search-results-container">
+        <div class="search-events-grid">
+            @foreach (var evt in Model)
             {
-                localTime = DateTime.Now.AddHours(1);
-            }
+                var localTime = evt.CommenceTime.Kind == DateTimeKind.Utc ?
+                    evt.CommenceTime.ToCostaRicaTime() :
+                    evt.CommenceTime;
 
-            <div class="col-12">
-                <div class="card bg-dark-2 border-secondary event-card hover-card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <div class="d-flex flex-column">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="bi bi-calendar3 me-2 text-primary"></i>
-                                        <div class="d-flex flex-column">
-                                            <small class="text-primary fw-bold">
-                                                @if (!isValidDate)
-                                                {
-                                                    <span class="text-warning">
-                                                        <i class="bi bi-exclamation-triangle me-1"></i>Fecha por confirmar
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    @localTime.ToDisplayFormat()
-                                                }
-                                            </small>
-                                            <small class="text-muted">
-                                                @if (!isValidDate)
-                                                {
-                                                    <span>Información pendiente del proveedor</span>
-                                                }
-                                                else
-                                                {
-                                                    @localTime.GetDayNameInSpanish().ToUpper() <span>-</span> @DateTimeHelper.GetTimeUntilEvent(localTime)
-                                                }
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <h6 class="mb-2 text-white">
-                                        <span class="team-name fw-bold">@evt.HomeTeam</span>
-                                        <span class="text-success mx-2 fw-bold">VS</span>
-                                        <span class="team-name fw-bold">@evt.AwayTeam</span>
-                                    </h6>
-                                    @if (DateTimeHelper.IsEventLive(localTime))
-                                    {
-                                        <span class="badge bg-danger pulse-animation">
-                                            <i class="bi bi-broadcast-pin me-1"></i>EN VIVO
-                                        </span>
-                                    }
-                                    else if (localTime <= DateTime.Now.AddHours(2))
-                                    {
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="bi bi-clock me-1"></i>PRÓXIMAMENTE
-                                        </span>
-                                    }
-                                </div>
-                            </div>
+                var isValidDate = evt.CommenceTime > DateTime.MinValue.AddYears(10);
+                if (!isValidDate)
+                {
+                    localTime = DateTime.Now.AddHours(1);
+                }
 
-                            <div class="col-md-6">
-                                @if (evt.Bookmakers != null && evt.Bookmakers.Any())
+                <div class="search-event-card glass-effect">
+                    <div class="event-card-compact">
+                        <!-- Header with Sport Badge and Status -->
+                        <div class="event-header-compact">
+                            <span class="event-sport-badge-mini">
+                                <i class="bi bi-@(evt.SportKey?.Contains("soccer") == true ? "trophy" : evt.SportKey?.Contains("basketball") == true ? "circle" : evt.SportKey?.Contains("americanfootball") == true ? "shield" : "trophy")"></i>
+                            </span>
+                            <span class="event-status-mini">
+                                @if (!isValidDate)
                                 {
-                                    var bestBookmaker = evt.Bookmakers.FirstOrDefault();
-                                    var h2hMarket = bestBookmaker?.Markets?.FirstOrDefault(m => m.Key == "h2h");
-                                    if (h2hMarket != null && h2hMarket.Outcomes != null)
-                                    {
-                                        <div class="bg-dark-3 p-3 rounded">
-                                            <h6 class="text-white mb-3">
-                                                <i class="bi bi-graph-up me-2 text-primary"></i>Cuotas Disponibles
-                                            </h6>
-                                            <div class="d-flex gap-2 justify-content-center">
-                                                @foreach (var outcome in h2hMarket.Outcomes)
-                                                {
-                                                    var oddsValue = outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-                                                    <div class="odds-box">
-                                                        <small class="d-block text-white fw-bold mb-1">@outcome.Name</small>
-                                                        <a class="btn btn-outline-primary btn-sm w-100 hover-scale"
-                                                           href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })"
-                                                           title="Ver detalles del evento">
-                                                            <strong class="fs-6">@outcome.Price.ToString("0.00")</strong>
-                                                        </a>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="text-center mt-2">
-                                                <small class="text-success">
-                                                    <i class="bi bi-check-circle me-1"></i>vía @bestBookmaker?.Title
-                                                </small>
-                                            </div>
-                                        </div>
-                                    }
+                                    <span class="status-badge-mini scheduled"><i class="bi bi-clock"></i></span>
+                                }
+                                else if (DateTimeHelper.IsEventLive(localTime))
+                                {
+                                    <span class="status-badge-mini live"><i class="bi bi-record-circle-fill"></i></span>
+                                }
+                                else if (localTime <= DateTime.Now.AddHours(2))
+                                {
+                                    <span class="status-badge-mini upcoming"><i class="bi bi-clock-fill"></i></span>
                                 }
                                 else
                                 {
-                                    <div class="text-center text-muted bg-dark-3 p-4 rounded">
-                                        <i class="bi bi-clock-history fs-4 d-block mb-2"></i>
-                                        <span class="fw-bold">Cuotas no disponibles</span>
-                                        <br><small>Intente actualizar más tarde</small>
+                                    <span class="status-badge-mini scheduled"><i class="bi bi-calendar-check"></i></span>
+                                }
+                            </span>
+                        </div>
+
+                        <!-- Teams -->
+                        <div class="event-teams-compact">
+                            <div class="team-compact home-team">
+                                <div class="team-avatar-mini"><i class="bi bi-shield-fill"></i></div>
+                                <span class="team-name-mini">@(evt.HomeTeam.Length > 15 ? evt.HomeTeam.Substring(0, 15) + "..." : evt.HomeTeam)</span>
+                            </div>
+                            <div class="vs-divider-mini">
+                                <span class="vs-mini">VS</span>
+                            </div>
+                            <div class="team-compact away-team">
+                                <div class="team-avatar-mini"><i class="bi bi-shield-fill"></i></div>
+                                <span class="team-name-mini">@(evt.AwayTeam.Length > 15 ? evt.AwayTeam.Substring(0, 15) + "..." : evt.AwayTeam)</span>
+                            </div>
+                        </div>
+
+                        <!-- Event Meta -->
+                        <div class="event-meta-compact">
+                            <small class="text-primary">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                @if (!isValidDate)
+                                {
+                                    <text>Por confirmar</text>
+                                }
+                                else
+                                {
+                                    @localTime.ToString("dd/MM HH:mm")
+                                }
+                            </small>
+                            @if (isValidDate)
+                            {
+                                <small class="text-muted ms-2">
+                                    @DateTimeHelper.GetTimeUntilEvent(localTime)
+                                </small>
+                            }
+                        </div>
+
+                        <!-- Odds (Compact) -->
+                        <div class="event-odds-compact">
+                            @if (evt.Bookmakers != null && evt.Bookmakers.Any())
+                            {
+                                var bestBookmaker = evt.Bookmakers.FirstOrDefault();
+                                var h2hMarket = bestBookmaker?.Markets?.FirstOrDefault(m => m.Key == "h2h");
+                                if (h2hMarket != null && h2hMarket.Outcomes != null)
+                                {
+                                    <div class="odds-chips-mini">
+                                        @foreach (var outcome in h2hMarket.Outcomes)
+                                        {
+                                            var oddsValue = outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                                            <div class="odds-chip-mini">
+                                                <span class="chip-label-mini">@(outcome.Name.Length > 8 ? outcome.Name.Substring(0, 8) + "..." : outcome.Name)</span>
+                                                <button class="chip-btn-mini"
+                                                        data-event-id="@evt.Id"
+                                                        data-sport-key="@evt.SportKey"
+                                                        data-team-name="@outcome.Name"
+                                                        data-odds="@oddsValue"
+                                                        onclick="addToBetSlipFromSearch(this)"
+                                                        title="Agregar @outcome.Name a apuesta con cuota @oddsValue">
+                                                    <strong>@outcome.Price.ToString("0.00")</strong>
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="bookmaker-info-mini">
+                                        <small class="text-success">
+                                            <i class="bi bi-check-circle me-1"></i>@(bestBookmaker?.Title?.Length > 15 ? bestBookmaker.Title.Substring(0, 15) + "..." : bestBookmaker?.Title)
+                                        </small>
                                     </div>
                                 }
-                            </div>
-
-                            <div class="col-md-2">
-                                <div class="d-flex flex-column gap-2">
-                                    <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })"
-                                       class="btn btn-sm btn-primary hover-scale">
-                                        <i class="bi bi-eye me-1"></i>Ver Detalles
-                                    </a>
+                            }
+                            else
+                            {
+                                <div class="text-center text-muted py-2">
+                                    <i class="bi bi-clock-history fs-6"></i>
+                                    <small class="d-block">No disponible</small>
                                 </div>
-                            </div>
+                            }
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="event-footer-compact">
+                            <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = evt.SportKey, eventId = evt.Id })" 
+                               class="btn btn-sm btn-primary action-btn-mini">
+                                <i class="bi bi-eye me-1"></i>Detalles
+                            </a>
                         </div>
                     </div>
                 </div>
+            }
+        </div>
+
+        @if (Model.Count >= 10)
+        {
+            <div class="text-center mt-3">
+                <button class="btn btn-outline-primary btn-sm load-more-btn" onclick="loadMoreResults()">
+                    <i class="bi bi-arrow-down-circle me-1"></i>Cargar más resultados
+                </button>
             </div>
         }
     </div>
-
-    @if (Model.Count >= 10)
-    {
-        <div class="text-center mt-3">
-            <button class="btn btn-outline-primary btn-sm" onclick="loadMoreResults()">
-                <i class="bi bi-arrow-down-circle me-1"></i>Cargar más resultados
-            </button>
-        </div>
-    }
 }

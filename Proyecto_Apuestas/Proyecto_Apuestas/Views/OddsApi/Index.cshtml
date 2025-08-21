@@ -403,7 +403,6 @@
                 this.loadFeaturedEvents();
                 this.setupAutoRefresh();
                 this.setupSmoothScrolling();
-                this.setupSportFilters();
                 this.animateOnLoad();
             }
 
@@ -414,7 +413,7 @@
                     const query = e.target.value;
                     
                     if (query.length === 0) {
-                        $('#searchResults').empty();
+                        $('#searchResults').empty().removeClass('show');
                         $('.search-loading').addClass('d-none');
                         return;
                     }
@@ -428,13 +427,23 @@
                 // Search on enter
                 $('#searchEvents').on('keypress', (e) => {
                     if (e.which === 13) {
+                        e.preventDefault();
                         this.searchEvents(e.target.value);
                     }
                 });
 
-                // Sport filter buttons
+                // Sport filter buttons with proper event handling
                 $('.filter-btn').on('click', (e) => {
-                    this.filterSports(e.target.dataset.filter);
+                    e.preventDefault();
+                    const btn = $(e.currentTarget);
+                    const filter = btn.data('filter');
+                    
+                    // Update active button
+                    $('.filter-btn').removeClass('active');
+                    btn.addClass('active');
+                    
+                    // Apply filter
+                    this.filterSports(filter);
                 });
             }
 
@@ -465,6 +474,20 @@
 
             quickSearch(term) {
                 $('#searchEvents').val(term).trigger('input');
+                // Scroll to search results
+                setTimeout(() => {
+                    if ($('#searchResults').children().length > 0) {
+                        $('html, body').animate({
+                            scrollTop: $('#searchResults').offset().top - 100
+                        }, 500);
+                    }
+                }, 500);
+            }
+
+            clearSearch() {
+                $('#searchEvents').val('');
+                $('#searchResults').empty().removeClass('show');
+                $('.search-loading').addClass('d-none');
             }
 
             async loadFeaturedEvents() {
@@ -542,65 +565,122 @@
                 });
             }
 
-            setupSportFilters() {
-                $('.filter-btn').on('click', function() {
-                    $('.filter-btn').removeClass('active');
-                    $(this).addClass('active');
-                });
-            }
 
             filterSports(filter) {
                 const categories = $('.sport-category');
                 const cards = $('.sport-card');
                 
-                categories.hide();
-                cards.hide();
+                // Remove existing animations
+                cards.removeClass('animate-in');
                 
+                // Show all initially
+                categories.show();
+                cards.show();
+                
+                // Apply filter with smooth transition
                 setTimeout(() => {
                     switch(filter) {
                         case 'popular':
-                            cards.filter('.popular').closest('.sport-category').show();
-                            cards.filter('.popular').show();
+                            // Hide non-popular cards and empty categories
+                            cards.each(function() {
+                                const card = $(this);
+                                if (!card.hasClass('popular')) {
+                                    card.fadeOut(200);
+                                }
+                            });
+                            // Hide categories with no visible cards
+                            setTimeout(() => {
+                                categories.each(function() {
+                                    const category = $(this);
+                                    const visibleCards = category.find('.sport-card.popular:visible');
+                                    if (visibleCards.length === 0) {
+                                        category.fadeOut(200);
+                                    }
+                                });
+                            }, 250);
                             break;
+                            
                         case 'live':
-                            cards.has('.status-badge.live').closest('.sport-category').show();
-                            cards.has('.status-badge.live').show();
+                            // Hide cards without live status
+                            cards.each(function() {
+                                const card = $(this);
+                                if (!card.find('.status-badge.live').length) {
+                                    card.fadeOut(200);
+                                }
+                            });
+                            // Hide categories with no visible cards
+                            setTimeout(() => {
+                                categories.each(function() {
+                                    const category = $(this);
+                                    const visibleCards = category.find('.sport-card:visible');
+                                    if (visibleCards.length === 0) {
+                                        category.fadeOut(200);
+                                    }
+                                });
+                            }, 250);
                             break;
-                        default:
-                            categories.show();
-                            cards.show();
+                            
+                        default: // 'all'
+                            categories.fadeIn(200);
+                            cards.fadeIn(200);
                     }
                     
-                    // Animate visible cards
-                    cards.filter(':visible').each((i, card) => {
-                        setTimeout(() => {
-                            $(card).addClass('animate-in');
-                        }, i * 100);
-                    });
-                }, 150);
+                    // Animate visible cards after filter is applied
+                    setTimeout(() => {
+                        cards.filter(':visible').each((i, card) => {
+                            setTimeout(() => {
+                                $(card).addClass('animate-in');
+                            }, i * 50);
+                        });
+                    }, 300);
+                }, 100);
             }
 
             animateOnLoad() {
-                // Animate hero elements
-                gsap.timeline()
-                    .from('.hero-badge', { opacity: 0, y: 20, duration: 0.6 })
-                    .from('.hero-title', { opacity: 0, y: 30, duration: 0.8 }, '-=0.3')
-                    .from('.hero-subtitle', { opacity: 0, y: 20, duration: 0.6 }, '-=0.5')
-                    .from('.hero-actions .btn', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1 }, '-=0.3')
-                    .from('.stat-card', { opacity: 0, scale: 0.9, duration: 0.6, stagger: 0.1 }, '-=0.5');
-
-                // Animate sections on scroll
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('animate-in');
-                        }
+                // Animate hero elements with jQuery
+                $('.hero-badge').css({ opacity: 0, transform: 'translateY(20px)' }).animate({ opacity: 1 }, 600).css('transform', 'translateY(0)');
+                
+                setTimeout(() => {
+                    $('.hero-title').css({ opacity: 0, transform: 'translateY(30px)' }).animate({ opacity: 1 }, 800).css('transform', 'translateY(0)');
+                }, 300);
+                
+                setTimeout(() => {
+                    $('.hero-subtitle').css({ opacity: 0, transform: 'translateY(20px)' }).animate({ opacity: 1 }, 600).css('transform', 'translateY(0)');
+                }, 500);
+                
+                setTimeout(() => {
+                    $('.hero-actions .btn').each((i, btn) => {
+                        setTimeout(() => {
+                            $(btn).css({ opacity: 0, transform: 'translateY(20px)' }).animate({ opacity: 1 }, 500).css('transform', 'translateY(0)');
+                        }, i * 100);
                     });
-                }, { threshold: 0.1 });
+                }, 700);
+                
+                setTimeout(() => {
+                    $('.stat-card').each((i, card) => {
+                        setTimeout(() => {
+                            $(card).css({ opacity: 0, transform: 'scale(0.9)' }).animate({ opacity: 1 }, 600).css('transform', 'scale(1)');
+                        }, i * 100);
+                    });
+                }, 500);
 
-                document.querySelectorAll('.sport-card, .search-card, .api-status-card').forEach(el => {
-                    observer.observe(el);
-                });
+                // Animate sections on scroll with Intersection Observer
+                if ('IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('animate-in');
+                            }
+                        });
+                    }, { threshold: 0.1 });
+
+                    document.querySelectorAll('.sport-card, .search-card, .api-status-card').forEach(el => {
+                        observer.observe(el);
+                    });
+                } else {
+                    // Fallback for browsers without IntersectionObserver
+                    $('.sport-card, .search-card, .api-status-card').addClass('animate-in');
+                }
             }
 
             animateSearchResults() {
@@ -707,7 +787,147 @@
         // Global functions
         function quickSearch(term) { dashboard.quickSearch(term); }
         function searchEvents() { dashboard.searchEvents($('#searchEvents').val()); }
+        function clearSearch() { dashboard.clearSearch(); }
         function updateApiStatus() { dashboard.updateApiStatus(); }
+        
+        // Function for handling bets from search results
+        function addToBetSlipFromSearch(button) {
+            const eventId = $(button).data('event-id');
+            const sportKey = $(button).data('sport-key');
+            const teamName = $(button).data('team-name');
+            const odds = parseFloat($(button).data('odds'));
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <text>
+                // Create a temporary modal for quick bet from search
+                const modalHtml = `
+                    <div class="modal fade" id="quickBetFromSearchModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content bg-dark-2 text-white border border-primary">
+                                <div class="modal-header border-primary bg-dark-3">
+                                    <h5 class="modal-title">
+                                        <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Apuesta Rápida
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-info bg-dark-3 border-info mb-3">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <strong>Confirma tu apuesta</strong> - Desde resultados de búsqueda
+                                    </div>
+                                    
+                                    <div class="bg-dark-3 p-3 rounded mb-3">
+                                        <p><strong>Equipo:</strong> ${teamName}</p>
+                                        <p><strong>Cuota:</strong> ${odds}</p>
+                                        <p><strong>Evento ID:</strong> ${eventId}</p>
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label text-white fw-bold">
+                                                <i class="bi bi-cash-coin me-1"></i>Monto a Apostar
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-dark-3 text-white border-secondary">₡</span>
+                                                <input type="number" class="form-control bg-dark-3 text-white border-secondary" 
+                                                       id="quickBetAmountFromSearch" min="100" step="100" value="1000">
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="bi bi-info-circle me-1"></i>Mínimo: ₡100 - Máximo: ₡50,000
+                                            </small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-white fw-bold">
+                                                <i class="bi bi-trophy me-1"></i>Ganancia Potencial
+                                            </label>
+                                            <div class="bg-success bg-opacity-10 border border-success rounded p-3 text-center">
+                                                <h4 class="text-success mb-0" id="potentialWinFromSearch">₡${(1000 * odds).toFixed(2)}</h4>
+                                                <small class="text-success">Ganancia estimada</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-primary bg-dark-3">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="bi bi-x-circle me-1"></i>Cancelar
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="confirmQuickBetFromSearch('${eventId}', '${sportKey}', '${teamName}', ${odds})">
+                                        <i class="bi bi-check-circle me-1"></i>Confirmar Apuesta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                
+                // Remove existing modal if any
+                $('#quickBetFromSearchModal').remove();
+                
+                // Add modal to body
+                $('body').append(modalHtml);
+                
+                // Show modal
+                $('#quickBetFromSearchModal').modal('show');
+                
+                // Update potential win when amount changes
+                $('#quickBetAmountFromSearch').on('input', function() {
+                    const amount = parseFloat($(this).val()) || 0;
+                    const potential = amount * odds;
+                    $('#potentialWinFromSearch').text('₡' + potential.toFixed(2));
+                });
+                </text>
+            }
+            else
+            {
+                <text>
+                if (typeof toastr !== 'undefined') {
+                    toastr.warning('Debe iniciar sesión para apostar');
+                } else {
+                    alert('Debe iniciar sesión para apostar');
+                }
+                setTimeout(function() {
+                    window.location.href = '@Url.Action("Login", "Account")';
+                }, 2000);
+                </text>
+            }
+        }
+        
+        function confirmQuickBetFromSearch(eventId, sportKey, teamName, odds) {
+            const amount = parseFloat($('#quickBetAmountFromSearch').val());
+
+            if (amount < 100) {
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('El monto mínimo es ₡100');
+                } else {
+                    alert('El monto mínimo es ₡100');
+                }
+                return;
+            }
+
+            // Create form data
+            const form = $('<form>', {
+                'method': 'GET',
+                'action': '@Url.Action("CreateBetFromApi", "OddsApi")'
+            });
+
+            // Add form fields
+            form.append($('<input>', { 'type': 'hidden', 'name': 'ApiEventId', 'value': eventId }));
+            form.append($('<input>', { 'type': 'hidden', 'name': 'SportKey', 'value': sportKey }));
+            form.append($('<input>', { 'type': 'hidden', 'name': 'TeamName', 'value': teamName }));
+            form.append($('<input>', { 'type': 'hidden', 'name': 'Odds', 'value': odds }));
+            form.append($('<input>', { 'type': 'hidden', 'name': 'Stake', 'value': amount }));
+
+            // Submit form
+            form.appendTo('body').submit();
+        }
+        
+        function loadMoreResults() {
+            if (typeof toastr !== 'undefined') {
+                toastr.info('Cargando más resultados...', 'Búsqueda');
+            }
+            // Here you could implement pagination or load more functionality
+            // For now, it's just a placeholder
+        }
         
         @if (User.IsInRole("Admin"))
         {
@@ -1054,13 +1274,355 @@
 
         .search-results {
             margin-top: 2rem;
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
             border-radius: 15px;
         }
 
         .search-results.show {
             animation: slideDown 0.3s ease;
+        }
+
+        /* Modern Scrollbars - Minimalistas sin fondo */
+        .search-results::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-results::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .search-results::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.6);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
+        }
+
+        .search-results::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* Scrollbars para Firefox */
+        .search-results {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.6) transparent;
+        }
+
+        /* Search Results Compact Styles */
+        .search-results-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .search-results-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-results-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .search-results-container::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.6);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .search-results-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
+        }
+
+        .search-results-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.6) transparent;
+        }
+
+        .search-events-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .search-event-card {
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .event-card-compact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Compact Header */
+        .event-header-compact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-sport-badge-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            color: #667eea;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-badge-mini.live {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .status-badge-mini.upcoming {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-badge-mini.scheduled {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        /* Compact Teams */
+        .event-teams-compact {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .team-compact {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .team-avatar-mini {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 0.75rem;
+        }
+
+        .team-name-mini {
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .vs-divider-mini {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.5rem;
+        }
+
+        .vs-mini {
+            color: #10b981;
+            font-weight: 800;
+            font-size: 0.7rem;
+        }
+
+        /* Compact Meta */
+        .event-meta-compact {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Compact Odds */
+        .event-odds-compact {
+            padding: 0.5rem 0;
+        }
+
+        .odds-chips-mini {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .odds-chip-mini {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chip-label-mini {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .chip-btn-mini {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            border-radius: 8px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chip-btn-mini:hover {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .bookmaker-info-mini {
+            text-align: center;
+        }
+
+        /* Compact Footer */
+        .event-footer-compact {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btn-mini {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn-mini:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Search Header Styles */
+        .search-results-header {
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .search-clear-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .search-clear-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .load-more-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .load-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-no-results {
+            border-radius: 12px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+
+        /* Responsive for Search Results */
+        @@media (max-width: 576px) {
+            .search-results {
+                max-height: 350px;
+            }
+            
+            .search-results-container {
+                max-height: 350px;
+            }
+            
+            .event-teams-compact {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .team-name-mini {
+                font-size: 0.8rem;
+            }
+            
+            .odds-chips-mini {
+                justify-content: center;
+            }
+            
+            .chip-btn-mini {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.4rem;
+            }
         }
 
         @@keyframes slideDown {
@@ -1137,7 +1699,7 @@
 
         .category-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
@@ -1166,6 +1728,17 @@
             transition: var(--transition-smooth);
             height: 100%;
             position: relative;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Filter transition effects */
+        .sport-card.filtering {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .sport-category.filtering {
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .sport-card::before {
@@ -1198,7 +1771,7 @@
         .sport-card-header {
             padding: 1.5rem 1.5rem 0;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: flex-start;
         }
 
@@ -1398,7 +1971,7 @@
 
         .admin-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
