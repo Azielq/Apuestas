@@ -61,6 +61,7 @@ namespace Proyecto_Apuestas.Configuration
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IHealthCheckService, HealthCheckService>();
 
             // Configure session for bet slip functionality
             services.AddSession(options =>
