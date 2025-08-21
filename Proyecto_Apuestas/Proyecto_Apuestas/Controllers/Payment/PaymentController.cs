@@ -4,8 +4,9 @@ using Proyecto_Apuestas.Services.Interfaces;
 using Proyecto_Apuestas.ViewModels;
 using Proyecto_Apuestas.Services.Implementations;
 using Proyecto_Apuestas.Models.Payment;
-using Proyecto_Apuestas.Data;                 // <-- NUEVO
-using Microsoft.AspNetCore.Hosting;           
+using Proyecto_Apuestas.Data;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace Proyecto_Apuestas.Controllers.Payment
 {
@@ -19,7 +20,7 @@ namespace Proyecto_Apuestas.Controllers.Payment
         private readonly IProductService _productService;
         private readonly IConfiguration _configuration;
 
-        // NUEVO: para bypass
+        // bypass / persistencia
         private readonly IWebHostEnvironment _env;
         private readonly apuestasDbContext _context;
 
@@ -30,8 +31,8 @@ namespace Proyecto_Apuestas.Controllers.Payment
            IStripeService stripeService,
            IProductService productService,
            IConfiguration configuration,
-           IWebHostEnvironment env,                // <-- NUEVO
-           apuestasDbContext context,              // <-- NUEVO
+           IWebHostEnvironment env,
+           apuestasDbContext context,
            ILogger<PaymentController> logger) : base(logger)
         {
             _paymentService = paymentService;
@@ -40,8 +41,6 @@ namespace Proyecto_Apuestas.Controllers.Payment
             _stripeService = stripeService;
             _productService = productService;
             _configuration = configuration;
-
-            // NUEVO
             _env = env;
             _context = context;
         }
@@ -216,14 +215,8 @@ namespace Proyecto_Apuestas.Controllers.Payment
             var userId = _userService.GetCurrentUserId();
             var success = await _paymentService.RemovePaymentMethodAsync(userId, id);
 
-            if (success)
-            {
-                AddSuccessMessage("Método de pago eliminado");
-            }
-            else
-            {
-                AddErrorMessage("No se pudo eliminar el método de pago");
-            }
+            if (success) AddSuccessMessage("Método de pago eliminado");
+            else AddErrorMessage("No se pudo eliminar el método de pago");
 
             return RedirectToAction(nameof(Index));
         }
@@ -234,11 +227,7 @@ namespace Proyecto_Apuestas.Controllers.Payment
             var userId = _userService.GetCurrentUserId();
             var success = await _paymentService.SetDefaultPaymentMethodAsync(userId, id);
 
-            if (success)
-            {
-                return JsonSuccess(message: "Método de pago predeterminado actualizado");
-            }
-
+            if (success) return JsonSuccess(message: "Método de pago predeterminado actualizado");
             return JsonError("No se pudo actualizar el método de pago predeterminado");
         }
 
@@ -247,11 +236,10 @@ namespace Proyecto_Apuestas.Controllers.Payment
         {
             var userId = _userService.GetCurrentUserId();
             var stats = await _paymentService.GetPaymentStatisticsAsync(userId);
-
             return View(stats);
         }
 
-        // ========================== Sección Stripe / Productos ===============================
+        // ========================== Stripe / Productos ===============================
 
         [HttpGet]
         [AllowAnonymous]
@@ -260,7 +248,7 @@ namespace Proyecto_Apuestas.Controllers.Payment
             var productos = _productService.GetAvailableProducts();
             ViewBag.StripePublicKey = _configuration["Payment:Stripe:PublicKey"];
 
-            // FLAGS para bypass (solo Dev o si habilitas en config y/o rol Admin)
+            // Flags bypass (solo Dev o si habilitas en config y/o rol Admin)
             var enableBypass = _configuration.GetValue<bool>("Payment:EnableBypass");
             var userIsAdmin = User?.IsInRole("Admin") ?? false;
             ViewBag.BypassEnabled = (_env.IsDevelopment() || userIsAdmin) && enableBypass;
@@ -270,21 +258,20 @@ namespace Proyecto_Apuestas.Controllers.Payment
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [Route("payment/create-checkout-session")]
         public async Task<IActionResult> CreateCheckoutSession([FromBody] ProductPaymentRequest request)
         {
+            var userId = _userService.GetCurrentUserId();
+            if (userId <= 0) return Unauthorized();
+
             var product = _productService.GetById(request.ProductId);
-            if (product == null)
-                return JsonError("Producto no encontrado");
+            if (product == null) return JsonError("Producto no encontrado");
 
             try
             {
                 var origin = $"{Request.Scheme}://{Request.Host}";
-                var userId = _userService.GetCurrentUserId();
-                var userIdStr = userId > 0 ? userId.ToString() : "0";
-
+                var userIdStr = userId.ToString();
                 string clientSecret;
 
                 if (!string.IsNullOrWhiteSpace(product.StripePriceId) && product.StripePriceId.StartsWith("price_"))
@@ -295,8 +282,8 @@ namespace Proyecto_Apuestas.Controllers.Payment
                 else
                 {
                     clientSecret = await _stripeService.CreateCheckoutSessionInlinePriceAsync(
-                        unitAmount: product.PriceInCents,
-                        currency: "usd",
+                        unitAmount: product.PriceInCents, // céntimos (CRC)
+                        currency: "crc",
                         productName: product.Name,
                         originBaseUrl: origin,
                         userId: userIdStr,
@@ -308,7 +295,7 @@ namespace Proyecto_Apuestas.Controllers.Payment
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear CheckoutSession Embedded");
-                return JsonError("No se pudo crear la sesion de Stripe");
+                return JsonError("No se pudo crear la sesión de Stripe");
             }
         }
 
@@ -336,29 +323,36 @@ namespace Proyecto_Apuestas.Controllers.Payment
                 return Forbid();
 
             var product = _productService.GetById(request.ProductId);
-            if (product == null)
-                return JsonError("Producto no encontrado");
+            if (product == null) return JsonError("Producto no encontrado");
 
-            var user = await _userService.GetCurrentUserAsync();
-            if (user == null) return Unauthorized();
+            var userId = _userService.GetCurrentUserId();
+            if (userId <= 0) return Unauthorized();
 
-            // Acredita chips al usuario
-            user.CreditBalance += product.Chips;
-            await _context.SaveChangesAsync();
+            // => Actualización robusta del saldo (evita cross-DbContext)
+            await _context.UserAccounts
+                .Where(u => u.UserId == userId)
+                .ExecuteUpdateAsync(set => set
+                    .SetProperty(u => u.CreditBalance, u => u.CreditBalance + product.Chips));
 
-            // Registra una transacción "COMPLETED" para trazabilidad (monto 0)
+            // Transacción para trazabilidad: monto = chips (CRC 1:1)
             await _paymentService.CreateTransactionAsync(new PaymentTransactionRequest
             {
-                UserId = user.UserId,
-                Amount = 0m,
+                UserId = userId,
+                Amount = product.Chips,                    // CRC
                 TransactionType = "DEPOSIT",
                 Description = $"DEV_BYPASS: {product.Name} (+{product.Chips} chips)"
             });
 
+            // Devuelve nuevo balance
+            var newBalance = await _context.UserAccounts
+                .Where(u => u.UserId == userId)
+                .Select(u => u.CreditBalance)
+                .FirstAsync();
+
             return JsonSuccess(new
             {
                 message = $"Se acreditaron {product.Chips} chips (DEV BYPASS).",
-                data = new { newBalance = user.CreditBalance, product = product.Name }
+                data = new { newBalance, product = product.Name }
             });
         }
 

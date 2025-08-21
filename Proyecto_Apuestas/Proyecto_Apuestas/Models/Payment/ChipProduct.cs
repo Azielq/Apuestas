@@ -10,16 +10,24 @@ namespace Proyecto_Apuestas.Models.Payment
         [Required, StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        // Precio opcionalmente para mostrar en UI; el cobro real lo hace Stripe por PriceId
+        /// <summary>
+        /// Precio en centavos/centimos (minor units) para Stripe.
+        /// Ej: ₡1.000 => 100.000
+        /// </summary>
         [Required]
-        public int PriceInCents { get; set; } // $15.00 = 1500
+        public int PriceInCents { get; set; }
 
-        // IMPORTANTE: Debe ser un Price ID de Stripe (empieza con price_)
+        /// <summary>
+        /// Cantidad de "chips" que otorga. En este esquema = colones (1:1)
+        /// </summary>
         [Required]
-        public string StripePriceId { get; set; } = string.Empty;
+        public int Chips { get; set; }
 
-        [Required]
-        public int Chips { get; set; } // Cantidad de chips que otorga
+        /// <summary>
+        /// Opcional: usa un Price pre-creado en Stripe. Si está vacío, se usa inline price.
+        /// </summary>
+        [StringLength(120)]
+        public string? StripePriceId { get; set; }
 
         [StringLength(255)]
         public string? Description { get; set; }
@@ -28,4 +36,3 @@ namespace Proyecto_Apuestas.Models.Payment
         public bool IsActive { get; set; } = true;
     }
 }
-

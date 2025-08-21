@@ -37,7 +37,10 @@ builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddSingleton<IProductService, ProductService>();
 
 
-
+// Cultura por defecto es-CR para mostrar Colones correctamente en {monto:C}
+var culture = new System.Globalization.CultureInfo("es-CR");
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var app = builder.Build();
 
