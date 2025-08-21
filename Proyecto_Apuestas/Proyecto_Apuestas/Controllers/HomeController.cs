@@ -83,20 +83,107 @@ namespace Proyecto_Apuestas.Controllers
 
         public IActionResult Blog()
         {
-            // Redirecciona temporalmente a Index hasta que se implemente
-            return RedirectToAction(nameof(Index));
+            ViewBag.FeatureName = "Blog de Bet506";
+            ViewBag.ExpectedDate = "Q4 2025";
+            ViewBag.Description = "Nuestro blog traerá las últimas noticias deportivas, análisis de apuestas, consejos de expertos y mucho más.";
+            ViewBag.Icon = "bi-newspaper";
+            ViewBag.ShowNewsletterSignup = true;
+            ViewBag.Features = new List<string>
+            {
+                "Noticias deportivas actualizadas",
+                "Análisis de expertos",
+                "Consejos de apuestas",
+                "Pronósticos deportivos",
+                "Entrevistas exclusivas",
+                "Estadísticas avanzadas"
+            };
+            
+            return View("~/Views/Shared/_UnderDevelopment.cshtml");
         }
 
         public IActionResult Careers()
         {
-            // Redirecciona temporalmente a Index hasta que se implemente
-            return RedirectToAction(nameof(Index));
+            ViewBag.FeatureName = "Oportunidades de Carrera";
+            ViewBag.ExpectedDate = "Q4 2025";
+            ViewBag.Description = "Únete a nuestro equipo. Estamos construyendo una sección completa de empleos para crecer juntos.";
+            ViewBag.Icon = "bi-briefcase";
+            ViewBag.ShowNewsletterSignup = true;
+            ViewBag.Features = new List<string>
+            {
+                "Posiciones en tecnología",
+                "Roles en atención al cliente",
+                "Oportunidades en marketing",
+                "Trabajos remotos disponibles",
+                "Beneficios competitivos",
+                "Ambiente de trabajo inclusivo"
+            };
+            
+            return View("~/Views/Shared/_UnderDevelopment.cshtml");
+        }
+
+        public IActionResult Promotions()
+        {
+            return View();
         }
 
         public IActionResult FAQ()
         {
-            // Redireccionar temporalmente a Index hasta que se implemente
-            return RedirectToAction(nameof(Index));
+            ViewBag.FeatureName = "Preguntas Frecuentes";
+            ViewBag.ExpectedDate = "Q4 2025";
+            ViewBag.Description = "Estamos compilando las preguntas más comunes para ofrecerte respuestas rápidas y precisas.";
+            ViewBag.Icon = "bi-question-circle";
+            ViewBag.ShowNewsletterSignup = false;
+            ViewBag.Features = new List<string>
+            {
+                "Guías de registro y verificación",
+                "Información sobre métodos de pago",
+                "Explicación de tipos de apuestas",
+                "Políticas de retiros",
+                "Soporte técnico común",
+                "Búsqueda inteligente de respuestas"
+            };
+            
+            return View("~/Views/Shared/_UnderDevelopment.cshtml");
+        }
+
+        public IActionResult AppStore()
+        {
+            ViewBag.FeatureName = "App para iOS";
+            ViewBag.ExpectedDate = "Q1 2026";
+            ViewBag.Description = "Nuestra aplicación móvil para iOS está en desarrollo. Pronto podrás apostar desde tu iPhone o iPad.";
+            ViewBag.Icon = "bi-apple";
+            ViewBag.ShowNewsletterSignup = true;
+            ViewBag.Features = new List<string>
+            {
+                "Interfaz nativa optimizada",
+                "Notificaciones push en vivo",
+                "Apuestas rápidas con Touch ID",
+                "Streaming de eventos",
+                "Modo offline básico",
+                "Integración con Apple Pay"
+            };
+            
+            return View("~/Views/Shared/_UnderDevelopment.cshtml");
+        }
+
+        public IActionResult PlayStore()
+        {
+            ViewBag.FeatureName = "App para Android";
+            ViewBag.ExpectedDate = "Q4 2025";
+            ViewBag.Description = "Estamos desarrollando la aplicación para Android con todas las funcionalidades que necesitas.";
+            ViewBag.Icon = "bi-google-play";
+            ViewBag.ShowNewsletterSignup = true;
+            ViewBag.Features = new List<string>
+            {
+                "Material Design 3",
+                "Widgets para pantalla principal",
+                "Notificaciones personalizables",
+                "Modo oscuro automático",
+                "Soporte para tablets",
+                "Integración con Google Pay"
+            };
+            
+            return View("~/Views/Shared/_UnderDevelopment.cshtml");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

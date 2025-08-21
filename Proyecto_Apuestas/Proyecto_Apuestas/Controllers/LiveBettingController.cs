@@ -24,8 +24,27 @@ namespace Proyecto_Apuestas.Controllers
         {
             try
             {
-                var liveEvents = await _eventService.GetLiveEventsAsync();
-                return View(liveEvents);
+                // Por ahora mostramos que está en desarrollo
+                ViewBag.FeatureName = "Apuestas En Vivo";
+                ViewBag.ExpectedDate = "Q4 2025";
+                ViewBag.Description = "Las apuestas en tiempo real están llegando pronto. Experimenta la emoción de apostar mientras los eventos se desarrollan.";
+                ViewBag.Icon = "bi-broadcast";
+                ViewBag.ShowNewsletterSignup = true;
+                ViewBag.Features = new List<string>
+                {
+                    "Odds actualizados en tiempo real",
+                    "Streaming en vivo de eventos",
+                    "Cash out instantáneo",
+                    "Estadísticas en vivo",
+                    "Apuestas rápidas con un clic",
+                    "Alertas personalizadas"
+                };
+                
+                return View("~/Views/Shared/_UnderDevelopment.cshtml");
+                
+                // Código futuro cuando esté implementado:
+                // var liveEvents = await _eventService.GetLiveEventsAsync();
+                // return View(liveEvents);
             }
             catch (Exception ex)
             {
