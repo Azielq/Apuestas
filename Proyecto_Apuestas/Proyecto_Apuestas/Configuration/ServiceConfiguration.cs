@@ -54,6 +54,7 @@ namespace Proyecto_Apuestas.Configuration
             // Application services
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IBettingService, BettingService>();
+            services.AddScoped<IApiBettingService, ApiBettingService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IOddsService, OddsService>();

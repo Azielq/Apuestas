@@ -1,0 +1,1299 @@
+﻿@using Proyecto_Apuestas.ViewModels.API
+@using Proyecto_Apuestas.Helpers
+@using Proyecto_Apuestas.Models.API
+@model SportEventsViewModel
+@{
+    ViewData["Title"] = $"Eventos - {Model.Sport?.Title ?? "Deportes"}";
+    var regions = ViewBag.Regions as Dictionary<string, string>;
+    var markets = ViewBag.Markets as Dictionary<string, string>;
+}
+
+<!-- Hero Section -->
+<section class="hero-section-events">
+    <div class="hero-overlay"></div>
+    <div class="container-fluid">
+        <div class="row align-items-center min-vh-40">
+            <div class="col-lg-8">
+                <div class="hero-content">
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb bg-transparent p-0">
+                            <li class="breadcrumb-item">
+                                <a href="@Url.Action("Index", "OddsApi")" class="text-white-50">
+                                    <i class="bi bi-house me-1"></i>Centro de Cuotas
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active text-white">@Model.Sport?.Title</li>
+                        </ol>
+                    </nav>
+                    <div class="hero-badge mb-3">
+                        <span class="badge bg-gradient-primary px-3 py-2">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>CUOTAS EN VIVO
+                        </span>
+                    </div>
+                    <h1 class="hero-title">
+                        <i class="bi bi-@(Model.SportKey?.Contains("soccer") ?? false ? "trophy" : Model.SportKey?.Contains("basketball") ?? false ? "circle" : Model.SportKey?.Contains("americanfootball") ?? false ? "shield" : "trophy") me-3 text-gradient-primary"></i>
+                        @Model.Sport?.Title
+                    </h1>
+                    <p class="hero-subtitle">
+                        @(Model.Sport?.Description ?? "Explora los próximos eventos y las mejores cuotas disponibles")
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-lg px-4" onclick="$('#filters-section')[0].scrollIntoView({ behavior: 'smooth' })">
+                            <i class="bi bi-funnel me-2"></i>Filtrar Eventos
+                        </button>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a href="@Url.Action("BetSlip", "Betting")" class="btn btn-outline-light btn-lg px-4 ms-3">
+                                <i class="bi bi-cart3 me-2"></i>Mi Boleto (<span id="betCount">0</span>)
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="hero-stats">
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-success">
+                            <i class="bi bi-calendar-event"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">@Model.Events.Count</div>
+                            <div class="stat-label">Eventos Disponibles</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-info">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">@(Model.Events.Where(e => e.Bookmakers != null).SelectMany(e => e.Bookmakers).Count())</div>
+                            <div class="stat-label">Casas de Apuestas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-warning">
+                            <i class="bi bi-fire"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">@Model.Events.Count(e => DateTimeHelper.IsEventLive(e.CommenceTime.ToCostaRicaTime()))</div>
+                            <div class="stat-label">En Vivo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid py-4">
+    <!-- Filters Section -->
+    <section class="filters-section" id="filters-section">
+        <div class="filter-card glass-effect">
+            <div class="filter-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3 class="filter-title">
+                            <span class="title-icon">
+                                <i class="bi bi-funnel-fill"></i>
+                            </span>
+                            Personaliza tu Búsqueda
+                        </h3>
+                        <p class="filter-subtitle">Filtra eventos por región, tipo de apuesta y más</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="filter-actions">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="refreshEvents()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="clearFilters()">
+                                <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-body">
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="bi bi-search text-warning me-2"></i>Buscar Eventos
+                            </label>
+                            <input type="text" id="searchFilter" class="filter-select" 
+                                   placeholder="Buscar por equipos..." 
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="bi bi-geo-alt-fill text-primary me-2"></i>Región
+                            </label>
+                            <select id="regionFilter" class="filter-select">
+                                <option value="">Todas las regiones</option>
+                                @if (regions != null)
+                                {
+                                    @foreach (var region in regions)
+                                    {
+                                        @if (Model.Region == region.Key)
+                                        {
+                                            <option value="@region.Key" selected>@region.Value</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@region.Key">@region.Value</option>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    @if (Model.Region == "us")
+                                    {
+                                        <option value="us" selected>Estados Unidos</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="us">Estados Unidos</option>
+                                    }
+                                    @if (Model.Region == "uk")
+                                    {
+                                        <option value="uk" selected>Reino Unido</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="uk">Reino Unido</option>
+                                    }
+                                    @if (Model.Region == "eu")
+                                    {
+                                        <option value="eu" selected>Europa</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="eu">Europa</option>
+                                    }
+                                    @if (Model.Region == "au")
+                                    {
+                                        <option value="au" selected>Australia</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="au">Australia</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="bi bi-graph-up-arrow text-success me-2"></i>Tipo de Apuesta
+                            </label>
+                            <select id="marketFilter" class="filter-select">
+                                <option value="">Todos los mercados</option>
+                                @if (markets != null)
+                                {
+                                    @foreach (var market in markets)
+                                    {
+                                        @if (Model.Market == market.Key)
+                                        {
+                                            <option value="@market.Key" selected>@market.Value</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@market.Key">@market.Value</option>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    @if (Model.Market == "h2h")
+                                    {
+                                        <option value="h2h" selected>Ganador del Partido</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="h2h">Ganador del Partido</option>
+                                    }
+                                    @if (Model.Market == "spreads")
+                                    {
+                                        <option value="spreads" selected>Handicap</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="spreads">Handicap</option>
+                                    }
+                                    @if (Model.Market == "totals")
+                                    {
+                                        <option value="totals" selected>Total de Puntos/Goles</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="totals">Total de Puntos/Goles</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="bi bi-sort-down text-info me-2"></i>Ordenar por
+                            </label>
+                            <select id="sortBy" class="filter-select">
+                                <option value="">Orden por defecto</option>
+                                <option value="time">📅 Hora del Evento</option>
+                                <option value="odds">📊 Mejores Cuotas</option>
+                                <option value="team">🏆 Equipo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section class="events-section">
+        <div class="section-header">
+            <div class="row align-items-center mb-4">
+                <div class="col-md-8">
+                    <h2 class="section-title">
+                        <span class="title-icon">
+                            <i class="bi bi-calendar-event-fill"></i>
+                        </span>
+                        Eventos Disponibles
+                        <span class="badge bg-gradient-primary ms-3 pulse">@Model.Events.Count</span>
+                    </h2>
+                    <p class="section-subtitle">
+                        <i class="bi bi-clock me-1"></i>Última actualización: @DateTime.Now.ToDisplayFormat()
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="view-options">
+                        <button class="btn btn-outline-primary btn-sm active" data-view="grid">
+                            <i class="bi bi-grid-3x3-gap"></i> Vista Grid
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" data-view="list">
+                            <i class="bi bi-list-ul"></i> Vista Lista
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            @if (!Model.Events.Any())
+            {
+                <div class="alert alert-info bg-dark-2 border-info text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-3 text-info fs-4"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">No hay eventos disponibles</h5>
+                            <p class="mb-0">No se encontraron eventos para los filtros seleccionados en este momento.</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var evt in Model.Events)
+                    {
+                        var localTime = evt.CommenceTime.Kind == DateTimeKind.Utc ? 
+                            evt.CommenceTime.ToCostaRicaTime() : 
+                            evt.CommenceTime;
+                        
+                        // Fallback para fechas inválidas (01/01/0001)
+                        var isValidDate = evt.CommenceTime > DateTime.MinValue.AddYears(10);
+                        if (!isValidDate)
+                        {
+                            localTime = DateTime.Now.AddHours(1); // Evento próximo por defecto
+                        }
+                        var bestBookmaker = evt.Bookmakers?.FirstOrDefault();
+                        var h2hMarket = bestBookmaker?.Markets?.FirstOrDefault(m => m.Key == "h2h");
+                        var bestOdd = (h2hMarket != null && h2hMarket.Outcomes != null && h2hMarket.Outcomes.Any())
+                            ? h2hMarket.Outcomes.OrderByDescending(o => o.Price).FirstOrDefault()
+                            : null;
+                        var bestOddsValueStr = bestOdd != null 
+                            ? bestOdd.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) 
+                            : "0";
+                        var eventTimestamp = new DateTimeOffset(localTime).ToUnixTimeMilliseconds();
+                        <div class="col-12">
+                            <div class="event-card event-card-modern glass-effect"
+                                 data-time="@eventTimestamp"
+                                 data-team="@evt.HomeTeam"
+                                 data-odds="@bestOddsValueStr">
+                                <div class="event-card-body">
+                                    <div class="event-card-header">
+                                        <span class="event-sport-badge">
+                                            <i class="bi bi-@(Model.SportKey.Contains("soccer") ? "trophy" : Model.SportKey.Contains("basketball") ? "circle" : Model.SportKey.Contains("americanfootball") ? "shield" : "trophy")"></i>
+                                            @Model.Sport?.Title
+                                        </span>
+                                        <span class="event-status">
+                                            @if (!isValidDate)
+                                            {
+                                                <span class="status-badge scheduled"><i class="bi bi-clock"></i>Pendiente</span>
+                                            }
+                                            else if (DateTimeHelper.IsEventLive(localTime))
+                                            {
+                                                <span class="status-badge live"><i class="bi bi-record-circle-fill"></i>En vivo</span>
+                                            }
+                                            else if (localTime <= DateTime.Now.AddHours(2))
+                                            {
+                                                <span class="status-badge upcoming"><i class="bi bi-clock-fill"></i>Próximo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge scheduled"><i class="bi bi-calendar-check"></i>Programado</span>
+                                            }
+                                        </span>
+                                    </div>
+
+                                    <div class="event-teams">
+                                        <div class="team home-team">
+                                            <div class="team-avatar"><i class="bi bi-shield-fill"></i></div>
+                                            <span class="team-name">@evt.HomeTeam</span>
+                                        </div>
+                                        <div class="vs-divider">
+                                            <span class="line"></span>
+                                            <span class="vs">VS</span>
+                                            <span class="line"></span>
+                                        </div>
+                                        <div class="team away-team">
+                                            <div class="team-avatar"><i class="bi bi-shield-fill"></i></div>
+                                            <span class="team-name">@evt.AwayTeam</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="event-meta">
+                                        <span><i class="bi bi-calendar3 me-1 text-primary"></i>
+                                            @if (!isValidDate)
+                                            {
+                                                <text>Fecha por confirmar</text>
+                                            }
+                                            else
+                                            {
+                                                @localTime.ToDisplayFormat()
+                                            }
+                                        </span>
+                                        @if (isValidDate)
+                                        {
+                                            <span>• @localTime.GetDayNameInSpanish().ToUpper() - @DateTimeHelper.GetTimeUntilEvent(localTime)</span>
+                                        }
+                                    </div>
+
+                                    <div class="event-odds">
+                                        @if (h2hMarket != null && h2hMarket.Outcomes != null)
+                                        {
+                                            <div class="odds-chips">
+                                                @foreach (var outcome in h2hMarket.Outcomes)
+                                                {
+                                                    var oddsValue = outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                                                    <div class="odds-chip">
+                                                        <span class="chip-label">@outcome.Name</span>
+                                                        <button class="chip-btn"
+                                                                data-event-id="@evt.Id"
+                                                                data-sport-key="@Model.SportKey"
+                                                                data-team-name="@outcome.Name"
+                                                                data-odds="@oddsValue"
+                                                                onclick="addToBetSlip(this)"
+                                                                aria-label="Agregar @outcome.Name a apuesta rápida con cuota @oddsValue">
+                                                            <i class="bi bi-graph-up"></i>
+                                                            <strong>@outcome.Price.ToString("0.00")</strong>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="text-muted mt-2">
+                                                <small><i class="bi bi-check-circle me-1"></i>vía @bestBookmaker?.Title</small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center text-muted p-4">
+                                                <i class="bi bi-clock-history fs-4 d-block mb-2"></i>
+                                                <span class="fw-bold">Cuotas no disponibles</span>
+                                                <br /><small>Intente actualizar más tarde</small>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="event-footer">
+                                        <div class="text-muted">
+                                            <small>ID: @evt.Id</small>
+                                        </div>
+                                        <div class="cta">
+                                            <a href="@Url.Action("EventDetails", "OddsApi", new { sportKey = Model.SportKey, eventId = evt.Id })" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-eye me-1"></i>Ver Detalles
+                                            </a>
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <button class="btn btn-sm btn-outline-success"
+                                                        data-event-id="@evt.Id"
+                                                        data-sport-key="@Model.SportKey"
+                                                        onclick="syncEventToLocal(this)"
+                                                        title="Sincronizar evento con base de datos local">
+                                                    <i class="bi bi-cloud-download me-1"></i>Sincronizar
+                                                </button>
+                                            }
+                                            <button class="btn btn-sm btn-outline-info"
+                                                    onclick="shareEvent('@evt.HomeTeam vs @evt.AwayTeam', '@localTime.ToDisplayFormat()')"
+                                                    title="Compartir evento">
+                                                <i class="bi bi-share me-1"></i>Compartir
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Paginación (si tienes muchos eventos) -->
+                @if (Model.Events.Count > 20)
+                {
+                    <nav aria-label="Paginación de eventos" class="mt-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Mostrando @Math.Min(20, Model.Events.Count) de @Model.Events.Count eventos
+                            </small>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-grid-3x3-gap me-1"></i>Vista Compacta
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-list-ul me-1"></i>Vista Detallada
+                                </button>
+                            </div>
+                        </div>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link bg-dark-3 border-secondary text-muted">
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </a>
+                            </li>
+                            <li class="page-item active">
+                                <a class="page-link bg-primary border-primary">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link bg-dark-3 border-secondary text-white hover-scale">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link bg-dark-3 border-secondary text-white hover-scale">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link bg-dark-3 border-secondary text-white hover-scale">
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Apuesta Rápida -->
+<div class="modal fade" id="quickBetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark-2 text-white border border-primary">
+            <div class="modal-header border-primary bg-dark-3">
+                <h5 class="modal-title text-white">
+                    <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Apuesta Rápida
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info bg-dark-3 border-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Confirma tu apuesta</strong> - Revisa los detalles antes de continuar
+                </div>
+                
+                <div id="quickBetDetails" class="bg-dark-3 p-3 rounded mb-3"></div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="quickBetAmount" class="form-label text-white fw-bold">
+                            <i class="bi bi-cash-coin me-1"></i>Monto a Apostar
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark-3 text-white border-secondary">₡</span>
+                            <input type="number" class="form-control bg-dark-3 text-white border-secondary" 
+                                   id="quickBetAmount" min="100" step="100" placeholder="1000">
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>Mínimo: ₡100 - Máximo: ₡50,000
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-white fw-bold">
+                            <i class="bi bi-trophy me-1"></i>Ganancia Potencial
+                        </label>
+                        <div class="bg-success bg-opacity-10 border border-success rounded p-3 text-center">
+                            <h4 class="text-success mb-0" id="potentialWin">₡0</h4>
+                            <small class="text-success">Ganancia estimada</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-primary bg-dark-3">
+                <button type="button" class="btn btn-secondary hover-scale" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary hover-scale" onclick="confirmQuickBet()">
+                    <i class="bi bi-check-circle me-1"></i>Confirmar Apuesta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentBet = {};
+
+        $(document).ready(function() {
+            // Actualizar conteo de apuestas en el boleto
+            updateBetCount();
+            
+            // Debug: Mostrar estado actual de filtros
+            console.log('Filter state:', {
+                region: '@Model.Region',
+                market: '@Model.Market',
+                sportKey: '@Model.SportKey'
+            });
+
+            // Cambio de filtros
+            $('#regionFilter, #marketFilter').change(function() {
+                var filterType = $(this).attr('id');
+                var filterValue = $(this).val();
+                console.log('Filter changed:', filterType, '=', filterValue);
+                
+                // Mostrar indicador de carga
+                showFilterLoading();
+                applyFilters();
+            });
+
+            // Ordenamiento
+            $('#sortBy').change(function() {
+                var sortValue = $(this).val();
+                console.log('Sorting by:', sortValue);
+                sortEvents(sortValue);
+            });
+            
+            // Actualizar colores de filtros según el valor seleccionado
+            $('#regionFilter, #marketFilter, #sortBy').each(function() {
+                var $this = $(this);
+                $this.css('color', $this.val() ? '#ffffff' : '#6c757d');
+            });
+
+            // Funcionalidad de búsqueda
+            console.log('Setting up search filter...');
+            var searchFilter = $('#searchFilter');
+            console.log('Search filter element found:', searchFilter.length);
+            
+            searchFilter.on('input', function() {
+                var searchTerm = $(this).val().toLowerCase().trim();
+                console.log('Search input event triggered. Term:', searchTerm);
+                filterEvents(searchTerm);
+            });
+
+            // Limpiar búsqueda al pulsar Escape
+            searchFilter.on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    console.log('Escape pressed, clearing search');
+                    $(this).val('');
+                    filterEvents('');
+                }
+            });
+
+            // Test inicial para verificar que todo funciona
+            console.log('Testing filterEvents function...');
+            setTimeout(function() {
+                var testCards = $('.col-12').has('.event-card-modern');
+                console.log('Initial test - found cards:', testCards.length);
+            }, 1000);
+        });
+
+        function refreshEvents() {
+            location.reload();
+        }
+
+        function applyFilters() {
+            var region = $('#regionFilter').val();
+            var market = $('#marketFilter').val();
+            var sportKey = '@Model.SportKey';
+            
+            // Construir URL con parámetros correctos
+            var url = '@Url.Action("Events", "OddsApi")';
+            url += '?sportKey=' + encodeURIComponent(sportKey);
+            
+            if (region && region !== '') {
+                url += '&region=' + encodeURIComponent(region);
+            }
+            
+            if (market && market !== '') {
+                url += '&market=' + encodeURIComponent(market);
+            }
+            
+            console.log('Navigating to:', url); // Para debug
+            window.location.href = url;
+        }
+
+        function addToBetSlip(button) {
+            var eventId = $(button).data('event-id');
+            var sportKey = $(button).data('sport-key');
+            var teamName = $(button).data('team-name');
+            var odds = parseFloat($(button).data('odds'));
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                    <text>
+                    currentBet = {
+                        eventId: eventId,
+                        sportKey: sportKey,
+                        teamName: teamName,
+                        odds: odds
+                    };
+
+                    $('#quickBetDetails').html(`
+                        <p><strong>Equipo:</strong> ${teamName}</p>
+                        <p><strong>Cuota:</strong> ${odds}</p>
+                    `);
+
+                    $('#quickBetAmount').val(1000);
+                    calculatePotentialWin();
+
+                    $('#quickBetModal').modal('show');
+                    </text>
+            }
+            else
+            {
+                    <text>
+                    toastr.warning('Debe iniciar sesión para apostar');
+                    setTimeout(function() {
+                        window.location.href = '@Url.Action("Login", "Account")';
+                    }, 2000);
+                    </text>
+            }
+        }
+
+        function calculatePotentialWin() {
+            var amount = parseFloat($('#quickBetAmount').val()) || 0;
+            var potential = amount * currentBet.odds;
+            $('#potentialWin').text('₡' + potential.toFixed(2));
+        }
+
+        $('#quickBetAmount').on('input', calculatePotentialWin);
+
+        function confirmQuickBet() {
+            var amount = parseFloat($('#quickBetAmount').val());
+
+            if (amount < 100) {
+                toastr.error('El monto mínimo es ₡100');
+                return;
+            }
+
+            var betData = {
+                ApiEventId: currentBet.eventId,
+                SportKey: currentBet.sportKey,
+                TeamName: currentBet.teamName,
+                Odds: currentBet.odds,
+                Stake: amount
+            };
+
+            // Redirigir a la página de confirmación de apuesta
+            var form = $('<form>', {
+                'method': 'GET',
+                'action': '@Url.Action("CreateBetFromApi", "OddsApi")'
+            });
+
+            $.each(betData, function(key, value) {
+                form.append($('<input>', {
+                    'type': 'hidden',
+                    'name': key,
+                    'value': value
+                }));
+            });
+
+            form.appendTo('body').submit();
+        }
+
+        function syncEventToLocal(button) {
+            var eventId = $(button).data('event-id');
+            var sportKey = $(button).data('sport-key');
+
+            @if (User.IsInRole("Admin"))
+            {
+                    <text>
+                    if (!confirm('¿Sincronizar este evento con la base de datos local?')) return;
+
+                    $.post('@Url.Action("SyncEvents", "OddsApi")', { sportKey: sportKey }, function(response) {
+                        if (response.success) {
+                            toastr.success('Evento sincronizado exitosamente');
+                        } else {
+                            toastr.error('Error al sincronizar el evento');
+                        }
+                    });
+                    </text>
+            }
+            else
+            {
+                    <text>
+                    toastr.info('Solo los administradores pueden sincronizar eventos');
+                    </text>
+            }
+        }
+
+        function updateBetCount() {
+            // Aquí podrías hacer una llamada AJAX para obtener el conteo real
+            // Por ahora es solo un ejemplo
+            $('#betCount').text('0');
+        }
+
+        function showFilterLoading() {
+            // Remover loading anterior si existe
+            $('#filterLoading').remove();
+            // Mostrar indicador de carga en los filtros
+            var filterCard = $('.card:has(#regionFilter)');
+            filterCard.find('.card-body').prepend('<div id="filterLoading" class="text-center mb-3"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Aplicando filtros...</span></div> <small class="text-muted ms-2">Aplicando filtros...</small></div>');
+        }
+
+        function clearFilters() {
+            // Resetear todos los filtros
+            $('#regionFilter').val('');
+            $('#marketFilter').val('');
+            $('#sortBy').val('');
+            $('#searchFilter').val('');
+            
+            // Actualizar colores
+            $('#regionFilter, #marketFilter, #sortBy').css('color', '#6c757d');
+            
+            // Mostrar todos los eventos
+            $('.col-12').has('.event-card-modern').show();
+            $('#noResultsMessage').remove();
+            
+            // Navegar a la URL sin filtros
+            var sportKey = '@Model.SportKey';
+            var url = '@Url.Action("Events", "OddsApi")' + '?sportKey=' + encodeURIComponent(sportKey);
+            
+            if (typeof toastr !== 'undefined') {
+                toastr.info('Filtros limpiados');
+            }
+            
+            window.location.href = url;
+        }
+
+        function filterEvents(searchTerm) {
+            console.log('filterEvents called with term:', searchTerm);
+            
+            // Buscar los contenedores de eventos
+            var $eventCards = $('.col-12').has('.event-card-modern');
+            console.log('Found event cards:', $eventCards.length);
+            
+            var visibleCount = 0;
+            
+            // Remover mensaje anterior de sin resultados
+            $('#noResultsMessage').remove();
+            
+            if (searchTerm === '') {
+                // Si no hay término de búsqueda, mostrar todos los eventos
+                $eventCards.show();
+                visibleCount = $eventCards.length;
+                console.log('Showing all events:', visibleCount);
+            } else {
+                // Filtrar eventos por término de búsqueda
+                $eventCards.each(function() {
+                    var $eventContainer = $(this);
+                    var $eventCard = $eventContainer.find('.event-card-modern');
+                    
+                    // Buscar específicamente en los nombres de equipos
+                    var homeTeam = $eventCard.find('.home-team .team-name').text().toLowerCase();
+                    var awayTeam = $eventCard.find('.away-team .team-name').text().toLowerCase();
+                    
+                    console.log('Checking:', homeTeam, 'vs', awayTeam, 'for term:', searchTerm);
+                    
+                    // Buscar en nombres de equipos
+                    var matchesSearch = homeTeam.includes(searchTerm) || awayTeam.includes(searchTerm);
+                    
+                    if (matchesSearch) {
+                        $eventContainer.show();
+                        visibleCount++;
+                        console.log('Match found, showing event');
+                    } else {
+                        $eventContainer.hide();
+                        console.log('No match, hiding event');
+                    }
+                });
+            }
+            
+            console.log('Visible events after filter:', visibleCount);
+            
+            // Actualizar contador de eventos visibles
+            $('.section-title .badge').text(visibleCount);
+            
+            // Mostrar mensaje si no hay resultados
+            if (visibleCount === 0 && searchTerm !== '') {
+                var noResultsHtml = `
+                    <div id="noResultsMessage" class="col-12">
+                        <div class="alert alert-info bg-dark-2 border-info text-white text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="bi bi-search me-3 text-info fs-4"></i>
+                                <div>
+                                    <h5 class="alert-heading mb-1">No se encontraron eventos</h5>
+                                    <p class="mb-0">No hay eventos que coincidan con "<strong>${searchTerm}</strong>". Prueba con otros términos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                $('.events-section .row').append(noResultsHtml);
+                console.log('No results message added');
+            }
+        }
+
+        function sortEvents(sortBy) {
+            if (!sortBy) return;
+            var $items = $('.col-12').has('.event-card-modern');
+            var $container = $items.parent();
+
+            var compareFn = function(a, b) { return 0; };
+            switch (sortBy) {
+                case 'time':
+                    compareFn = function(a, b) {
+                        var ta = parseInt($(a).find('.event-card-modern').attr('data-time')) || 0;
+                        var tb = parseInt($(b).find('.event-card-modern').attr('data-time')) || 0;
+                        return ta - tb;
+                    };
+                    break;
+                case 'team':
+                    compareFn = function(a, b) {
+                        var ta = ($(a).find('.event-card-modern').attr('data-team') || '').toLowerCase();
+                        var tb = ($(b).find('.event-card-modern').attr('data-team') || '').toLowerCase();
+                        return ta.localeCompare(tb);
+                    };
+                    break;
+                case 'odds':
+                    compareFn = function(a, b) {
+                        var oa = parseFloat($(a).find('.event-card-modern').attr('data-odds')) || 0;
+                        var ob = parseFloat($(b).find('.event-card-modern').attr('data-odds')) || 0;
+                        return ob - oa; // Descendente
+                    };
+                    break;
+            }
+
+            var sorted = $items.get().sort(compareFn);
+            $container.empty().append(sorted);
+
+            if (typeof toastr !== 'undefined') {
+                var sortText = $('#sortBy option:selected').text();
+                toastr.info('Eventos ordenados por: ' + sortText);
+            }
+        }
+
+        // Nueva función para compartir eventos
+        function shareEvent(eventName, eventDate) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Evento Deportivo - Bet506',
+                    text: `🏆 ${eventName}\n📅 ${eventDate}\n\nDescubre las mejores cuotas en Bet506`,
+                    url: window.location.href
+                }).then(() => {
+                    toastr.success('Evento compartido exitosamente');
+                }).catch((error) => {
+                    console.log('Error sharing:', error);
+                    fallbackShare(eventName, eventDate);
+                });
+            } else {
+                fallbackShare(eventName, eventDate);
+            }
+        }
+
+        function fallbackShare(eventName, eventDate) {
+            const shareText = `🏆 ${eventName}\n📅 ${eventDate}\n\nDescubre las mejores cuotas en Bet506\n${window.location.href}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    toastr.success('Información del evento copiada al portapapeles');
+                });
+            } else {
+                // Fallback para navegadores más antiguos
+                const textArea = document.createElement('textarea');
+                textArea.value = shareText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                toastr.success('Información del evento copiada al portapapeles');
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Hero Section Events */
+        .hero-section-events {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-section-events .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+
+        .hero-section-events .container-fluid {
+            position: relative;
+            z-index: 2;
+        }
+
+        .min-vh-40 {
+            min-height: 40vh !important;
+        }
+
+        /* Glass Effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+        }
+
+        /* Hero Content */
+        .hero-content {
+            animation: fadeInLeft 0.8s ease;
+        }
+
+        .hero-badge .badge {
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        .hero-actions .btn {
+            border-radius: 50px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hero Stats */
+        .hero-stats {
+            animation: fadeInRight 0.8s ease;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Filter Section */
+        .filters-section {
+            margin-bottom: 3rem;
+        }
+
+        .filter-card {
+            padding: 2rem;
+            border-radius: 25px;
+        }
+
+        .filter-header {
+            margin-bottom: 2rem;
+        }
+
+        .filter-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .title-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .filter-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0;
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .filter-select option {
+            background: #2d2d2d;
+            color: white;
+        }
+
+        /* Search Input Specific Styles */
+        .filter-select[type="text"] {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .filter-select[type="text"]:focus {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .filter-select[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+
+        /* Events Section */
+        .events-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        /* Event Cards */
+        .event-card {
+            margin-bottom: 1.5rem;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .event-card:hover::before {
+            opacity: 1;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .event-card-body {
+            padding: 1.5rem;
+        }
+
+        /* Badge Animations */
+        .badge.bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        @@keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @@keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* View Options */
+        .view-options .btn {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-options .btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        /* Text Gradient */
+        .text-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Breadcrumb Custom */
+        .breadcrumb {
+            margin-bottom: 0;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.7) !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb-item a:hover {
+            color: white !important;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .filter-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+}

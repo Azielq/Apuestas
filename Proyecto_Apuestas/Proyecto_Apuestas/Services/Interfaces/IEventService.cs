@@ -18,5 +18,6 @@ namespace Proyecto_Apuestas.Services.Interfaces
         Task<List<Event>> GetEventsByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<Dictionary<int, int>> GetEventBetCountsAsync(List<int> eventIds);
         Task<bool> IsEventBettableAsync(int eventId);
+        Task<EventDetailsViewModel?> GetEventByExternalIdAsync(string externalId);
     }
 }

@@ -82,4 +82,8 @@ public partial class UserAccount
     [ForeignKey("UserId")]
     [InverseProperty("Users")]
     public virtual ICollection<Bet> Bets { get; set; } = new List<Bet>();
+
+    [ForeignKey("UserId")]
+    [InverseProperty("Users")]
+    public virtual ICollection<ApiBet> ApiBets { get; set; } = new List<ApiBet>();
 }

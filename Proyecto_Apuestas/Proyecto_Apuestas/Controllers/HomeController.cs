@@ -24,6 +24,7 @@ namespace Proyecto_Apuestas.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Esta es la página principal real que se muestra en la ruta "/"
             var upcomingEvents = await _eventService.GetUpcomingEventsByCategoryAsync();
 
             if (User.Identity?.IsAuthenticated == true)
@@ -66,6 +67,35 @@ namespace Proyecto_Apuestas.Controllers
 
             // Aquí enviarías el email
             AddSuccessMessage("Tu mensaje ha sido enviado. Te contactaremos pronto.");
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Nuevas acciones para las rutas que faltan
+        public IActionResult Terms()
+        {
+            return View();
+        }
+
+        public IActionResult ResponsibleGaming()
+        {
+            return View();
+        }
+
+        public IActionResult Blog()
+        {
+            // Redirecciona temporalmente a Index hasta que se implemente
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Careers()
+        {
+            // Redirecciona temporalmente a Index hasta que se implemente
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult FAQ()
+        {
+            // Redireccionar temporalmente a Index hasta que se implemente
             return RedirectToAction(nameof(Index));
         }
 

@@ -35,6 +35,7 @@ namespace Proyecto_Apuestas.Services.Interfaces
         public int UserId { get; set; }
         public decimal Amount { get; set; }
         public string TransactionType { get; set; }
+        public string? Description { get; set; }
         public int? PaymentMethodId { get; set; }
         public int? RelatedBetId { get; set; }
         public List<int>? RelatedBetIds { get; set; }

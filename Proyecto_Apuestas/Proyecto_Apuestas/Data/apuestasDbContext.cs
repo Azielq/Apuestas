@@ -19,6 +19,8 @@ public partial class apuestasDbContext : DbContext
 
     public virtual DbSet<Bet> Bets { get; set; }
 
+    public virtual DbSet<ApiBet> ApiBets { get; set; }
+
     public virtual DbSet<Competition> Competitions { get; set; }
 
     public virtual DbSet<Event> Events { get; set; }

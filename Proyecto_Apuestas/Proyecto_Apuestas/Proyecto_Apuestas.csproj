@@ -29,6 +29,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MySqlConnector" Version="2.4.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0-preview.3.efcore.9.0.0" />
     <PackageReference Include="SendGrid" Version="9.29.3" />
     <PackageReference Include="SendGrid.Extensions.DependencyInjection" Version="1.0.1" />
@@ -39,7 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\API\" />
     <Folder Include="Services\External\" />
   </ItemGroup>
 

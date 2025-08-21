@@ -44,4 +44,7 @@ public partial class PaymentTransaction
     [ForeignKey("UserId")]
     [InverseProperty("PaymentTransactions")]
     public virtual UserAccount User { get; set; } = null!;
+
+    [InverseProperty("PaymentTransaction")]
+    public virtual ICollection<ApiBet> ApiBets { get; set; } = new List<ApiBet>();
 }

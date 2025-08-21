@@ -1,0 +1,324 @@
+@using Proyecto_Apuestas.Helpers
+@using Proyecto_Apuestas.Models.API
+@model Proyecto_Apuestas.ViewModels.API.OddsEventDetailsViewModel
+@{
+    ViewData["Title"] = "Detalles del Evento";
+
+    var evt = Model.Event;
+    var sportKey = Model.SportKey;
+    var localTime = evt.CommenceTime.Kind == DateTimeKind.Utc ? evt.CommenceTime.ToCostaRicaTime() : evt.CommenceTime;
+    var isValidDate = evt.CommenceTime > DateTime.MinValue.AddYears(10);
+    var isLive = isValidDate && DateTimeHelper.IsEventLive(localTime);
+
+    var marketKeys = evt.Bookmakers != null
+        ? evt.Bookmakers
+            .Where(b => b.Markets != null)
+            .SelectMany(b => b.Markets!)
+            .Where(m => m.Outcomes != null && m.Outcomes.Any())
+            .Select(m => m.Key)
+            .Distinct()
+            .ToList()
+        : new List<string>();
+
+    var marketNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["h2h"] = "Ganador del Partido",
+        ["spreads"] = "Handicap",
+        ["totals"] = "Total Puntos/Goles"
+    };
+}
+
+<section class="details-hero">
+    <div class="details-hero__overlay"></div>
+    <div class="container-fluid">
+        <div class="row align-items-center py-4">
+            <div class="col-lg-8">
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb bg-transparent p-0">
+                        <li class="breadcrumb-item">
+                            <a href="@Url.Action("Index", "OddsApi")" class="text-white-50">
+                                <i class="bi bi-house me-1"></i>Centro de Cuotas
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="@Url.Action("Events", "OddsApi", new { sportKey = sportKey })" class="text-white-50">@evt.SportTitle</a>
+                        </li>
+                        <li class="breadcrumb-item active text-white">Detalles</li>
+                    </ol>
+                </nav>
+                <h1 class="details-hero__title mb-2">
+                    @evt.HomeTeam <span class="text-success">VS</span> @evt.AwayTeam
+                </h1>
+                <p class="details-hero__subtitle mb-0">
+                    <i class="bi bi-calendar-event me-1"></i>
+                    @if (!isValidDate)
+                    {
+                        <text>Fecha por confirmar</text>
+                    }
+                    else
+                    {
+                        @localTime.ToDisplayFormat()<text> • </text>@localTime.GetDayNameInSpanish().ToUpper()
+                    }
+                </p>
+                @if (isLive)
+                {
+                    <span class="badge bg-danger mt-2"><i class="bi bi-broadcast-pin me-1"></i>EN VIVO</span>
+                }
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="details-hero__stats">
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-primary"><i class="bi bi-trophy"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number">@evt.SportTitle</div>
+                            <div class="stat-label">Deporte</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-info"><i class="bi bi-clock-history"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number">@((evt.Bookmakers?.Count ?? 0).ToString())</div>
+                            <div class="stat-label">Casas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid my-4">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card bg-dark-2 border-secondary glass-effect">
+                <div class="card-header bg-dark-3 border-secondary d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 text-white"><i class="bi bi-graph-up me-2 text-primary"></i>Mercados y Cuotas</h5>
+                    <div>
+                        <a class="btn btn-outline-primary btn-sm me-2" href="@Url.Action("Events", "OddsApi", new { sportKey = sportKey })">
+                            <i class="bi bi-arrow-left me-1"></i>Volver a eventos
+                        </a>
+                        <button class="btn btn-outline-light btn-sm" onclick="shareEvent()"><i class="bi bi-share me-1"></i>Compartir</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (marketKeys.Any())
+                    {
+                        <ul class="nav nav-pills market-tabs mb-3" id="marketTabs" role="tablist">
+                            @for (var i = 0; i < marketKeys.Count; i++)
+                            {
+                                var key = marketKeys[i];
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link @(i == 0 ? "active" : "")" id="tab-@key" data-bs-toggle="pill" data-bs-target="#pane-@key" type="button" role="tab" aria-controls="pane-@key" aria-selected="@(i == 0 ? "true" : "false")">
+                                        @(marketNames.ContainsKey(key) ? marketNames[key] : key.ToUpper())
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                        <div class="tab-content">
+                            @for (var i = 0; i < marketKeys.Count; i++)
+                            {
+                                var key = marketKeys[i];
+                                var marketRows = evt.Bookmakers!
+                                    .Where(b => b.Markets != null)
+                                    .Select(b => new { Bookmaker = b, Market = b.Markets!.FirstOrDefault(m => m.Key == key) })
+                                    .Where(x => x.Market != null && x.Market!.Outcomes != null && x.Market!.Outcomes.Any())
+                                    .ToList();
+
+                                <div class="tab-pane fade @(i == 0 ? "show active" : "")" id="pane-@key" role="tabpanel" aria-labelledby="tab-@key">
+                                    @if (marketRows.Any())
+                                    {
+                                        // Agregar mejores cuotas por resultado (Best Odds)
+                                        var groupedOutcomes = marketRows
+                                            .SelectMany(x => x.Market!.Outcomes.Select(o => new { Outcome = o, BookTitle = x.Bookmaker.Title }))
+                                            .GroupBy(x => x.Outcome.Name)
+                                            .Select(g => new {
+                                                Name = g.Key,
+                                                Best = g.OrderByDescending(x => x.Outcome.Price).First()
+                                            })
+                                            .ToList();
+
+                                        <div class="mb-3">
+                                            <h6 class="text-white">Mejores Cuotas</h6>
+                                            <div class="odds-chips">
+                                                @foreach (var go in groupedOutcomes)
+                                                {
+                                                    var oddsValStr = go.Best.Outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                                                    if (User.Identity?.IsAuthenticated == true)
+                                                    {
+                                                        <form method="get" asp-controller="OddsApi" asp-action="CreateBetFromApi" class="chip-form">
+                                                            <input type="hidden" name="sportKey" value="@sportKey" />
+                                                            <input type="hidden" name="ApiEventId" value="@evt.Id" />
+                                                            <input type="hidden" name="teamName" value="@go.Name" />
+                                                            <input type="hidden" name="odds" value="@oddsValStr" />
+                                                            <button type="submit" class="chip-btn best">
+                                                                <i class="bi bi-graph-up"></i>
+                                                                <strong>@go.Best.Outcome.Price.ToString("0.00")</strong>
+                                                                <span class="ms-1">@go.Name</span>
+                                                                <span class="ms-2 text-muted">(@go.Best.BookTitle)</span>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="chip-btn best" href="@Url.Action("Login", "Account")" title="Inicia sesión para apostar">
+                                                            <i class="bi bi-graph-up"></i>
+                                                            <strong>@go.Best.Outcome.Price.ToString("0.00")</strong>
+                                                            <span class="ms-1">@go.Name</span>
+                                                            <span class="ms-2 text-muted">(@go.Best.BookTitle)</span>
+                                                        </a>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-dark table-hover align-middle mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Casa</th>
+                                                        <th>Últ. Actualización</th>
+                                                        <th>Resultados</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var row in marketRows)
+                                                    {
+                                                        <tr>
+                                                            <td class="fw-semibold">@row.Bookmaker.Title</td>
+                                                            <td><small class="text-muted">@row.Market!.LastUpdate.ToDisplayFormat()</small></td>
+                                                            <td>
+                                                                <div class="odds-chips">
+                                                                    @foreach (var outcome in row.Market!.Outcomes)
+                                                                    {
+                                                                        var oddsValue = outcome.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                                                                        var _best = groupedOutcomes.FirstOrDefault(x => x.Name == outcome.Name);
+                                                                        var isBest = _best != null && _best.Best.Outcome.Price == outcome.Price;
+                                                                        @if (User.Identity?.IsAuthenticated == true)
+                                                                        {
+                                                                            <form method="get" asp-controller="OddsApi" asp-action="CreateBetFromApi" class="chip-form">
+                                                                                <input type="hidden" name="sportKey" value="@sportKey" />
+                                                                                <input type="hidden" name="ApiEventId" value="@evt.Id" />
+                                                                                <input type="hidden" name="teamName" value="@outcome.Name" />
+                                                                                <input type="hidden" name="odds" value="@oddsValue" />
+                                                                                <button type="submit" class="chip-btn @(isBest ? "best" : "")" title="@(isBest ? "Mejor cuota" : string.Empty)">
+                                                                                    <span>@outcome.Name</span>
+                                                                                    <strong class="ms-1">@outcome.Price.ToString("0.00")</strong>
+                                                                                </button>
+                                                                            </form>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a class="chip-btn @(isBest ? "best" : "")" href="@Url.Action("Login", "Account")" title="Inicia sesión para apostar">
+                                                                                <span>@outcome.Name</span>
+                                                                                <strong class="ms-1">@outcome.Price.ToString("0.00")</strong>
+                                                                            </a>
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning">No hay cuotas disponibles para este mercado.</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">No hay información de cuotas para este evento en este momento.</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card bg-dark-2 border-secondary glass-effect mb-3 sidebar-sticky">
+                <div class="card-header bg-dark-3 border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-info-circle me-2 text-primary"></i>Información</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled info-list mb-0">
+                        <li><i class="bi bi-people me-2 text-primary"></i><span class="text-muted">Evento:</span> <span class="text-white fw-semibold">@evt.HomeTeam vs @evt.AwayTeam</span></li>
+                        <li><i class="bi bi-trophy me-2 text-warning"></i><span class="text-muted">Deporte:</span> <span class="text-white">@evt.SportTitle</span></li>
+                        <li><i class="bi bi-calendar3 me-2 text-info"></i><span class="text-muted">Fecha:</span> @if (!isValidDate) { <span class="text-warning">Por confirmar</span>; } else { <span class="text-white">@localTime.ToDisplayFormat()</span>; }</li>
+                        @if (evt.Scores != null && !string.IsNullOrEmpty(evt.Scores.Score))
+                        {
+                            <li><i class="bi bi-activity me-2 text-danger"></i><span class="text-muted">Marcador:</span> <span class="text-white">@evt.Scores.Score</span></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card bg-dark-2 border-secondary glass-effect">
+                <div class="card-header bg-dark-3 border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-wallet2 me-2 text-primary"></i>Mi Billetera</h6>
+                </div>
+                <div class="card-body">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Saldo disponible</span>
+                            <strong class="text-success">₡@Model.UserBalance.ToString("N0")</strong>
+                        </div>
+                        @if (!Model.CanBet)
+                        {
+                            <div class="alert alert-warning mb-0">Recarga saldo para poder apostar</div>
+                        }
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary w-100" href="@Url.Action("Login", "Account")"><i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function shareEvent() {
+            const url = window.location.href;
+            const title = '@(evt.HomeTeam + " vs " + evt.AwayTeam)';
+            if (navigator.share) {
+                navigator.share({ title: 'Evento Deportivo', text: title, url })
+                    .catch(() => {});
+            } else {
+                navigator.clipboard?.writeText(`${title} - ${url}`);
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .details-hero { position: relative; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .details-hero__overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+        .details-hero__title { color: #fff; font-weight: 800; }
+        .details-hero__subtitle { color: rgba(255,255,255,0.85); }
+        .details-hero__stats .stat-card { padding: 1rem; border-radius: 16px; margin-bottom: .75rem; display: flex; gap: .75rem; align-items: center; }
+        .details-hero__stats .stat-icon { width: 42px; height: 42px; border-radius: 50%; display:flex;align-items:center;justify-content:center;color:#fff; }
+        .details-hero__stats .stat-number { color:#fff; font-weight:800; line-height:1; }
+        .details-hero__stats .stat-label { color: rgba(255,255,255,.75); font-size:.85rem; }
+
+        .market-tabs .nav-link { border-radius: 999px; color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); }
+        .market-tabs .nav-link.active { background: var(--gradient-primary); border-color: transparent; color: #fff; }
+
+        .odds-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .5rem; }
+        .chip-btn { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; width: 100%; border: 1px solid rgba(0, 123, 255, 0.45); background: rgba(0, 123, 255, 0.08); color: #dbeafe; padding: 0.55rem 0.7rem; border-radius: 12px; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; text-decoration: none; }
+        .chip-btn:hover { transform: translateY(-2px); background: rgba(0, 123, 255, 0.18); box-shadow: 0 6px 18px rgba(0, 123, 255, 0.18); color: #fff; }
+        .chip-btn.best { border-color: rgba(27, 185, 107, 0.6); background: rgba(27, 185, 107, 0.1); color: #c6f6d5; }
+        .chip-btn.best:hover { background: rgba(27, 185, 107, 0.18); box-shadow: 0 6px 18px rgba(27, 185, 107, 0.2); }
+
+        .info-list li { display: flex; align-items: center; gap: .5rem; padding: .35rem 0; }
+        .sidebar-sticky { position: sticky; top: 1rem; }
+    </style>
+}
+
+
