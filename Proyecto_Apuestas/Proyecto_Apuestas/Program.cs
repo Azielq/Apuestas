@@ -45,47 +45,7 @@ try
     // Register application services, AutoMapper, Authentication, Authorization, and Session
     builder.Services.AddApplicationServices(builder.Configuration);
 
-
-builder.Services.AddHttpClient<IOddsApiService, OddsApiService>(client =>
-{
-    var configuration = builder.Configuration;
-    var baseUrl = configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/v4";
-    client.BaseAddress = new Uri(baseUrl);
-    client.Timeout = TimeSpan.FromSeconds(30);
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.DefaultRequestHeaders.Add("User-Agent", "ProyectoApuestas/1.0");
-});
-
-
-// Stripe + Products (our own services, not Stripe SDK ProductService)
-builder.Services.AddScoped<IStripeService, StripeService>();
-builder.Services.AddSingleton<IProductService, ProductService>();
-
-
-// Cultura por defecto es-CR para mostrar Colones correctamente en {monto:C}
-var culture = new System.Globalization.CultureInfo("es-CR");
-System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
-System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
-
-var app = builder.Build();
-
-// Initialize configuration helper with both configuration and service provider
-ConfigurationHelper.Initialize(builder.Configuration);
-ConfigurationHelper.Initialize(app.Services);
-
-// Validate configuration on startup
-using (var scope = app.Services.CreateScope())
-{
-    var validationService = scope.ServiceProvider.GetRequiredService<IStartupValidationService>();
-    var diagnosticsService = scope.ServiceProvider.GetRequiredService<IConfigurationDiagnosticsService>();
-    // Add enhanced health checks
-    builder.Services.AddEnhancedHealthChecks(builder.Configuration);
-
-    // Add Scalar API documentation
-    builder.Services.AddScalarDocumentation(builder.Configuration);
-
-    builder.Services.AddScoped<IOddsService, OddsService>();
-
+    // Configure HTTP client for OddsApiService
     builder.Services.AddHttpClient<IOddsApiService, OddsApiService>(client =>
     {
         var baseUrl = builder.Configuration["OddsApi:BaseUrl"] ?? "https://api.the-odds-api.com/v4";
@@ -94,6 +54,23 @@ using (var scope = app.Services.CreateScope())
         client.DefaultRequestHeaders.Add("Accept", "application/json");
         client.DefaultRequestHeaders.Add("User-Agent", "ProyectoApuestas/1.0");
     });
+
+    // Stripe + Products (our own services, not Stripe SDK ProductService)
+    builder.Services.AddScoped<IStripeService, StripeService>();
+    builder.Services.AddSingleton<IProductService, ProductService>();
+
+    // Add enhanced health checks
+    builder.Services.AddEnhancedHealthChecks(builder.Configuration);
+
+    // Add Scalar API documentation
+    builder.Services.AddScalarDocumentation(builder.Configuration);
+
+    builder.Services.AddScoped<IOddsService, OddsService>();
+
+    // Cultura por defecto es-CR para mostrar Colones correctamente en {monto:C}
+    var culture = new System.Globalization.CultureInfo("es-CR");
+    System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+    System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
 
     var app = builder.Build();
 
@@ -356,5 +333,3 @@ public class SimpleWebHostEnvironment : IWebHostEnvironment
     public bool IsStaging() => EnvironmentName == "Staging";
     public bool IsProduction() => EnvironmentName == "Production";
 }
-
-
