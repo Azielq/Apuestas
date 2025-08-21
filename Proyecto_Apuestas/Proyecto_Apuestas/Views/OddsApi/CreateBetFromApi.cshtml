@@ -113,7 +113,7 @@
                         </div>
                     }
 
-                    <!-- User Balance -->
+                    <!-- User Balance and Limits Info -->
                     <div class="balance-display">
                         <div class="balance-card">
                             <div class="balance-icon">
@@ -122,6 +122,31 @@
                             <div class="balance-info">
                                 <span class="balance-label">Saldo Disponible</span>
                                 <span class="balance-amount">₡@Model.UserBalance.ToString("N2")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Betting Limits Info -->
+                    <div class="limits-info-card mb-4">
+                        <div class="limits-header">
+                            <h6><i class="bi bi-shield-check me-2 text-info"></i>Límites de Apuesta (@Model.UserRole)</h6>
+                        </div>
+                        <div class="limits-grid">
+                            <div class="limit-item">
+                                <span class="limit-label">Máximo por apuesta:</span>
+                                <span class="limit-value">₡@Model.MaxBetAmount.ToString("N0")</span>
+                            </div>
+                            <div class="limit-item">
+                                <span class="limit-label">Límite diario:</span>
+                                <span class="limit-value">₡@Model.DailyLimit.ToString("N0")</span>
+                            </div>
+                            <div class="limit-item">
+                                <span class="limit-label">Apostado hoy:</span>
+                                <span class="limit-value text-warning">₡@Model.TodayStaked.ToString("N0")</span>
+                            </div>
+                            <div class="limit-item">
+                                <span class="limit-label">Restante hoy:</span>
+                                <span class="limit-value text-success">₡@((Model.DailyLimit - Model.TodayStaked).ToString("N0"))</span>
                             </div>
                         </div>
                     </div>
@@ -137,16 +162,16 @@
                                 @class = "form-control form-control-lg bg-dark-3 text-white border-secondary", 
                                 @type = "number", 
                                 @min = "100", 
-                                @max = Model.UserBalance,
+                                @max = Math.Min(Math.Min(Model.UserBalance, Model.MaxBetAmount), Model.DailyLimit - Model.TodayStaked),
                                 @step = "100", 
-                                @placeholder = "1000",
+                                @placeholder = "5000",
                                 @id = "stakeInput"
                             })
                         </div>
                         @Html.ValidationMessageFor(m => m.Stake, "", new { @class = "text-danger small mt-1" })
                         <div class="form-text">
                             <i class="bi bi-info-circle me-1"></i>
-                            Mínimo: ₡100 | Máximo: ₡@Model.UserBalance.ToString("N0")
+                            Mínimo: ₡100 | Máximo permitido: ₡@(Math.Min(Math.Min(Model.UserBalance, Model.MaxBetAmount), Model.DailyLimit - Model.TodayStaked).ToString("N0"))
                         </div>
                     </div>
 
@@ -154,10 +179,12 @@
                     <div class="quick-amounts mb-4">
                         <h6 class="text-white mb-3">Montos Rápidos</h6>
                         <div class="quick-amount-buttons">
-                            <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="1000">₡1,000</button>
-                            <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="2500">₡2,500</button>
                             <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="5000">₡5,000</button>
                             <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="10000">₡10,000</button>
+                            <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="25000">₡25,000</button>
+                            <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="50000">₡50,000</button>
+                            <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="100000">₡100,000</button>
+                            <button type="button" class="btn btn-outline-primary quick-amount-btn" data-amount="250000">₡250,000</button>
                         </div>
                     </div>
 
@@ -231,6 +258,10 @@
         $(document).ready(function() {
             const odds = @Html.Raw(Json.Serialize(Model.Odds));
             const maxBalance = @Html.Raw(Json.Serialize(Model.UserBalance));
+            const maxBetAmount = @Html.Raw(Json.Serialize(Model.MaxBetAmount));
+            const dailyLimit = @Html.Raw(Json.Serialize(Model.DailyLimit));
+            const todayStaked = @Html.Raw(Json.Serialize(Model.TodayStaked));
+            const maxAllowed = Math.min(Math.min(maxBalance, maxBetAmount), dailyLimit - todayStaked);
             
             // Calculate and display payout
             function updatePayout() {
@@ -241,12 +272,16 @@
                 $('#displayPayout').text('₡' + payout.toLocaleString('es-CR', { minimumFractionDigits: 2 }));
                 
                 // Enable/disable confirm button
-                const isValidAmount = stake >= 100 && stake <= maxBalance;
+                const isValidAmount = stake >= 100 && stake <= maxAllowed;
                 $('#confirmBetBtn').prop('disabled', !isValidAmount);
                 
                 if (!isValidAmount && stake > 0) {
                     if (stake < 100) {
                         toastr.warning('El monto mínimo es ₡100');
+                    } else if (stake > maxBetAmount) {
+                        toastr.error(`Monto máximo por apuesta: ₡${maxBetAmount.toLocaleString()}`);
+                    } else if (stake > (dailyLimit - todayStaked)) {
+                        toastr.error(`Límite diario excedido. Restante: ₡${(dailyLimit - todayStaked).toLocaleString()}`);
                     } else if (stake > maxBalance) {
                         toastr.error('Saldo insuficiente');
                     }
@@ -259,7 +294,7 @@
             // Quick amount buttons
             $('.quick-amount-btn').on('click', function() {
                 const amount = $(this).data('amount');
-                if (amount <= maxBalance) {
+                if (amount <= maxAllowed) {
                     $('#stakeInput').val(amount);
                     updatePayout();
                     
@@ -267,7 +302,13 @@
                     $('.quick-amount-btn').removeClass('active');
                     $(this).addClass('active');
                 } else {
-                    toastr.error('Monto excede tu saldo disponible');
+                    if (amount > maxBetAmount) {
+                        toastr.error(`Monto máximo por apuesta: ₡${maxBetAmount.toLocaleString()}`);
+                    } else if (amount > (dailyLimit - todayStaked)) {
+                        toastr.error(`Límite diario excedido. Restante: ₡${(dailyLimit - todayStaked).toLocaleString()}`);
+                    } else {
+                        toastr.error('Monto excede tu saldo disponible');
+                    }
                 }
             });
             
@@ -286,9 +327,15 @@
                     return false;
                 }
                 
-                if (stake > maxBalance) {
+                if (stake > maxAllowed) {
                     e.preventDefault();
-                    toastr.error('No tienes saldo suficiente para esta apuesta');
+                    if (stake > maxBetAmount) {
+                        toastr.error(`Monto máximo por apuesta: ₡${maxBetAmount.toLocaleString()}`);
+                    } else if (stake > (dailyLimit - todayStaked)) {
+                        toastr.error(`Límite diario excedido. Restante: ₡${(dailyLimit - todayStaked).toLocaleString()}`);
+                    } else {
+                        toastr.error('No tienes saldo suficiente para esta apuesta');
+                    }
                     $('#stakeInput').focus().addClass('is-invalid');
                     return false;
                 }
@@ -335,6 +382,19 @@
                     // Submit the form after a brief delay
                     setTimeout(() => {
                         console.log('Submitting form...'); // Debug log
+                        
+                        // Add event listener for when the page loads after form submission
+                        // This will update the balance in the layout if bet was successful
+                        window.addEventListener('load', function() {
+                            // Check if there's a success message (indicates successful bet)
+                            if (typeof toastr !== 'undefined' && document.querySelector('.alert-success')) {
+                                // Refresh the balance in the layout
+                                if (typeof loadUserBalance === 'function') {
+                                    setTimeout(() => loadUserBalance(), 1000);
+                                }
+                            }
+                        });
+                        
                         form.submit(); // Use the stored form reference
                     }, 500);
                 } else {
@@ -465,6 +525,44 @@
             font-size: 1.1rem;
         }
 
+        /* Limits Info Card */
+        .limits-info-card {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .limits-header h6 {
+            color: #3b82f6;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .limits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .limit-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .limit-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .limit-value {
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
         /* Form Styles */
         .form-header h4 {
             color: white;
@@ -519,9 +617,10 @@
         }
 
         .quick-amount-buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 0.75rem;
-            flex-wrap: wrap;
+            margin-bottom: 1rem;
         }
 
         .quick-amount-btn {
@@ -683,6 +782,11 @@
                 flex-direction: column;
                 gap: 1rem;
                 text-align: center;
+            }
+            
+            .limits-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
             }
         }
     </style>

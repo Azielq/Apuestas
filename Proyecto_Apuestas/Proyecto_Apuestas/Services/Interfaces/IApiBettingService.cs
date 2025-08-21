@@ -15,7 +15,8 @@ namespace Proyecto_Apuestas.Services.Interfaces
         Task<bool> SettleEventApiBetsAsync(string apiEventId, string eventResult);
         Task<Dictionary<string, decimal>> GetApiBettingStatisticsAsync(int userId);
         Task<List<ApiBet>> GetActiveApiBetsByUserAsync(int userId);
-        Task<bool> ValidateBetLimitsAsync(int userId, decimal amount);
+        Task<BetLimitValidationResult> ValidateBetLimitsAsync(int userId, decimal amount);
+        Task<BettingLimitsInfo> GetBettingLimitsAsync(int userId);
     }
 
     public class ApiBetResult
@@ -24,6 +25,21 @@ namespace Proyecto_Apuestas.Services.Interfaces
         public int? ApiBetId { get; set; }
         public string? ErrorMessage { get; set; }
         public Dictionary<string, string>? ValidationErrors { get; set; }
+    }
+
+    public class BetLimitValidationResult
+    {
+        public bool IsValid { get; set; }
+        public string? ErrorMessage { get; set; }
+    }
+
+    public class BettingLimitsInfo
+    {
+        public decimal MaxBetAmount { get; set; }
+        public decimal DailyLimit { get; set; }
+        public decimal TodayStaked { get; set; }
+        public string UserRole { get; set; } = string.Empty;
+        public decimal RemainingDaily => DailyLimit - TodayStaked;
     }
 
     public class ApiBetHistoryFilter

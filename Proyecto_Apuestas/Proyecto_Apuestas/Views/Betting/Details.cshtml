@@ -1,0 +1,627 @@
+@model Proyecto_Apuestas.ViewModels.BetDetailsViewModel
+@{
+    ViewData["Title"] = "Detalles de Apuesta";
+}
+
+<!-- Hero Section -->
+<section class="hero-section-bet-details">
+    <div class="hero-overlay"></div>
+    <div class="container-fluid">
+        <div class="row align-items-center min-vh-40">
+            <div class="col-lg-8">
+                <div class="hero-content">
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb bg-transparent p-0">
+                            <li class="breadcrumb-item">
+                                <a href="@Url.Action("Index", "Home")" class="text-white-50">
+                                    <i class="bi bi-house me-1"></i>Inicio
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="@Url.Action("Index", "Betting")" class="text-white-50">
+                                    <i class="bi bi-journal-check me-1"></i>Mis Apuestas
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active text-white">Detalles</li>
+                        </ol>
+                    </nav>
+                    <div class="hero-badge mb-3">
+                        @switch (Model.BetStatus)
+                        {
+                            case "P":
+                                <span class="badge bg-gradient-warning px-3 py-2">
+                                    <i class="bi bi-clock me-1"></i>APUESTA PENDIENTE
+                                </span>
+                                break;
+                            case "W":
+                                <span class="badge bg-gradient-success px-3 py-2">
+                                    <i class="bi bi-trophy me-1"></i>APUESTA GANADA
+                                </span>
+                                break;
+                            case "L":
+                                <span class="badge bg-gradient-danger px-3 py-2">
+                                    <i class="bi bi-x-circle me-1"></i>APUESTA PERDIDA
+                                </span>
+                                break;
+                            case "C":
+                                <span class="badge bg-gradient-secondary px-3 py-2">
+                                    <i class="bi bi-dash-circle me-1"></i>APUESTA CANCELADA
+                                </span>
+                                break;
+                            default:
+                                <span class="badge bg-gradient-info px-3 py-2">
+                                    <i class="bi bi-info-circle me-1"></i>DETALLES DE APUESTA
+                                </span>
+                                break;
+                        }
+                    </div>
+                    <h1 class="hero-title">
+                        <i class="bi bi-receipt me-3 text-gradient-primary"></i>
+                        Apuesta #@Model.BetId
+                    </h1>
+                    <p class="hero-subtitle">
+                        Detalles completos de tu apuesta y su estado actual
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="bet-summary-card glass-effect">
+                    <div class="summary-header">
+                        <h4><i class="bi bi-calculator me-2"></i>Resumen</h4>
+                    </div>
+                    <div class="summary-body">
+                        <div class="summary-item">
+                            <span class="label">Monto Apostado:</span>
+                            <span class="value">₡@Model.Stake.ToString("N0")</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Cuota:</span>
+                            <span class="value odds">@Model.Odds.ToString("0.00")</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Ganancia Potencial:</span>
+                            <span class="value potential">₡@Model.Payout.ToString("N0")</span>
+                        </div>
+                        @if (Model.BetStatus == "W")
+                        {
+                            <div class="summary-item highlight">
+                                <span class="label">Ganancia Real:</span>
+                                <span class="value won">₡@Model.Payout.ToString("N0")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid py-5">
+    <!-- Main Details Card -->
+    <section class="bet-details-section mb-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="details-card glass-effect">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-info-circle-fill me-2"></i>Información de la Apuesta
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">
+                                        <i class="bi bi-calendar-event text-primary me-2"></i>Evento
+                                    </label>
+                                    <div class="info-value">@Model.EventName</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">
+                                        <i class="bi bi-shield text-info me-2"></i>Equipo Seleccionado
+                                    </label>
+                                    <div class="info-value">@Model.TeamName</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">
+                                        <i class="bi bi-calendar3 text-warning me-2"></i>Fecha del Evento
+                                    </label>
+                                    <div class="info-value">@Model.EventDate.ToString("dddd, dd 'de' MMMM 'de' yyyy 'a las' HH:mm", new System.Globalization.CultureInfo("es-ES"))</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">
+                                        <i class="bi bi-clock text-success me-2"></i>Fecha de Apuesta
+                                    </label>
+                                    <div class="info-value">@Model.CreatedAt.ToString("dddd, dd 'de' MMMM 'de' yyyy 'a las' HH:mm", new System.Globalization.CultureInfo("es-ES"))</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="status-card glass-effect">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-flag-fill me-2"></i>Estado de la Apuesta
+                        </h3>
+                    </div>
+                    <div class="card-body text-center">
+                        @switch (Model.BetStatus)
+                        {
+                            case "P":
+                                <div class="status-icon pending mb-3">
+                                    <i class="bi bi-clock-fill"></i>
+                                </div>
+                                <h4 class="status-title text-warning">Pendiente</h4>
+                                <p class="status-description">
+                                    Tu apuesta está activa y esperando el resultado del evento.
+                                </p>
+                                break;
+                            case "W":
+                                <div class="status-icon won mb-3">
+                                    <i class="bi bi-trophy-fill"></i>
+                                </div>
+                                <h4 class="status-title text-success">¡Ganaste!</h4>
+                                <p class="status-description">
+                                    ¡Felicidades! Tu apuesta fue exitosa. Las ganancias han sido acreditadas a tu cuenta.
+                                </p>
+                                break;
+                            case "L":
+                                <div class="status-icon lost mb-3">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </div>
+                                <h4 class="status-title text-danger">Perdida</h4>
+                                <p class="status-description">
+                                    Lamentablemente tu apuesta no fue exitosa. ¡Mejor suerte la próxima vez!
+                                </p>
+                                break;
+                            case "C":
+                                <div class="status-icon cancelled mb-3">
+                                    <i class="bi bi-dash-circle-fill"></i>
+                                </div>
+                                <h4 class="status-title text-secondary">Cancelada</h4>
+                                <p class="status-description">
+                                    Esta apuesta fue cancelada. El monto ha sido reembolsado a tu cuenta.
+                                </p>
+                                break;
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Financial Details -->
+    <section class="financial-section mb-5">
+        <div class="financial-card glass-effect">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-currency-dollar me-2"></i>Detalles Financieros
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="financial-item">
+                            <div class="financial-icon bg-primary">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <div class="financial-content">
+                                <div class="financial-label">Monto Apostado</div>
+                                <div class="financial-amount">₡@Model.Stake.ToString("N0")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="financial-item">
+                            <div class="financial-icon bg-warning">
+                                <i class="bi bi-percent"></i>
+                            </div>
+                            <div class="financial-content">
+                                <div class="financial-label">Cuota</div>
+                                <div class="financial-amount">@Model.Odds.ToString("0.00")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="financial-item">
+                            <div class="financial-icon bg-info">
+                                <i class="bi bi-calculator"></i>
+                            </div>
+                            <div class="financial-content">
+                                <div class="financial-label">Ganancia Potencial</div>
+                                <div class="financial-amount">₡@Model.Payout.ToString("N0")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="financial-item">
+                            <div class="financial-icon @(Model.BetStatus == "W" ? "bg-success" : Model.BetStatus == "L" ? "bg-danger" : "bg-secondary")">
+                                <i class="bi bi-@(Model.BetStatus == "W" ? "check-circle" : Model.BetStatus == "L" ? "x-circle" : "dash-circle")"></i>
+                            </div>
+                            <div class="financial-content">
+                                <div class="financial-label">Resultado Final</div>
+                                <div class="financial-amount @(Model.BetStatus == "W" ? "text-success" : Model.BetStatus == "L" ? "text-danger" : "text-muted")">
+                                    @switch (Model.BetStatus)
+                                    {
+                                        case "W":
+                                            <span>+₡@Model.Payout.ToString("N0")</span>
+                                            break;
+                                        case "L":
+                                            <span>-₡@Model.Stake.ToString("N0")</span>
+                                            break;
+                                        case "C":
+                                            <span>₡0</span>
+                                            break;
+                                        default:
+                                            <span>Pendiente</span>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Actions Section -->
+    <section class="actions-section">
+        <div class="actions-card glass-effect">
+            <div class="card-body text-center">
+                <div class="action-buttons">
+                    <a href="@Url.Action("Index", "Betting")" class="btn btn-primary btn-lg me-3">
+                        <i class="bi bi-arrow-left me-2"></i>Volver a Mis Apuestas
+                    </a>
+                    @if (Model.BetStatus == "P")
+                    {
+                        <button class="btn btn-warning btn-lg me-3" onclick="cancelBet(@Model.BetId)">
+                            <i class="bi bi-x-circle me-2"></i>Cancelar Apuesta
+                        </button>
+                    }
+                    <a href="@Url.Action("Index", "Event")" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-calendar-event me-2"></i>Ver Más Eventos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        function cancelBet(betId) {
+            if (!confirm('¿Estás seguro de que deseas cancelar esta apuesta?')) {
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("Cancel", "Betting")',
+                type: 'POST',
+                data: {
+                    id: betId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success('Apuesta cancelada exitosamente');
+                        location.reload();
+                    } else {
+                        toastr.error('Error al cancelar la apuesta');
+                    }
+                },
+                error: function() {
+                    toastr.error('Error al cancelar la apuesta');
+                }
+            });
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Hero Section */
+        .hero-section-bet-details {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-section-bet-details .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .hero-section-bet-details .container-fluid {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Glass Effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border-radius: 20px;
+        }
+
+        /* Bet Summary Card */
+        .bet-summary-card {
+            padding: 2rem;
+        }
+
+        .summary-header h4 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-item.highlight {
+            background: rgba(40, 167, 69, 0.2);
+            padding: 0.75rem;
+            border-radius: 10px;
+            border-bottom: none;
+        }
+
+        .summary-item .label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .summary-item .value {
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .summary-item .value.odds {
+            color: #ffc107;
+        }
+
+        .summary-item .value.potential {
+            color: #17a2b8;
+        }
+
+        .summary-item .value.won {
+            color: #28a745;
+        }
+
+        /* Cards */
+        .details-card, .status-card, .financial-card, .actions-card {
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        /* Info Groups */
+        .info-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Status Icons */
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto;
+        }
+
+        .status-icon.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 3px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status-icon.won {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 3px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .status-icon.lost {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 3px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .status-icon.cancelled {
+            background: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+            border: 3px solid rgba(108, 117, 125, 0.3);
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .status-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Financial Items */
+        .financial-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .financial-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .financial-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .financial-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .financial-amount {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-lg {
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-lg:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hero Animation */
+        .hero-content {
+            animation: fadeInLeft 0.8s ease;
+        }
+
+        .bet-summary-card {
+            animation: fadeInRight 0.8s ease;
+        }
+
+        @@keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @@keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .details-card, .status-card, .financial-card, .actions-card {
+                padding: 1.5rem;
+            }
+            
+            .financial-item {
+                padding: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-lg {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+}
+
+@* Anti-forgery token for AJAX requests *@
+<form style="display: none;">
+    @Html.AntiForgeryToken()
+</form>

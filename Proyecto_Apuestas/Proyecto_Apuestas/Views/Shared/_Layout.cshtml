@@ -8,6 +8,172 @@
 
     @await RenderSectionAsync("Styles", required: false)
     @await Html.PartialAsync("_StylesCDN")
+    
+    <!-- User Balance Styles -->
+    <style>
+        .user-balance-container {
+            margin-right: 1rem;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+            min-width: 160px;
+            height: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .balance-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .balance-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .balance-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .balance-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .balance-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.05rem;
+            line-height: 1;
+        }
+
+        .balance-amount {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1;
+        }
+
+        .balance-refresh {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+        }
+
+        .balance-refresh:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(180deg);
+        }
+
+        .balance-refresh.refreshing {
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .balance-amount.updating {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .user-balance-container {
+                margin-right: 0.5rem;
+            }
+            
+            .balance-card {
+                min-width: 140px;
+                padding: 0.35rem 0.7rem;
+                height: 32px;
+            }
+            
+            .balance-amount {
+                font-size: 0.85rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .balance-card {
+                min-width: 120px;
+                padding: 0.3rem 0.5rem;
+                height: 30px;
+            }
+            
+            .balance-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 0.8rem;
+            }
+            
+            .balance-amount {
+                font-size: 0.8rem;
+            }
+            
+            .balance-refresh {
+                width: 18px;
+                height: 18px;
+                font-size: 0.7rem;
+            }
+            
+            .balance-label {
+                font-size: 0.6rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -36,6 +202,49 @@
 
             @if (User.Identity.IsAuthenticated)
             {
+                <!-- User Balance Display -->
+                <div class="user-balance-container" id="userBalanceContainer">
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <div class="balance-info">
+                            <span class="balance-label">Saldo</span>
+                            <span class="balance-amount" id="userBalanceAmount">
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    var userId = ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                                    if (!string.IsNullOrEmpty(userId))
+                                    {
+                                        var userService = ViewContext.HttpContext.RequestServices.GetRequiredService<Proyecto_Apuestas.Services.Interfaces.IUserService>();
+                                        var currentUser = await userService.GetCurrentUserAsync();
+                                        if (currentUser != null)
+                                        {
+                                            @currentUser.CreditBalance.ToString("C").Replace("$", "₡")
+                                        }
+                                        else
+                                        {
+                                            <text>₡0</text>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <text>₡0</text>
+                                    }
+                                }
+                                else
+                                {
+                                    <text>₡0</text>
+                                }
+                            </span>
+                        </div>
+                        <div class="balance-refresh" onclick="refreshUserBalance()">
+                            <i class="bi bi-arrow-clockwise" id="refreshIcon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Dropdown -->
                 <div class="dropdown">
                     <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
                         @User.Identity.Name
@@ -44,6 +253,8 @@
                         <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")"><i class="bi bi-person me-2"></i>Perfil</a></li>
                         <li><a class="dropdown-item" href="@Url.Action("Index", "Betting")"><i class="bi bi-journal-check me-2"></i>Mis apuestas</a></li>
                         <li><a class="dropdown-item" href="@Url.Action("Index", "Payment")"><i class="bi bi-wallet2 me-2"></i>Transacciones</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("Index", "Payment", new { action = "deposit" })"><i class="bi bi-plus-circle me-2 text-success"></i>Depositar</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("Index", "Payment", new { action = "withdraw" })"><i class="bi bi-dash-circle me-2 text-warning"></i>Retirar</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="@Url.Action("Logout", "Account")"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
                     </ul>
@@ -504,6 +715,28 @@
                 var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                 loginModal.show();
             }
+        });
+
+        // Simple balance refresh function
+        @if (User.Identity.IsAuthenticated)
+        {
+            <text>
+            function refreshUserBalance() {
+                const refreshButton = document.querySelector('.balance-refresh');
+                
+                if (refreshButton.classList.contains('refreshing')) {
+                    return; // Prevent multiple simultaneous refreshes
+                }
+
+                refreshButton.classList.add('refreshing');
+                
+                // Simple page reload to get updated balance
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+            </text>
+        }
         });
     </script>
 

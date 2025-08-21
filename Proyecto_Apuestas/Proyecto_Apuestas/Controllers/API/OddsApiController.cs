@@ -151,6 +151,8 @@ namespace Proyecto_Apuestas.Controllers
             }
 
             var user = await _userService.GetCurrentUserAsync();
+            var userId = _userService.GetCurrentUserId();
+            var bettingLimits = await _apiBettingService.GetBettingLimitsAsync(userId);
 
             var model = new CreateBetFromApiViewModel
             {
@@ -160,13 +162,23 @@ namespace Proyecto_Apuestas.Controllers
                 EventDate = apiEvent.CommenceTime,
                 TeamName = teamName,
                 Odds = odds,
-                UserBalance = user?.CreditBalance ?? 0
+                UserBalance = user?.CreditBalance ?? 0,
+                MaxBetAmount = bettingLimits.MaxBetAmount,
+                DailyLimit = bettingLimits.DailyLimit,
+                TodayStaked = bettingLimits.TodayStaked,
+                UserRole = bettingLimits.UserRole
             };
 
+            // Calcular el monto máximo permitido considerando saldo, límites diarios y por apuesta
+            var maxAllowedStake = Math.Min(
+                Math.Min(model.UserBalance, bettingLimits.MaxBetAmount), 
+                bettingLimits.RemainingDaily
+            );
+
             // Prefijar un monto por defecto válido para facilitar la confirmación
-            var preferred = 1000m;
-            var defaultStake = Math.Min(model.UserBalance, preferred);
-            model.Stake = defaultStake >= 100m ? defaultStake : model.UserBalance >= 100m ? 100m : 0m;
+            var preferred = 5000m; // Aumentado para colones costarricenses
+            var defaultStake = Math.Min(maxAllowedStake, preferred);
+            model.Stake = defaultStake >= 100m ? defaultStake : maxAllowedStake >= 100m ? 100m : 0m;
 
             return View(model);
         }
@@ -239,6 +251,13 @@ namespace Proyecto_Apuestas.Controllers
                 ModelState.AddModelError(nameof(model.Stake), "No tienes saldo suficiente para esta apuesta");
             }
 
+            // Validar límites de apuesta
+            var limitValidation = await _apiBettingService.ValidateBetLimitsAsync(currentUserId, model.Stake);
+            if (!limitValidation.IsValid)
+            {
+                ModelState.AddModelError(nameof(model.Stake), limitValidation.ErrorMessage);
+            }
+
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("ModelState is invalid for user {UserId}: {Errors}", 
@@ -265,6 +284,13 @@ namespace Proyecto_Apuestas.Controllers
                     AddSuccessMessage($"¡Apuesta #{result.ApiBetId} realizada con éxito! Tu apuesta de ₡{model.Stake:N0} ha sido procesada.");
                     _logger.LogInformation("Bet created successfully with id={ApiBetId} for user {UserId}", 
                         result.ApiBetId, _userService.GetCurrentUserId());
+                    
+                    // Store the new balance to update the UI
+                    var userAfterBet = await _userService.GetCurrentUserAsync();
+                    if (userAfterBet != null)
+                    {
+                        TempData["NewUserBalance"] = userAfterBet.CreditBalance;
+                    }
                     
                     _logger.LogInformation("Redirecting to ApiBetDetails with URL: /OddsApi/ApiBetDetails/{ApiBetId}", result.ApiBetId);
                     

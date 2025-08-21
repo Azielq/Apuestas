@@ -621,5 +621,49 @@ namespace Proyecto_Apuestas.Controllers
         }
 
         #endregion
+
+        #region User Balance API
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUserBalance()
+        {
+            try
+            {
+                var userId = _userService.GetCurrentUserId();
+                _logger.LogInformation("Getting balance for user ID: {UserId}", userId);
+
+                if (userId == 0)
+                {
+                    _logger.LogWarning("Invalid user ID: {UserId}", userId);
+                    return Json(new { success = false, message = "Usuario no autenticado" });
+                }
+
+                // Use the same method as Profile page to ensure consistency
+                var profile = await _userService.GetUserProfileAsync(userId);
+                if (profile == null)
+                {
+                    _logger.LogWarning("User profile not found for ID: {UserId}", userId);
+                    return Json(new { success = false, message = "Usuario no encontrado" });
+                }
+
+                _logger.LogInformation("Successfully retrieved balance for user {UserId}: {Balance}", userId, profile.CreditBalance);
+
+                return Json(new { 
+                    success = true, 
+                    balance = profile.CreditBalance,
+                    formattedBalance = profile.CreditBalance.ToString("N0"),
+                    userId = userId,
+                    userName = profile.UserName
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting user balance for user {UserId}", _userService.GetCurrentUserId());
+                return Json(new { success = false, message = "Error al obtener el saldo" });
+            }
+        }
+
+        #endregion
     }
 }
