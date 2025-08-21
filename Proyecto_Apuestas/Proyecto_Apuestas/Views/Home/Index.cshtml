@@ -1,7 +1,10 @@
-﻿@{
+﻿@using Proyecto_Apuestas.ViewModels.API
+@{
     ViewData["Title"] = "Home Page";
     Layout = "_Layout";
 }
+
+<link href="../wwwroot/css/layout.css" rel="stylesheet" />
 
 <section class="promo-section pt-0">
     <div class="container-fluid px-0">
@@ -15,15 +18,295 @@
                         <span class="text-white-bold">UP TO</span>
                         <span class="text-price">$20,000</span>
                     </h1>
-                    <button class="btn btn-success btn-lg">Create Account</button>
                 </div>
             </div>
 
             <!-- Imagen a la derecha -->
             <div class="col-md-6 image-section d-flex align-items-center justify-content-center">
-                <img src="/images/indexAp.png" alt="Club" class="img-fluid flyer-img" />
+                <img src="/images/indexAp.png" alt="Club" class="img-fluid " />
             </div>
 
         </div>
     </div>
 </section>
+
+
+<section>
+    <div class="row mb-5">
+        <div class="col-12">
+            <div id="promotionalCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+                <!-- Indicadores  -->
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#promotionalCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#promotionalCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#promotionalCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    <button type="button" data-bs-target="#promotionalCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+                </div>
+
+                <!-- Carousel Inner -->
+                <div class="carousel-inner rounded-3 shadow-lg">
+                    <!--  Bienvenida -->
+                    <div class="carousel-item active">
+                        <div class="d-flex align-items-center justify-content-center bg-gradient-primary text-white position-relative" style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="carousel-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.3);"></div>
+                            <div class="text-center position-relative z-1">
+                                <h1 class="display-4 fw-bold mb-3">¡Bienvenido a Bet506!</h1>
+                                <p class="lead mb-4">La mejor plataforma de apuestas deportivas de Costa Rica</p>
+                                <div class="d-flex gap-3 justify-content-center">
+                                    <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-light btn-lg px-4">
+                                        <i class="bi bi-trophy me-2"></i>Ver Deportes
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bono de Bienvenida -->
+                    <div class="carousel-item">
+                        <div class="d-flex align-items-center justify-content-center bg-gradient-success text-white position-relative" style="height: 400px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                            <div class="carousel-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.3);"></div>
+                            <div class="text-center position-relative z-1">
+                                <h1 class="display-3 fw-bold mb-3">100% BONO</h1>
+                                <h2 class="h1 mb-3">¡Hasta ₡50.000!</h2>
+                                <p class="lead mb-4">En tu primer depósito. ¡Duplica tus posibilidades de ganar!</p>
+                                <div class="d-flex gap-3 justify-content-center">
+                                    <a href="@Url.Action("Promotions", "Home")" class="btn btn-outline-light btn-lg px-4">
+                                        <i class="bi bi-trophy me-2"></i>Ver Promociones
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--  Apuestas en Vivo -->
+                    <div class="carousel-item">
+                        <div class="d-flex align-items-center justify-content-center bg-gradient-danger text-white position-relative" style="height: 400px; background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);">
+                            <div class="carousel-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.3);"></div>
+                            <div class="text-center position-relative z-1">
+                                <h1 class="display-4 fw-bold mb-3"><i class="bi bi-broadcast text-danger"></i> APUESTAS EN VIVO</h1>
+                                <p class="lead mb-4">Siente la emoción del momento. Apuesta mientras el juego está en desarrollo</p>
+                                <div class="row justify-content-center mb-4">
+                                    <div class="col-auto">
+                                        <div class="badge bg-white text-dark fs-6 px-3 py-2 me-2">⚽ Fútbol</div>
+                                        <div class="badge bg-white text-dark fs-6 px-3 py-2 me-2">🏀 Basketball</div>
+                                        <div class="badge bg-white text-dark fs-6 px-3 py-2">🎾 Tenis</div>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("Index", "LiveBetting")" class="btn btn-light btn-lg px-4">
+                                    <i class="bi bi-lightning-charge me-2"></i>Apostar En Vivo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--  App Móvil -->
+                    <div class="carousel-item">
+                        <div class="d-flex align-items-center justify-content-center bg-gradient-info text-white position-relative" style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="carousel-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.3);"></div>
+                            <div class="text-center position-relative z-1">
+                                <h1 class="display-4 fw-bold mb-3"><i class="bi bi-phone me-3"></i>DESCARGA NUESTRA APP</h1>
+                                <p class="lead mb-4">Apuesta desde cualquier lugar. Disponible para iOS y Android</p>
+                                <div class="d-flex gap-3 justify-content-center">
+                                    <a href="@Url.Action("AppStore", "Home")" class="btn btn-dark btn-lg px-4">
+                                        <i class="bi bi-apple me-2"></i>App Store
+                                    </a>
+                                    <a href="@Url.Action("PlayStore", "Home")" class="btn btn-success btn-lg px-4">
+                                        <i class="bi bi-google-play me-2"></i>Google Play
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controles de carousel -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#promotionalCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#promotionalCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+            </div>
+        </div>
+</section>
+ <section>
+     <div class="text-center mt-4">
+                <a href="@Url.Action("Index", "LiveBetting")" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-broadcast me-2"></i> Ver Todos los Deportes en Vivo
+                </a>
+            </div>
+ </section>
+
+ <section class="leagues-section py-5 ">
+    <div class="container">
+        <!-- Título Principal -->
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-primary mb-3">
+                <i class="bi bi-trophy-fill text-warning me-2"></i>
+                LIGAS DISPONIBLES
+            </h2>
+            <p class="lead text-muted">Apuesta en las mejores ligas del mundo</p>
+        </div>
+
+        <!-- Fútbol -->
+        <div class="sport-category mb-5">
+            <div class="row align-items-center mb-4">
+                <div class="col-auto">
+                    <div class="sport-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-dribbble fs-2"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 class="fw-bold text-success mb-1">⚽ FÚTBOL</h3>
+                    <p class="text-muted mb-0">Las mejores ligas de fútbol mundial</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇪🇸</div>
+                            <h5 class="card-title fw-bold">La Liga</h5>
+                            <p class="card-text text-muted small">España</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-success btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">󠁧󠁢󠁥󠁮󠁧󠁿</div>
+                            <h5 class="card-title fw-bold">Premier League</h5>
+                            <p class="card-text text-muted small">Inglaterra</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-success btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇮🇹</div>
+                            <h5 class="card-title fw-bold">Serie A</h5>
+                            <p class="card-text text-muted small">Italia</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-success btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇩🇪</div>
+                            <h5 class="card-title fw-bold">Bundesliga</h5>
+                            <p class="card-text text-muted small">Alemania</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-success btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Basketball -->
+        <div class="sport-category mb-5">
+            <div class="row align-items-center mb-4">
+                <div class="col-auto">
+                    <div class="sport-icon bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-circle fs-2"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 class="fw-bold text-warning mb-1">🏀 BASKETBALL</h3>
+                    <p class="text-muted mb-0">Las mejores ligas de baloncesto</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇺🇸</div>
+                            <h5 class="card-title fw-bold">NBA</h5>
+                            <p class="card-text text-muted small">Estados Unidos</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-warning btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇪🇺</div>
+                            <h5 class="card-title fw-bold">EuroLeague</h5>
+                            <p class="card-text text-muted small">Europa</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-warning btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇺🇸</div>
+                            <h5 class="card-title fw-bold">NCAA</h5>
+                            <p class="card-text text-muted small">Universitario</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-warning btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Baseball -->
+        <div class="sport-category mb-5">
+            <div class="row align-items-center mb-4">
+                <div class="col-auto">
+                    <div class="sport-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-diamond fs-2"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 class="fw-bold text-primary mb-1">⚾ BASEBALL</h3>
+                    <p class="text-muted mb-0">Ligas profesionales de béisbol</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇺🇸</div>
+                            <h5 class="card-title fw-bold">MLB</h5>
+                            <p class="card-text text-muted small">Estados Unidos</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-primary btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇯🇵</div>
+                            <h5 class="card-title fw-bold">NPB</h5>
+                            <p class="card-text text-muted small">Japón</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-primary btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="league-card card h-100 border-0 shadow-sm bg-dark-2">
+                        <div class="card-body text-center p-4">
+                            <div class="league-flag mb-3">🇰🇷</div>
+                            <h5 class="card-title fw-bold">KBO</h5>
+                            <p class="card-text text-muted small">Corea del Sur</p>
+                            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-primary btn-sm">Ver Partidos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Botón Ver Todos -->
+        <div class="text-center mt-5">
+            <a href="@Url.Action("Index", "OddsApi")" class="btn btn-primary btn-lg px-5">
+                <i class="bi bi-list-ul me-2"></i> Ver Todas las Ligas Disponibles
+            </a>
+        </div>
+    </div>
+</section>
+
+
+
