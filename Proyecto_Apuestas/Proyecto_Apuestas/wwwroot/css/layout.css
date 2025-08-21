@@ -1,0 +1,41 @@
+﻿.leagues-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.sport-category {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 2rem;
+}
+
+    .sport-category:last-child {
+        border-bottom: none;
+    }
+
+.league-card {
+    transition: all 0.3s ease;
+    border-radius: 15px;
+}
+
+    .league-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+.league-flag {
+    font-size: 2rem;
+}
+
+.sport-icon {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .sport-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .league-flag {
+        font-size: 1.5rem;
+    }
+}
