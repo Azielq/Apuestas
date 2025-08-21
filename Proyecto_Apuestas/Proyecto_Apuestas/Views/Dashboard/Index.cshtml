@@ -2,6 +2,446 @@
     Layout = "_AdminLayout";
     ViewData["Title"] = "Dashboard";
 }
+<link rel="stylesheet" href="~/css/User.css" />
 
-<h1>Bienvenido al Dashboard</h1>
-<p>Aquí puedes ver estadísticas y gestionar tu portal.</p>
+<div class="MainBackgound">
+    <div class="user-management-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard Administrativo
+            </h1>
+        </div>
+
+        <!-- Alertas -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                @TempData["Success"]
+            </div>
+        }
+
+        <!-- Estadísticas Principales -->
+        <div class="stats-cards">
+            <!-- Usuarios -->
+            <div class="stat-card" onclick="window.location.href='/Admin/Users'">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.TotalUsers ?? 0)</div>
+                    <div class="stat-label">Total Usuarios</div>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="window.location.href='/Admin/Users'">
+                <div class="stat-icon active">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.ActiveUsers ?? 0)</div>
+                    <div class="stat-label">Usuarios Activos</div>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="window.location.href='/Admin/Users'">
+                <div class="stat-icon locked">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.LockedUsers ?? 0)</div>
+                    <div class="stat-label">Usuarios Bloqueados</div>
+                </div>
+            </div>
+
+            <!-- Apuestas -->
+            <div class="stat-card" onclick="window.location.href='/Bet'">
+                <div class="stat-icon">
+                    <i class="fas fa-dice"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.TotalBets ?? 0)</div>
+                    <div class="stat-label">Total Apuestas</div>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="window.location.href='/Bet'">
+                <div class="stat-icon active">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.ActiveBets ?? 0)</div>
+                    <div class="stat-label">Apuestas Activas</div>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="window.location.href='/Bet'">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.PendingBets ?? 0)</div>
+                    <div class="stat-label">Apuestas Pendientes</div>
+                </div>
+            </div>
+
+            <!-- Competiciones -->
+            <div class="stat-card" onclick="window.location.href='/Competition'">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.TotalCompetitions ?? 0)</div>
+                    <div class="stat-label">Total Competiciones</div>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="window.location.href='/Competition'">
+                <div class="stat-icon active">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.ActiveCompetitions ?? 0)</div>
+                    <div class="stat-label">Competiciones Activas</div>
+                </div>
+            </div>
+
+            <!-- Financieras -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">$@(((decimal)(ViewBag.TotalStake ?? 0)).ToString("N0"))</div>
+                    <div class="stat-label">Total Apostado</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">@(ViewBag.ProfitMargin ?? 0)%</div>
+                    <div class="stat-label">Margen de Ganancia</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Gráficos -->
+        <div class="row mb-4">
+            <!-- Gráfico de Usuarios por Rol -->
+            <div class="col-lg-6 mb-4">
+                <div class="glass-card p-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-pie text-warning me-2"></i>
+                        Usuarios por Rol
+                    </h5>
+                    <div class="chart-container">
+                        <canvas id="usersChart"></canvas>
+                        <div id="usersChartNoData" class="no-data-message" style="display: none;">
+                            <i class="fas fa-chart-pie fa-3x mb-3" style="opacity: 0.3;"></i>
+                            <p>No hay datos de usuarios por rol disponibles</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Competiciones -->
+            <div class="col-lg-6 mb-4">
+                <div class="glass-card p-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-donut text-primary me-2"></i>
+                        Competiciones por Deporte
+                    </h5>
+                    <div class="chart-container">
+                        <canvas id="competitionsChart"></canvas>
+                        <div id="competitionsChartNoData" class="no-data-message" style="display: none;">
+                            <i class="fas fa-chart-pie fa-3x mb-3" style="opacity: 0.3;"></i>
+                            <p>No hay datos de competiciones por deporte disponibles</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actividad Reciente -->
+        <div class="row">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-history text-info me-2"></i>
+                        Actividad Reciente
+                    </h5>
+                    <div class="table-responsive">
+                        @if (ViewBag.RecentActivity != null && ((List<dynamic>)ViewBag.RecentActivity).Count > 0)
+                        {
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-icon"></i> Tipo</th>
+                                        <th><i class="fas fa-info-circle"></i> Descripción</th>
+                                        <th><i class="fas fa-user"></i> Usuario</th>
+                                        <th><i class="fas fa-dollar-sign"></i> Cantidad</th>
+                                        <th><i class="fas fa-clock"></i> Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (dynamic activity in ViewBag.RecentActivity)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="role-badge">
+                                                    <i class="@activity.Icon"></i>
+                                                    @activity.Type
+                                                </span>
+                                            </td>
+                                            <td class="user-email">@activity.Description</td>
+                                            <td>
+                                                <div class="user-info">
+                                                    <div class="user-avatar">
+                                                        @((activity.User as string)?.Substring(0, 1).ToUpper() ?? "?")
+                                                    </div>
+                                                    <div class="user-details">
+                                                        <div class="user-name">@activity.User</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (activity.Amount != null)
+                                                {
+                                                    <span class="balance">$@(((decimal)activity.Amount).ToString("N2"))</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td class="created-date">
+                                                @(((DateTime)activity.Date).ToString("dd/MM/yyyy HH:mm"))
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="no-data-message">
+                                <i class="fas fa-history fa-3x mb-3" style="opacity: 0.3;"></i>
+                                <p>No hay actividad reciente disponible</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-external-link-alt text-info me-2"></i>
+                        Navegación Rápida
+                    </h5>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="/Users/Index" class="btn-primary">
+                            <i class="fas fa-users"></i>
+                            Gestión de Usuarios
+                        </a>
+                        <a href="/Bet/Index" class="btn-primary">
+                            <i class="fas fa-dice"></i>
+                            Gestión de Apuestas
+                        </a>
+                        <a href="/Competition/Index" class="btn-primary">
+                            <i class="fas fa-trophy"></i>
+                            Gestión de Competiciones
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<style>
+    .glass-card {
+        background: rgba(47, 40, 59, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(108, 92, 231, 0.2);
+        cursor: pointer;
+    }
+
+    .no-data-message {
+        text-align: center;
+        color: #dcd6f7;
+        padding: 50px;
+        font-style: italic;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+    }
+
+</style>
+
+<!-- Scripts para los gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+    function waitForChart(callback) {
+        if (typeof Chart !== 'undefined') {
+            callback();
+        } else {
+            setTimeout(() => waitForChart(callback), 100);
+        }
+    }
+
+    function initializeCharts() {
+        Chart.defaults.color = '#dcd6f7';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+        try {
+            const usersRoleLabels = @Html.Raw(Json.Serialize(ViewBag.UsersRoleLabels ?? new string[0]));
+            const usersRoleData = @Html.Raw(Json.Serialize(ViewBag.UsersRoleData ?? new int[0]));
+            const competitionsSportLabels = @Html.Raw(Json.Serialize(ViewBag.CompetitionsSportLabels ?? new string[0]));
+            const competitionsSportData = @Html.Raw(Json.Serialize(ViewBag.CompetitionsSportData ?? new int[0]));
+
+            function hasValidData(labels, data) {
+                return labels && data && Array.isArray(labels) && Array.isArray(data) &&
+                       labels.length > 0 && data.length > 0 && labels.length === data.length &&
+                       data.some(value => value > 0);
+            }
+
+            function showNoDataMessage(chartId, noDataElementId) {
+                const canvas = document.getElementById(chartId);
+                const noDataElement = document.getElementById(noDataElementId);
+                if (canvas) canvas.style.display = 'none';
+                if (noDataElement) noDataElement.style.display = 'block';
+            }
+
+            const usersCanvas = document.getElementById('usersChart');
+            if (usersCanvas && hasValidData(usersRoleLabels, usersRoleData)) {
+                new Chart(usersCanvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: usersRoleLabels,
+                        datasets: [{
+                            data: usersRoleData,
+                            backgroundColor: ['#6C5CE7', '#00B8D4', '#00E676', '#FFC107', '#FF5252', '#9C27B0', '#FF9800', '#795548'],
+                            borderWidth: 2,
+                            borderColor: 'rgba(255, 255, 255, 0.1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#dcd6f7', padding: 20, usePointStyle: true }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                showNoDataMessage('usersChart', 'usersChartNoData');
+            }
+
+            const competitionsCanvas = document.getElementById('competitionsChart');
+            if (competitionsCanvas && hasValidData(competitionsSportLabels, competitionsSportData)) {
+                new Chart(competitionsCanvas.getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: competitionsSportLabels,
+                        datasets: [{
+                            data: competitionsSportData,
+                            backgroundColor: ['#6C5CE7', '#00B8D4', '#00E676', '#FFC107', '#FF5252', '#9C27B0', '#FF9800', '#795548'],
+                            borderWidth: 2,
+                            borderColor: 'rgba(255, 255, 255, 0.1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#dcd6f7', padding: 20, usePointStyle: true }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                showNoDataMessage('competitionsChart', 'competitionsChartNoData');
+            }
+
+            setTimeout(function() {
+                document.querySelectorAll('.stat-number').forEach(counter => {
+                    const target = parseInt(counter.textContent.replace(/[^0-9]/g, '')) || 0;
+                    const increment = Math.max(target / 50, 1);
+                    let current = 0;
+
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            counter.textContent = target.toLocaleString();
+                            clearInterval(timer);
+                        } else {
+                            counter.textContent = Math.ceil(current).toLocaleString();
+                        }
+                    }, 30);
+                });
+            }, 500);
+
+        } catch (error) {
+            console.error('Error inicializando gráficos:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => waitForChart(initializeCharts));
+</script>

@@ -177,3 +177,13 @@ nav.navbar {
             display: inline-block;
         }
 }
+
+main.container {
+    background-color: #060019;
+    color: #dcd6f7;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 2rem;
+    border-radius: 0;
+}
