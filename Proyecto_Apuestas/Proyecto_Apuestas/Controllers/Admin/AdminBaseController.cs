@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Proyecto_Apuestas.Controllers.Admin
 {
-    [Area("Admin")]
-    [Authorize(Roles = "Admin")]
     public abstract class AdminBaseController : Controller
     {
         protected readonly ILogger<AdminBaseController> _logger;

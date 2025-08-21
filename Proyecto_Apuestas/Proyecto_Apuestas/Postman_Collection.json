@@ -1,0 +1,530 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789012",
+		"name": "Proyecto Apuestas - Health Checks & Config",
+		"description": "Collection para probar endpoints de health checks y configuraci�n del proyecto de apuestas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Health Checks",
+			"item": [
+				{
+					"name": "General Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 503]);",
+									"});",
+									"",
+									"pm.test(\"Response has status field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "Postman-Testing",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Endpoint para verificar el estado general de salud de la aplicaci�n"
+					},
+					"response": []
+				},
+				{
+					"name": "Database Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 503]);",
+									"});",
+									"",
+									"pm.test(\"Response contains database status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health/database",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health",
+								"database"
+							]
+						},
+						"description": "Verifica espec�ficamente la conexi�n a la base de datos MySQL"
+					},
+					"response": []
+				},
+				{
+					"name": "External Services Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health/external",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health",
+								"external"
+							]
+						},
+						"description": "Verifica el estado de servicios externos como Odds API, SendGrid, Stripe"
+					},
+					"response": []
+				},
+				{
+					"name": "System Resources Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health/system",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health",
+								"system"
+							]
+						},
+						"description": "Verifica recursos del sistema como memoria y espacio en disco"
+					},
+					"response": []
+				},
+				{
+					"name": "Readiness Probe (Kubernetes)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health/ready",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health",
+								"ready"
+							]
+						},
+						"description": "Probe de preparaci�n para Kubernetes - verifica si la app est� lista para recibir tr�fico"
+					},
+					"response": []
+				},
+				{
+					"name": "Liveness Probe (Kubernetes)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health/live",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health",
+								"live"
+							]
+						},
+						"description": "Probe de vida para Kubernetes - verifica si la app est� funcionando"
+					},
+					"response": []
+				},
+				{
+					"name": "Legacy Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health/legacy",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health",
+								"legacy"
+							]
+						},
+						"description": "Endpoint de health check legacy para compatibilidad con versiones anteriores"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para verificar el estado de salud de la aplicaci�n y sus componentes"
+		},
+		{
+			"name": "Development Config",
+			"item": [
+				{
+					"name": "Configuration Overview",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has environment info\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('Environment');",
+									"    pm.expect(jsonData).to.have.property('Features');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/config/overview",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"config",
+								"overview"
+							]
+						},
+						"description": "Vista general de la configuraci�n de la aplicaci�n (solo desarrollo)"
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Configuration",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/config/validate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"config",
+								"validate"
+							]
+						},
+						"description": "Valida que todas las configuraciones est�n correctas"
+					},
+					"response": []
+				},
+				{
+					"name": "System Diagnostics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/config/diagnostics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"config",
+								"diagnostics"
+							]
+						},
+						"description": "Ejecuta diagn�sticos completos del sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Configuration Report",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/config/report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"config",
+								"report"
+							]
+						},
+						"description": "Genera un reporte detallado de configuraci�n en formato texto"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de configuraci�n y diagn�sticos (solo disponibles en desarrollo)"
+		},
+		{
+			"name": "API Documentation",
+			"item": [
+				{
+					"name": "Health Checks Documentation",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api-docs/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api-docs",
+								"health"
+							]
+						},
+						"description": "Documentaci�n detallada de todos los endpoints de health checks"
+					},
+					"response": []
+				},
+				{
+					"name": "Logging Documentation",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api-docs/logging",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api-docs",
+								"logging"
+							]
+						},
+						"description": "Documentaci�n de la configuraci�n de Serilog y logging"
+					},
+					"response": []
+				},
+				{
+					"name": "Scalar API Reference",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/scalar/v1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scalar",
+								"v1"
+							]
+						},
+						"description": "Interfaz interactiva de documentaci�n de APIs con Scalar (mejor abrir en navegador)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de documentaci�n de la API"
+		},
+		{
+			"name": "Health Checks UI",
+			"item": [
+				{
+					"name": "Health Checks Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/healthchecks-ui",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"healthchecks-ui"
+							]
+						},
+						"description": "Dashboard interactivo de health checks (mejor abrir en navegador)"
+					},
+					"response": []
+				},
+				{
+					"name": "Health Checks UI API",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/healthchecks-ui-api",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"healthchecks-ui-api"
+							]
+						},
+						"description": "API del dashboard de health checks"
+					},
+					"response": []
+				}
+			],
+			"description": "Interfaz web para monitoreo de health checks"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Configuraci�n global antes de cada request",
+					"console.log('Testing endpoint: ' + pm.request.url);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Tests globales",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7000",
+			"type": "string",
+			"description": "Base URL para la aplicaci�n en desarrollo"
+		},
+		{
+			"key": "environment",
+			"value": "Development",
+			"type": "string",
+			"description": "Ambiente actual (Development/Production)"
+		}
+	]
+}

@@ -1,0 +1,602 @@
+﻿@model Proyecto_Apuestas.ViewModels.UserManagementViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Administración de Usuarios";
+}
+
+<link href="~/css/User.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="MainBackgound">
+    <div class="user-management-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-users-cog"></i>
+            Administración de Usuarios
+        </h1>
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number">@Model.TotalUsers</span>
+                    <span class="stat-label">Total Usuarios</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number">@Model.ActiveUsers</span>
+                    <span class="stat-label">Usuarios Activos</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon locked">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number">@Model.LockedUsers</span>
+                    <span class="stat-label">Usuarios Bloqueados</span>
+                </div>
+            </div>
+        </div>
+        </div>
+
+    <!-- MENSAJES DE NOTIFICACIÓN -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            @TempData["InfoMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- FILTROS -->
+    <div class="filters-section">
+        <div class="glass-card">
+            <form method="get" class="filters-form">
+                <div class="filter-group">
+                    <label>Buscar Usuario</label>
+                    <input type="text" name="SearchTerm" value="@Model.SearchTerm" placeholder="Nombre o email...">
+                </div>
+                <div class="filter-group">
+                    <label>Rol</label>
+                    <select name="RoleId">
+                        <option value="">Todos los roles</option>
+                        @foreach (var role in ViewBag.Roles as Dictionary<int, string>)
+                        {
+                            <option value="@role.Key" selected="@(Model.RoleId == role.Key ? "selected" : null)">@role.Value</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Estado</label>
+                    <select name="IsActive">
+                        <option value="">Todos</option>
+                        <option value="true" selected="@(Model.IsActive == true ? "selected" : null)">Activo</option>
+                        <option value="false" selected="@(Model.IsActive == false ? "selected" : null)">Inactivo</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Ordenar por</label>
+                    <select name="SortBy">
+                        <option value="" selected="@(string.IsNullOrEmpty(Model.SortBy) ? "selected" : null)">Fecha de registro</option>
+                        <option value="name" selected="@(Model.SortBy == "name" ? "selected" : null)">Nombre</option>
+                        <option value="email" selected="@(Model.SortBy == "email" ? "selected" : null)">Email</option>
+                        <option value="balance" selected="@(Model.SortBy == "balance" ? "selected" : null)">Balance</option>
+                        <option value="lastbet" selected="@(Model.SortBy == "lastbet" ? "selected" : null)">Última apuesta</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TABLA DE USUARIOS -->
+    <div class="table-section">
+        <div class="glass-card">
+            @if (Model.Users != null && Model.Users.Any())
+            {
+                <div class="table-responsive">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user"></i> Usuario</th>
+                                <th><i class="fas fa-envelope"></i> Email</th>
+                                <th><i class="fas fa-shield-alt"></i> Rol</th>
+                                <th><i class="fas fa-wallet"></i> Balance</th>
+                                <th><i class="fas fa-clock"></i> Última Apuesta</th>
+                                <th><i class="fas fa-calendar"></i> Registro</th>
+                                <th><i class="fas fa-toggle-on"></i> Estado</th>
+                                <th><i class="fas fa-cogs"></i> Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div class="user-details">
+                                                <span class="user-name">@user.UserName</span>
+                                                <span class="user-id">#@user.UserId</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="user-email">@user.Email</td>
+                                    <td>
+                                        <span class="role-badge">@user.RoleName</span>
+                                    </td>
+                                    <td class="balance-amount">$@user.CreditBalance.ToString("N2")</td>
+                                    <td class="last-bet">@(user.LastBet?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                    <td class="created-date">@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (user.LockedUntil.HasValue && user.LockedUntil > DateTime.Now)
+                                        {
+                                            <span class="status-badge locked" title="Bloqueado hasta @user.LockedUntil.Value.ToString("dd/MM/yyyy HH:mm")">
+                                                <i class="fas fa-lock"></i> Bloqueado
+                                            </span>
+                                        }
+                                        else if (user.IsActive)
+                                        {
+                                            <span class="status-badge active">
+                                                <i class="fas fa-check-circle"></i> Activo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge inactive">
+                                                <i class="fas fa-times-circle"></i> Inactivo
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-info" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#detailsModal@user.UserId" 
+                                                    title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            
+                                            @if (user.LockedUntil.HasValue && user.LockedUntil > DateTime.Now)
+                                            {
+                                                <form method="post" asp-action="UnlockAccount" style="display: inline;" 
+                                                      onsubmit="return confirm('¿Está seguro de desbloquear este usuario?');">
+                                                    <input type="hidden" name="id" value="@user.UserId" />
+                                                    <button type="submit" class="btn-action btn-success" title="Desbloquear">
+                                                        <i class="fas fa-unlock"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form method="post" asp-action="ToggleStatus" style="display: inline;"
+                                                      onsubmit="return confirm('¿Está seguro de cambiar el estado de este usuario?');">
+                                                    <input type="hidden" name="id" value="@user.UserId" />
+                                                    <button type="submit" class="btn-action btn-warning" 
+                                                            title="@(user.IsActive ? "Desactivar" : "Activar")">
+                                                        <i class="fas fa-power-off"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            
+                                            <button class="btn-action btn-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#lockModal@user.UserId" 
+                                                    title="Bloquear">
+                                                <i class="fas fa-lock"></i>
+                                            </button>
+                                            <button class="btn-action btn-secondary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#balanceModal@user.UserId" 
+                                                    title="Ajustar saldo">
+                                                <i class="fas fa-dollar-sign"></i>
+                                            </button>
+                                            <button class="btn-action btn-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#roleModal@user.UserId" 
+                                                    title="Cambiar rol">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINACIÓN -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="pagination-section">
+                        <nav class="pagination-nav">
+                            @if (Model.CurrentPage > 1)
+                            {
+                                <a class="page-link" 
+                                   href="?CurrentPage=@(Model.CurrentPage - 1)&PageSize=@Model.PageSize&SearchTerm=@Model.SearchTerm&RoleId=@Model.RoleId&IsActive=@Model.IsActive&SortBy=@Model.SortBy"
+                                   title="Página anterior">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            }
+
+                            @{
+                                int startPage = Math.Max(1, Model.CurrentPage - 2);
+                                int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+                            }
+
+                            @if (startPage > 1)
+                            {
+                                <a class="page-link" 
+                                   href="?CurrentPage=1&PageSize=@Model.PageSize&SearchTerm=@Model.SearchTerm&RoleId=@Model.RoleId&IsActive=@Model.IsActive&SortBy=@Model.SortBy">1</a>
+                                @if (startPage > 2)
+                                {
+                                    <span class="page-dots">...</span>
+                                }
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <a class="page-link @(i == Model.CurrentPage ? "active" : "")"
+                                   href="?CurrentPage=@i&PageSize=@Model.PageSize&SearchTerm=@Model.SearchTerm&RoleId=@Model.RoleId&IsActive=@Model.IsActive&SortBy=@Model.SortBy">
+                                    @i
+                                </a>
+                            }
+
+                            @if (endPage < Model.TotalPages)
+                            {
+                                @if (endPage < Model.TotalPages - 1)
+                                {
+                                    <span class="page-dots">...</span>
+                                }
+                                <a class="page-link" 
+                                   href="?CurrentPage=@Model.TotalPages&PageSize=@Model.PageSize&SearchTerm=@Model.SearchTerm&RoleId=@Model.RoleId&IsActive=@Model.IsActive&SortBy=@Model.SortBy">@Model.TotalPages</a>
+                            }
+
+                            @if (Model.CurrentPage < Model.TotalPages)
+                            {
+                                <a class="page-link" 
+                                   href="?CurrentPage=@(Model.CurrentPage + 1)&PageSize=@Model.PageSize&SearchTerm=@Model.SearchTerm&RoleId=@Model.RoleId&IsActive=@Model.IsActive&SortBy=@Model.SortBy"
+                                   title="Página siguiente">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            }
+                        </nav>
+                        <div class="pagination-info">
+                            Mostrando @((Model.CurrentPage - 1) * Model.PageSize + 1) - @(Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalUsers)) de @Model.TotalUsers usuarios
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-results">
+                    <i class="fas fa-users-slash"></i>
+                    <h3>No se encontraron usuarios</h3>
+                    <p>No hay usuarios que coincidan con los filtros aplicados.</p>
+                    <a href="@Url.Action("Index")" class="btn-primary">
+                        <i class="fas fa-refresh"></i> Mostrar todos
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- MODALES -->
+@if (Model.Users != null)
+{
+    @foreach (var user in Model.Users)
+    {
+        <!-- MODAL DETALLES -->
+        <div class="modal fade" id="detailsModal@user.UserId" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user-circle"></i> @user.UserName - Detalles Completos
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="user-detail-header">
+                            <div class="user-avatar-large">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-main-info">
+                                <h4>@user.UserName</h4>
+                                <p class="user-email">@user.Email</p>
+                                <span class="role-badge">@user.RoleName</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-grid">
+                            <div class="detail-section">
+                                <h6><i class="fas fa-info-circle"></i> Información General</h6>
+                                <div class="detail-item">
+                                    <label>ID de Usuario:</label>
+                                    <span>#@user.UserId</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Fecha de Registro:</label>
+                                    <span>@user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Estado:</label>
+                                    @if (user.LockedUntil.HasValue && user.LockedUntil > DateTime.Now)
+                                    {
+                                        <span class="status-text locked">Bloqueado hasta @user.LockedUntil.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                    }
+                                    else if (user.IsActive)
+                                    {
+                                        <span class="status-text active">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-text inactive">Inactivo</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <h6><i class="fas fa-wallet"></i> Información Financiera</h6>
+                                <div class="detail-item">
+                                    <label>Balance Actual:</label>
+                                    <span class="balance">$@user.CreditBalance.ToString("N2")</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Total Apostado:</label>
+                                    <span class="wagered">$@user.TotalWagered.ToString("N2")</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <h6><i class="fas fa-dice"></i> Actividad de Apuestas</h6>
+                                <div class="detail-item">
+                                    <label>Total de Apuestas:</label>
+                                    <span>@user.TotalBets</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Última Apuesta:</label>
+                                    <span>@(user.LastBet?.ToString("dd/MM/yyyy HH:mm") ?? "Nunca")</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Promedio por Apuesta:</label>
+                                    <span>$@((user.TotalBets > 0 ? user.TotalWagered / user.TotalBets : 0).ToString("N2"))</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i> Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL BLOQUEAR -->
+        <div class="modal fade" id="lockModal@user.UserId" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-lock"></i> Bloquear Usuario
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" asp-action="LockAccount">
+                        <div class="modal-body">
+                            <div class="warning-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>¿Está seguro de bloquear a <strong>@user.UserName</strong>?</p>
+                            </div>
+                            <input type="hidden" name="id" value="@user.UserId" />
+                            <div class="form-group">
+                                <label><i class="fas fa-clock"></i> Horas a bloquear</label>
+                                <select name="hours" required>
+                                    <option value="1">1 hora</option>
+                                    <option value="6">6 horas</option>
+                                    <option value="12">12 horas</option>
+                                    <option value="24" selected>24 horas (1 día)</option>
+                                    <option value="72">72 horas (3 días)</option>
+                                    <option value="168">168 horas (1 semana)</option>
+                                    <option value="720">720 horas (30 días)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-comment"></i> Motivo del bloqueo</label>
+                                <textarea name="reason" placeholder="Describa el motivo del bloqueo..." rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn-danger">
+                                <i class="fas fa-lock"></i> Confirmar Bloqueo
+                            </button>
+                            <button type="button" class="btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL AJUSTAR SALDO -->
+        <div class="modal fade" id="balanceModal@user.UserId" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-wallet"></i> Ajustar Saldo
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" asp-action="AdjustBalance">
+                        <div class="modal-body">
+                            <div class="current-balance">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Balance actual de <strong>@user.UserName</strong>: <strong class="balance">$@user.CreditBalance.ToString("N2")</strong></span>
+                            </div>
+                            <input type="hidden" name="id" value="@user.UserId" />
+                            <div class="form-group">
+                                <label><i class="fas fa-exchange-alt"></i> Tipo de Operación</label>
+                                <select name="type" required id="operationType@user.UserId" onchange="updateBalancePreview(@user.UserId, @user.CreditBalance)">
+                                    <option value="add">➕ Agregar dinero</option>
+                                    <option value="subtract">➖ Restar dinero</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-dollar-sign"></i> Cantidad</label>
+                                <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
+                                       id="amountInput@user.UserId" oninput="updateBalancePreview(@user.UserId, @user.CreditBalance)">
+                                <div id="balancePreview@user.UserId" class="balance-preview"></div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-comment"></i> Motivo del ajuste</label>
+                                <input type="text" name="reason" placeholder="Describa el motivo del ajuste..." required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Confirmar Ajuste
+                            </button>
+                            <button type="button" class="btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL CAMBIAR ROL -->
+        <div class="modal fade" id="roleModal@user.UserId" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user-tag"></i> Cambiar Rol de Usuario
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" asp-action="ChangeRole">
+                        <div class="modal-body">
+                            <div class="current-role">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Rol actual de <strong>@user.UserName</strong>: <span class="role-badge">@user.RoleName</span></span>
+                            </div>
+                            <input type="hidden" name="id" value="@user.UserId" />
+                            <div class="form-group">
+                                <label><i class="fas fa-shield-alt"></i> Nuevo Rol</label>
+                                <select name="roleId" required>
+                                    @foreach (var role in ViewBag.Roles as Dictionary<int, string>)
+                                    {
+                                        <option value="@role.Key" selected="@(user.RoleName == role.Value ? "selected" : null)">
+                                            @role.Value
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Actualizar Rol
+                            </button>
+                            <button type="button" class="btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+
+    function updateBalancePreview(userId, currentBalance) {
+        const typeSelect = document.getElementById('operationType' + userId);
+        const amountInput = document.getElementById('amountInput' + userId);
+        const preview = document.getElementById('balancePreview' + userId);
+        
+        if (typeSelect && amountInput && preview) {
+            const type = typeSelect.value;
+            const amount = parseFloat(amountInput.value) || 0;
+            
+            if (amount > 0) {
+                let newBalance;
+                if (type === 'add') {
+                    newBalance = currentBalance + amount;
+                    preview.innerHTML = `<i class="fas fa-arrow-up text-success"></i> Nuevo balance: <strong class="text-success">$${newBalance.toFixed(2)}</strong>`;
+                } else {
+                    newBalance = currentBalance - amount;
+                    if (newBalance < 0) {
+                        preview.innerHTML = `<i class="fas fa-exclamation-triangle text-danger"></i> <strong class="text-danger">Error: Balance insuficiente</strong>`;
+                    } else {
+                        preview.innerHTML = `<i class="fas fa-arrow-down text-warning"></i> Nuevo balance: <strong class="text-warning">$${newBalance.toFixed(2)}</strong>`;
+                    }
+                }
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dangerForms = document.querySelectorAll('form[onsubmit*="confirm"]');
+        dangerForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const confirmText = form.getAttribute('onsubmit').match(/confirm\('(.+?)'\)/)[1];
+                if (!confirm(confirmText)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>

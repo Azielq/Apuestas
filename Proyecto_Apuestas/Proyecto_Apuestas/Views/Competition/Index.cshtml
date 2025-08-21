@@ -1,0 +1,461 @@
+﻿@model IEnumerable<Proyecto_Apuestas.Models.Competition>
+@{
+    ViewData["Title"] = "Gestión de Competiciones";
+    Layout = "_AdminLayout";
+}
+
+<link rel="stylesheet" href="~/css/User.css" />
+
+<div class="MainBackgound">
+<div class="user-management-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-trophy"></i>
+            Gestión de Competiciones
+        </h1>
+    </div>
+
+    <!-- Alertas -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Estadísticas -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.TotalCompetitions</div>
+                <div class="stat-label">Total Competiciones</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.ActiveCompetitions</div>
+                <div class="stat-label">Activas</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon locked">
+                <i class="fas fa-pause-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.InactiveCompetitions</div>
+                <div class="stat-label">Inactivas</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, var(--success-color), #00C853);">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.CurrentCompetitions</div>
+                <div class="stat-label">En Curso</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, var(--warning-color), #FF8F00);">
+                <i class="fas fa-calendar-plus"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.UpcomingCompetitions</div>
+                <div class="stat-label">Próximas</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, var(--info-color), #0097A7);">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@ViewBag.FinishedCompetitions</div>
+                <div class="stat-label">Finalizadas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+        <div class="glass-card">
+            <form method="get" class="filters-form">
+                <div class="filter-group">
+                    <label for="searchTerm"><i class="fas fa-search"></i> Búsqueda</label>
+                    <input type="text" id="searchTerm" name="searchTerm" value="@ViewBag.SearchTerm" 
+                           placeholder="Buscar por nombre o deporte..." class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <label for="sportId"><i class="fas fa-futbol"></i> Deporte</label>
+                    <select id="sportId" name="sportId" class="form-select">
+                        <option value="0">Todos los deportes</option>
+                        @foreach (var sport in ViewBag.Sports as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            <option value="@sport.Value" selected="@(ViewBag.SportId.ToString() == sport.Value)">@sport.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="isActive"><i class="fas fa-flag"></i> Estado</label>
+                    <select id="isActive" name="isActive" class="form-select">
+                        <option value="">Todos los estados</option>
+                        @foreach (var status in ViewBag.StatusOptions as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+                        {
+                            <option value="@status.Value" selected="@(ViewBag.IsActive?.ToString().ToLower() == status.Value)">@status.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="fromDate"><i class="fas fa-calendar"></i> Desde</label>
+                    <input type="date" id="fromDate" name="fromDate" value="@ViewBag.FromDate" class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <label for="toDate"><i class="fas fa-calendar"></i> Hasta</label>
+                    <input type="date" id="toDate" name="toDate" value="@ViewBag.ToDate" class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Competiciones -->
+    <div class="table-section">
+        <div class="glass-card">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> ID</th>
+                                <th><i class="fas fa-trophy"></i> Nombre</th>
+                                <th><i class="fas fa-futbol"></i> Deporte</th>
+                                <th><i class="fas fa-calendar-alt"></i> Fecha Inicio</th>
+                                <th><i class="fas fa-calendar-alt"></i> Fecha Fin</th>
+                                <th><i class="fas fa-flag"></i> Estado</th>
+                                <th><i class="fas fa-calendar"></i> Creada</th>
+                                <th><i class="fas fa-cog"></i> Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var competition in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="user-avatar">@competition.CompetitionId</div>
+                                    </td>
+                                    <td>
+                                        <div class="user-details">
+                                            <div class="user-name">@competition.Name</div>
+                                            <div class="user-id">ID: @competition.CompetitionId</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="user-details">
+                                            <div class="user-name">@competition.Sport.Name</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="created-date">
+                                            @(competition.StartDate?.ToString("dd/MM/yyyy") ?? "No definida")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="created-date">
+                                            @(competition.EndDate?.ToString("dd/MM/yyyy") ?? "No definida")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var currentDate = DateOnly.FromDateTime(DateTime.Now);
+                                            var statusClass = "locked";
+                                            var statusIcon = "fas fa-pause-circle";
+                                            var statusText = "Inactiva";
+                                            
+                                            if (competition.IsActive == true)
+                                            {
+                                                if (competition.StartDate > currentDate)
+                                                {
+                                                    statusClass = "active";
+                                                    statusIcon = "fas fa-calendar-plus";
+                                                    statusText = "Próxima";
+                                                }
+                                                else if (competition.EndDate < currentDate)
+                                                {
+                                                    statusClass = "inactive";
+                                                    statusIcon = "fas fa-calendar-times";
+                                                    statusText = "Finalizada";
+                                                }
+                                                else
+                                                {
+                                                    statusClass = "active";
+                                                    statusIcon = "fas fa-play-circle";
+                                                    statusText = "En Curso";
+                                                }
+                                            }
+                                        }
+                                        
+                                        <span class="status-badge @statusClass">
+                                            <i class="@statusIcon"></i> @statusText
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="created-date">@competition.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="@Url.Action("Details", new { id = competition.CompetitionId })" 
+                                               class="btn-action btn-info" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="@Url.Action("Edit", new { id = competition.CompetitionId })" 
+                                               class="btn-action btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn-action @(competition.IsActive == true ? "btn-danger" : "btn-success")" 
+                                                    title="@(competition.IsActive == true ? "Desactivar" : "Activar")"
+                                                    onclick="toggleStatus(@competition.CompetitionId, @(competition.IsActive.ToString().ToLower()))">
+                                                <i class="fas @(competition.IsActive == true ? "fa-pause" : "fa-play")"></i>
+                                            </button>
+                                            <a href="@Url.Action("Delete", new { id = competition.CompetitionId })" 
+                                               class="btn-action btn-danger" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <div class="pagination-section">
+                        <nav class="pagination-nav">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    page = ViewBag.CurrentPage - 1, 
+                                    searchTerm = ViewBag.SearchTerm,
+                                    sportId = ViewBag.SportId,
+                                    isActive = ViewBag.IsActive,
+                                    fromDate = ViewBag.FromDate,
+                                    toDate = ViewBag.ToDate
+                                })" class="page-link">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            }
+
+                            @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    page = i,
+                                    searchTerm = ViewBag.SearchTerm,
+                                    sportId = ViewBag.SportId,
+                                    isActive = ViewBag.IsActive,
+                                    fromDate = ViewBag.FromDate,
+                                    toDate = ViewBag.ToDate
+                                })" class="page-link @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    @i
+                                </a>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <a href="@Url.Action("Index", new { 
+                                    page = ViewBag.CurrentPage + 1, 
+                                    searchTerm = ViewBag.SearchTerm,
+                                    sportId = ViewBag.SportId,
+                                    isActive = ViewBag.IsActive,
+                                    fromDate = ViewBag.FromDate,
+                                    toDate = ViewBag.ToDate
+                                })" class="page-link">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            }
+                        </nav>
+                        <div class="pagination-info">
+                            Mostrando @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) - 
+                            @Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalCount) 
+                            de @ViewBag.TotalCount competiciones
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-results">
+                    <i class="fas fa-trophy"></i>
+                    <h3>No se encontraron competiciones</h3>
+                    <p>No hay competiciones que coincidan con los filtros aplicados.</p>
+                    <a href="@Url.Action("Create")" class="btn-primary">
+                        <i class="fas fa-plus"></i> Crear primera competición
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.filters-form');
+        
+        if (form) {
+            const inputs = form.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    // form.submit();
+                });
+
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = '#007bff';
+                    this.style.boxShadow = '0 0 5px rgba(0,123,255,0.3)';
+                });
+
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = '';
+                    this.style.boxShadow = '';
+                });
+            });
+        }
+
+        const actionButtons = document.querySelectorAll('.btn-action');
+        actionButtons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        const deleteButtons = document.querySelectorAll('a[href*="/Delete/"]');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('¿Está seguro que desea eliminar esta competición?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+
+    async function toggleStatus(competitionId, currentStatus) {
+        const action = currentStatus ? 'desactivar' : 'activar';
+        if (!confirm(`¿Está seguro que desea ${action} esta competición?`)) {
+            return;
+        }
+
+        try {
+            let token = null;
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (tokenInput) {
+                token = tokenInput.value;
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+
+            if (token) {
+                headers['RequestVerificationToken'] = token;
+            }
+
+            const response = await fetch('/Competition/ToggleStatus', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ competitionId: competitionId })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification('success', result.message || 'Estado cambiado exitosamente');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showNotification('error', result.message || 'Error al cambiar el estado');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('error', 'Error de conexión: ' + error.message);
+        }
+    }
+
+    function showNotification(type, message) {
+        const existingNotification = document.querySelector('.temp-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show temp-notification`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+            ${message}
+            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+</script>

@@ -20,11 +20,11 @@
 					<img src="/images/LogoBet506.png" alt="Bet506" height="40">
 				</a>
                 <li><a href="@Url.Action("Index", "Home")" class="active"><i class="ri-home-line"></i> Inicio</a></li>
-                <li><a href="@Url.Action("Index", "Sport")"><i class="ri-football-line"></i> Deportes</a></li>
+                <li><a href="@Url.Action("Index", "OddsApi")"><i class="ri-bar-chart-2-line"></i> Sports Book</a></li>
                 <li><a href="@Url.Action("Index", "LiveBetting")"><i class="ri-live-line"></i> En Vivo</a></li>
                 <li><a href="@Url.Action("About", "Home")"><i class="ri-book-2-line"></i> Nosotros</a></li>
                 <li><a href="@Url.Action("Contact", "Home")"><i class="ri-mail-line"></i> Contacto</a></li>
-                <li><a class="promotions" href="#"><i class="ri-star-smile-line"></i> Promociones</a></li>
+                <li><a class="promotions" href="@Url.Action("Promotions", "Home")"><i class="ri-star-smile-line"></i> Promociones</a></li>
             </ul>
         </div>
 
@@ -391,6 +391,7 @@
                 <div class="col-6 col-md-3 col-lg-2 mb-4">
                     <h5 class="text-white mb-3">Empresa</h5>
                     <ul class="list-unstyled">
+                        <li class="mb-2"><a href="@Url.Action("Index", "Dashboard")" class="text-white-50">Admin portal</a></li>
                         <li class="mb-2"><a href="@Url.Action("About", "Home")" class="text-white-50">Nosotros</a></li>
                         <li class="mb-2"><a href="@Url.Action("Contact", "Home")" class="text-white-50">Contacto</a></li>
                         <li class="mb-2"><a href="@Url.Action("Blog", "Home")" class="text-white-50">Blog</a></li>
@@ -418,10 +419,10 @@
                     <div class="mt-3">
                         <h5 class="text-white mb-2">Descarga nuestra app</h5>
                         <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-dark border border-secondary btn-sm px-3">
+                            <a href="@Url.Action("AppStore", "Home")" class="btn btn-dark border border-secondary btn-sm px-3">
                                 <i class="bi bi-apple me-1"></i> App Store
                             </a>
-                            <a href="#" class="btn btn-dark border border-secondary btn-sm px-3">
+                            <a href="@Url.Action("PlayStore", "Home")" class="btn btn-dark border border-secondary btn-sm px-3">
                                 <i class="bi bi-google-play me-1"></i> Play Store
                             </a>
                         </div>
@@ -445,6 +446,26 @@
     @await Html.PartialAsync("_ValidationScriptsPartial")
     @await RenderSectionAsync("Scripts", required: false)
 
-    <!-- Las funciones de cambio de modal ahora están en app-core.js -->
+    @using System.Text.Json
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var alertMessage = @JsonSerializer.Serialize(TempData["AlertMessage"]);
+            if (alertMessage && alertMessage !== "null") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso denegado',
+                    text: alertMessage,
+                    confirmButtonColor: '#5C4B8B'
+                });
+            }
+
+            var showLoginModal = @JsonSerializer.Serialize(TempData["LoginModal"]) === "true";
+            if (showLoginModal) {
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            }
+        });
+    </script>
+
 </body>
 </html>
