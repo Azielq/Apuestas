@@ -5,7 +5,6 @@
 }
 
 @section Styles {
-    <!-- CSS especifico del modal/overlay de Stripe -->
     <link rel="stylesheet" href="~/css/stripe.css" asp-append-version="true" />
 }
 
@@ -36,13 +35,16 @@
     }
 </div>
 
-@* Modal de Stripe (partial con #stripeModal, #checkout y #stripe-loading-spinner) *@
+@* Modal (solo UNO) *@
 @await Html.PartialAsync("_StripeModal")
 
-@* Antiforgery para que product.js lo envíe en el header *@
+@* Antiforgery para product.js *@
 @Html.AntiForgeryToken()
 
-<!-- Stripe.js + tu script -->
 <script>window.STRIPE_PUBLIC_KEY='@pk';</script>
+<script>
+    window.BYPASS_ENABLED = @(((bool)(ViewBag.BypassEnabled ?? false)).ToString().ToLower());
+    window.BYPASS_CODE = '@(ViewBag.BypassCode ?? "")';
+</script>
 <script src="https://js.stripe.com/v3/"></script>
 <script src="~/js/product.js" asp-append-version="true"></script>

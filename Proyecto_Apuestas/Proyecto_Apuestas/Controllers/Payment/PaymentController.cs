@@ -4,6 +4,9 @@ using Proyecto_Apuestas.Services.Interfaces;
 using Proyecto_Apuestas.ViewModels;
 using Proyecto_Apuestas.Services.Implementations;
 using Proyecto_Apuestas.Models.Payment;
+using Proyecto_Apuestas.Data;                 // <-- NUEVO
+using Microsoft.AspNetCore.Hosting;           
+
 namespace Proyecto_Apuestas.Controllers.Payment
 {
     [Authorize]
@@ -16,6 +19,10 @@ namespace Proyecto_Apuestas.Controllers.Payment
         private readonly IProductService _productService;
         private readonly IConfiguration _configuration;
 
+        // NUEVO: para bypass
+        private readonly IWebHostEnvironment _env;
+        private readonly apuestasDbContext _context;
+
         public PaymentController(
            IPaymentService paymentService,
            IUserService userService,
@@ -23,6 +30,8 @@ namespace Proyecto_Apuestas.Controllers.Payment
            IStripeService stripeService,
            IProductService productService,
            IConfiguration configuration,
+           IWebHostEnvironment env,                // <-- NUEVO
+           apuestasDbContext context,              // <-- NUEVO
            ILogger<PaymentController> logger) : base(logger)
         {
             _paymentService = paymentService;
@@ -31,6 +40,10 @@ namespace Proyecto_Apuestas.Controllers.Payment
             _stripeService = stripeService;
             _productService = productService;
             _configuration = configuration;
+
+            // NUEVO
+            _env = env;
+            _context = context;
         }
 
         [HttpGet]
@@ -238,13 +251,21 @@ namespace Proyecto_Apuestas.Controllers.Payment
             return View(stats);
         }
 
-        //Seccion Stripe ------------------------------------------------------------------
+        // ========================== Sección Stripe / Productos ===============================
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Products()
         {
             var productos = _productService.GetAvailableProducts();
             ViewBag.StripePublicKey = _configuration["Payment:Stripe:PublicKey"];
+
+            // FLAGS para bypass (solo Dev o si habilitas en config y/o rol Admin)
+            var enableBypass = _configuration.GetValue<bool>("Payment:EnableBypass");
+            var userIsAdmin = User?.IsInRole("Admin") ?? false;
+            ViewBag.BypassEnabled = (_env.IsDevelopment() || userIsAdmin) && enableBypass;
+            ViewBag.BypassCode = _configuration["Payment:BypassCode"] ?? string.Empty;
+
             return View(productos);
         }
 
@@ -275,7 +296,7 @@ namespace Proyecto_Apuestas.Controllers.Payment
                 {
                     clientSecret = await _stripeService.CreateCheckoutSessionInlinePriceAsync(
                         unitAmount: product.PriceInCents,
-                        currency: "usd",                  
+                        currency: "usd",
                         productName: product.Name,
                         originBaseUrl: origin,
                         userId: userIdStr,
@@ -291,13 +312,58 @@ namespace Proyecto_Apuestas.Controllers.Payment
             }
         }
 
+        // =============================== BYPASS DEV / ADMIN =================================
 
+        /// <summary>
+        /// Confirma una compra "gratis" para acelerar pruebas.
+        /// Requiere: ambiente Development O (EnableBypass=true y rol Admin).
+        /// Si config trae Payment:BypassCode, debe enviarse header X-Bypass-Code.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("payment/dev/confirm")]
+        public async Task<IActionResult> DevConfirm([FromBody] ProductPaymentRequest request,
+            [FromHeader(Name = "X-Bypass-Code")] string? code)
+        {
+            var enableBypass = _configuration.GetValue<bool>("Payment:EnableBypass");
+            var cfgCode = _configuration["Payment:BypassCode"];
+            var userIsAdmin = User?.IsInRole("Admin") ?? false;
 
+            if (!(_env.IsDevelopment() || (enableBypass && userIsAdmin)))
+                return NotFound(); // oculta el endpoint si no cumple reglas de acceso
 
+            if (!string.IsNullOrEmpty(cfgCode) && !string.Equals(cfgCode, code))
+                return Forbid();
 
+            var product = _productService.GetById(request.ProductId);
+            if (product == null)
+                return JsonError("Producto no encontrado");
 
+            var user = await _userService.GetCurrentUserAsync();
+            if (user == null) return Unauthorized();
 
-        // Métodos privados
+            // Acredita chips al usuario
+            user.CreditBalance += product.Chips;
+            await _context.SaveChangesAsync();
+
+            // Registra una transacción "COMPLETED" para trazabilidad (monto 0)
+            await _paymentService.CreateTransactionAsync(new PaymentTransactionRequest
+            {
+                UserId = user.UserId,
+                Amount = 0m,
+                TransactionType = "DEPOSIT",
+                Description = $"DEV_BYPASS: {product.Name} (+{product.Chips} chips)"
+            });
+
+            return JsonSuccess(new
+            {
+                message = $"Se acreditaron {product.Chips} chips (DEV BYPASS).",
+                data = new { newBalance = user.CreditBalance, product = product.Name }
+            });
+        }
+
+        // ============================== Métodos privados =====================================
+
         private async Task LoadDepositViewData(DepositViewModel model)
         {
             var userId = _userService.GetCurrentUserId();
