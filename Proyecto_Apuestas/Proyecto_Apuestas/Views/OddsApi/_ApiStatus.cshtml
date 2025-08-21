@@ -1,0 +1,161 @@
+﻿@model Proyecto_Apuestas.ViewModels.API.ApiStatusViewModel
+
+<div class="api-status-card glass-effect">
+    <div class="status-header">
+        <h5 class="mb-0">
+            <i class="bi bi-cloud-check me-2 text-@(Model.IsAvailable ? "success" : "danger")"></i>
+            Estado de la API
+        </h5>
+        <span class="status-badge status-@(Model.IsAvailable ? "operational" : "down")">
+            @(Model.IsAvailable ? "Operacional" : "Inactiva")
+        </span>
+    </div>
+
+    <div class="status-details">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <div class="stat-icon text-primary">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Solicitudes Usadas</span>
+                        <span class="stat-value">@Model.RequestsUsed</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <div class="stat-icon text-success">
+                        <i class="bi bi-battery-charging"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Restantes</span>
+                        <span class="stat-value">@Model.RequestsRemaining</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <div class="stat-icon text-info">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Uso de API</span>
+                        <span class="stat-value">@Model.UsagePercentage.ToString("0.0")%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.RequestsRemaining < 50)
+        {
+            <div class="alert alert-warning bg-dark-2 border-warning mt-3 mb-0">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <small>Pocas solicitudes restantes. Las actualizaciones pueden ser limitadas.</small>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .api-status-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .status-header h5 {
+        color: white;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-badge.status-operational {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.status-down {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    @@media (max-width: 768px) {
+        .status-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .stat-item {
+            justify-content: center;
+            text-align: center;
+        }
+    }
+</style>

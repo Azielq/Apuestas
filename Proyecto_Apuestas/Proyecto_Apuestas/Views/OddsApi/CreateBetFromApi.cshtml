@@ -91,6 +91,28 @@
                         <h4><i class="bi bi-cash-coin me-2 text-primary"></i>Detalles de la Apuesta</h4>
                     </div>
 
+                    <!-- Error Messages Display -->
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger bg-dark-2 border-danger mb-4" role="alert">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-exclamation-triangle-fill text-danger me-3 fs-4"></i>
+                                <div>
+                                    <h6 class="alert-heading text-danger">Error en la validación</h6>
+                                    <ul class="mb-0 text-white">
+                                        @foreach (var modelState in ViewData.ModelState.Values)
+                                        {
+                                            foreach (var error in modelState.Errors)
+                                            {
+                                                <li>@error.ErrorMessage</li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                     <!-- User Balance -->
                     <div class="balance-display">
                         <div class="balance-card">
@@ -253,26 +275,80 @@
             updatePayout();
             
             // Form validation before submit
-            $('form').on('submit', function(e) {
+            $('.bet-form').on('submit', function(e) {
+                const form = this; // Store reference to the form
                 const stake = parseFloat($('#stakeInput').val()) || 0;
                 
                 if (stake < 100) {
                     e.preventDefault();
                     toastr.error('El monto mínimo para apostar es ₡100');
+                    $('#stakeInput').focus().addClass('is-invalid');
                     return false;
                 }
                 
                 if (stake > maxBalance) {
                     e.preventDefault();
                     toastr.error('No tienes saldo suficiente para esta apuesta');
+                    $('#stakeInput').focus().addClass('is-invalid');
                     return false;
                 }
                 
-                // Show loading state
-                $('#confirmBetBtn').prop('disabled', true)
-                    .html('<i class="bi bi-hourglass-split me-2"></i>Procesando...');
+                // Show confirmation dialog
+                e.preventDefault();
                 
-                return true;
+                const payout = stake * odds;
+                const confirmation = confirm(
+                    `¿Confirmar apuesta?\n\n` +
+                    `Monto: ₡${stake.toLocaleString('es-CR', { minimumFractionDigits: 2 })}\n` +
+                    `Cuota: ${odds}\n` +
+                    `Ganancia potencial: ₡${payout.toLocaleString('es-CR', { minimumFractionDigits: 2 })}\n\n` +
+                    `Esta acción no se puede deshacer.`
+                );
+                
+                if (confirmation) {
+                    // Show loading state
+                    $('#confirmBetBtn').prop('disabled', true)
+                        .html('<i class="bi bi-hourglass-split me-2 spinning"></i>Procesando apuesta...');
+                    
+                    // Add processing overlay
+                    $('body').append(`
+                        <div id="processingOverlay" style="
+                            position: fixed; 
+                            top: 0; 
+                            left: 0; 
+                            width: 100%; 
+                            height: 100%; 
+                            background: rgba(0,0,0,0.7); 
+                            z-index: 9999; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center;
+                        ">
+                            <div class="text-center text-white">
+                                <div class="spinner-border mb-3" role="status"></div>
+                                <h4>Procesando tu apuesta...</h4>
+                                <p>Por favor, no cierres esta ventana</p>
+                            </div>
+                        </div>
+                    `);
+                    
+                    // Submit the form after a brief delay
+                    setTimeout(() => {
+                        console.log('Submitting form...'); // Debug log
+                        form.submit(); // Use the stored form reference
+                    }, 500);
+                } else {
+                    // User cancelled, re-enable button
+                    $('#confirmBetBtn').prop('disabled', false)
+                        .html('<i class="bi bi-check-circle me-2"></i>Confirmar Apuesta');
+                }
+                
+                return false;
+            });
+            
+            // Remove invalid class when user starts typing
+            $('#stakeInput').on('input', function() {
+                $(this).removeClass('is-invalid');
             });
             
             // Add some animations
@@ -540,6 +616,40 @@
         /* Risk Warning */
         .risk-warning-card {
             border-radius: 15px;
+        }
+
+        /* Form Validation Styles */
+        .form-control.is-invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Alert Styles */
+        .alert {
+            border-radius: 15px;
+            border-width: 2px;
+        }
+
+        .alert-danger {
+            animation: alertShake 0.5s ease;
+        }
+
+        @@keyframes alertShake {
+            0%, 20%, 40%, 60%, 80% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
         }
 
         /* Animations */

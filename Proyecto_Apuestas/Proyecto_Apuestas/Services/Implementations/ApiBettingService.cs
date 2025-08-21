@@ -46,8 +46,8 @@ namespace Proyecto_Apuestas.Services.Implementations
                     return new ApiBetResult { Success = false, ErrorMessage = "Monto excede los límites permitidos" };
                 }
 
-                // Actualiza balance
-                if (!await _userService.UpdateUserBalanceAsync(userId, model.Stake, "BET"))
+                // Actualiza balance (sin transacción porque ya estamos en una)
+                if (!await _userService.UpdateUserBalanceAsync(userId, model.Stake, "BET", useTransaction: false))
                 {
                     return new ApiBetResult { Success = false, ErrorMessage = "Saldo insuficiente" };
                 }

@@ -459,6 +459,46 @@
                 });
             }
 
+            var successMessage = @JsonSerializer.Serialize(TempData["SuccessMessage"]);
+            if (successMessage && successMessage !== "null") {
+                if (typeof toastr !== 'undefined') {
+                    toastr.success(successMessage, 'Éxito', {
+                        positionClass: 'toast-top-right',
+                        timeOut: 5000,
+                        extendedTimeOut: 1000,
+                        progressBar: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: successMessage,
+                        confirmButtonColor: '#10b981',
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                }
+            }
+
+            var errorMessage = @JsonSerializer.Serialize(TempData["ErrorMessage"]);
+            if (errorMessage && errorMessage !== "null") {
+                if (typeof toastr !== 'undefined') {
+                    toastr.error(errorMessage, 'Error', {
+                        positionClass: 'toast-top-right',
+                        timeOut: 8000,
+                        extendedTimeOut: 2000,
+                        progressBar: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            }
+
             var showLoginModal = @JsonSerializer.Serialize(TempData["LoginModal"]) === "true";
             if (showLoginModal) {
                 var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
