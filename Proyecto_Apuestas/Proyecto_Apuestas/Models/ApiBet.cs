@@ -14,20 +14,16 @@ public partial class ApiBet
     [Key]
     public int ApiBetId { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required, StringLength(100)]
     public string ApiEventId { get; set; } = null!;
 
-    [Required]
-    [StringLength(50)]
+    [Required, StringLength(50)]
     public string SportKey { get; set; } = null!;
 
-    [Required]
-    [StringLength(200)]
+    [Required, StringLength(200)]
     public string EventName { get; set; } = null!;
 
-    [Required]
-    [StringLength(100)]
+    [Required, StringLength(100)]
     public string TeamName { get; set; } = null!;
 
     [Column(TypeName = "datetime")]
@@ -45,8 +41,9 @@ public partial class ApiBet
     [Precision(10, 2)]
     public decimal Stake { get; set; }
 
+    /// <summary>P=Pending, W=Won, L=Lost, C=Cancelled</summary>
     [StringLength(1)]
-    public string BetStatus { get; set; } = null!; // P=Pending, W=Won, L=Lost, C=Cancelled
+    public string BetStatus { get; set; } = null!;
 
     public int? PaymentTransactionId { get; set; }
 
@@ -56,7 +53,7 @@ public partial class ApiBet
     [Column(TypeName = "datetime(3)")]
     public DateTime UpdatedAt { get; set; }
 
-    // Información adicional del evento API
+    // Info adicional
     [StringLength(100)]
     public string? HomeTeam { get; set; }
 
@@ -72,7 +69,6 @@ public partial class ApiBet
     [StringLength(100)]
     public string? Bookmaker { get; set; }
 
-    // Resultado del evento (JSON serializado)
     [Column(TypeName = "TEXT")]
     public string? EventResult { get; set; }
 
@@ -80,7 +76,10 @@ public partial class ApiBet
     [InverseProperty("ApiBets")]
     public virtual PaymentTransaction? PaymentTransaction { get; set; }
 
-    [ForeignKey("ApiBetId")]
-    [InverseProperty("ApiBets")]
+    // Join explícito
+    [InverseProperty(nameof(ApiBetUserAccount.ApiBet))]
+    public virtual ICollection<ApiBetUserAccount> ApiBetUsers { get; set; } = new List<ApiBetUserAccount>();
+
+    // Skip navigation (many-to-many)
     public virtual ICollection<UserAccount> Users { get; set; } = new List<UserAccount>();
 }
