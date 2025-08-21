@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,6 +58,7 @@ public partial class UserAccount
     [StringLength(45)]
     public string? SegundoApellido { get; set; }
 
+    // 1:N
     [InverseProperty("User")]
     public virtual ICollection<LoginAttempt> LoginAttempts { get; set; } = new List<LoginAttempt>();
 
@@ -79,11 +78,13 @@ public partial class UserAccount
     [InverseProperty("UserAccounts")]
     public virtual Role Role { get; set; } = null!;
 
-    [ForeignKey("UserId")]
-    [InverseProperty("Users")]
+    // Many-to-many existente con Bet (UserAccountHasBet) -> sin atributos
     public virtual ICollection<Bet> Bets { get; set; } = new List<Bet>();
 
-    [ForeignKey("UserId")]
-    [InverseProperty("Users")]
+    // Join explícito con ApiBet
+    [InverseProperty(nameof(ApiBetUserAccount.User))]
+    public virtual ICollection<ApiBetUserAccount> ApiBetUsers { get; set; } = new List<ApiBetUserAccount>();
+
+    // Skip navigation (many-to-many) con ApiBet
     public virtual ICollection<ApiBet> ApiBets { get; set; } = new List<ApiBet>();
 }

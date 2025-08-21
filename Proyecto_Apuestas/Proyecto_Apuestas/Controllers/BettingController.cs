@@ -43,6 +43,27 @@ namespace Proyecto_Apuestas.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> BetsView(
+    int page = 1,
+    string? status = null,
+    DateTime? startDate = null,
+    DateTime? endDate = null)
+        {
+            var userId = _userService.GetCurrentUserId();
+            var filter = new BetHistoryFilter
+            {
+                Status = status,
+                StartDate = startDate,
+                EndDate = endDate
+            };
+
+            var history = await _bettingService.GetUserBetHistoryAsync(userId, page, 20, filter);
+            // Renderiza la vista BetsView.cshtml con el mismo modelo que ya retorna Index
+            return View("BetsView", history);
+        }
+
+
+        [HttpGet]
         public async Task<IActionResult> Create(int eventId)
         {
             var eventDetails = await _eventService.GetEventDetailsAsync(eventId);
