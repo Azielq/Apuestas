@@ -1,0 +1,174 @@
+@{
+    ViewData["Title"] = "Promociones - Próximamente";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header promocional -->
+            <div class="text-center mb-5">
+                <div class="display-1 text-warning mb-3">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <h1 class="display-4 text-warning fw-bold">Promociones Exclusivas</h1>
+                <p class="lead text-light">Las mejores ofertas están llegando pronto</p>
+            </div>
+
+            <!-- Vista previa de promociones -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card bg-gradient text-white h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="card-body text-center">
+                            <i class="bi bi-gift display-4 mb-3"></i>
+                            <h5 class="card-title">Bono de Bienvenida</h5>
+                            <p class="card-text">Hasta 100% en tu primer depósito</p>
+                            <div class="badge bg-warning text-dark">Próximamente</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-gradient text-white h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="card-body text-center">
+                            <i class="bi bi-arrow-clockwise display-4 mb-3"></i>
+                            <h5 class="card-title">Cashback Semanal</h5>
+                            <p class="card-text">Recupera parte de tus apuestas perdidas</p>
+                            <div class="badge bg-warning text-dark">Próximamente</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-gradient text-white h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="card-body text-center">
+                            <i class="bi bi-trophy display-4 mb-3"></i>
+                            <h5 class="card-title">Torneos VIP</h5>
+                            <p class="card-text">Compite por premios exclusivos</p>
+                            <div class="badge bg-warning text-dark">Próximamente</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de desarrollo -->
+            <div class="card bg-dark border-warning">
+                <div class="card-body text-center py-5">
+                    <div class="alert alert-warning bg-transparent border-warning text-warning mb-4" role="alert">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <strong>Fecha estimada de lanzamiento:</strong> Q4 2025
+                    </div>
+                    
+                    <h4 class="text-light mb-4">¿Qué puedes esperar?</h4>
+                    
+                    <div class="row text-start">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle text-success me-3 fs-5"></i>
+                                <span>Bonos de bienvenida mejorados</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle text-success me-3 fs-5"></i>
+                                <span>Promociones de fin de semana</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle text-success me-3 fs-5"></i>
+                                <span>Cashback en apuestas perdidas</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle text-success me-3 fs-5"></i>
+                                <span>Torneos con premios</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle text-success me-3 fs-5"></i>
+                                <span>Programa de lealtad</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle text-success me-3 fs-5"></i>
+                                <span>Ofertas exclusivas por temporada</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg me-3">
+                            <i class="bi bi-house me-2"></i>Volver al Inicio
+                        </a>
+                        <button class="btn btn-outline-warning btn-lg" data-bs-toggle="modal" data-bs-target="#notifyModal">
+                            <i class="bi bi-bell me-2"></i>Notificarme cuando esté listo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para notificaciones -->
+<div class="modal fade" id="notifyModal" tabindex="-1" aria-labelledby="notifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-bottom border-warning">
+                <h5 class="modal-title" id="notifyModalLabel">
+                    <i class="bi bi-bell text-warning me-2"></i>Notificaciones de Promociones
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Sé el primero en conocer nuestras promociones exclusivas.</p>
+                
+                <form id="notifyForm">
+                    <div class="mb-3">
+                        <label for="notifyEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="notifyEmail" placeholder="tu@email.com" required>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="acceptMarketing" required>
+                        <label class="form-check-label" for="acceptMarketing">
+                            Acepto recibir notificaciones de promociones por email
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="bi bi-envelope me-2"></i>Suscribirme
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifyForm = document.getElementById('notifyForm');
+            if (notifyForm) {
+                notifyForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Simula envío exitoso
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Suscripción exitosa!',
+                        text: 'Te notificaremos cuando las promociones estén disponibles.',
+                        confirmButtonColor: '#5C4B8B'
+                    });
+                    
+                    // Cierra modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('notifyModal'));
+                    modal.hide();
+                });
+            }
+        });
+    </script>
+}
