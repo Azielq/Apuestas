@@ -41,13 +41,14 @@ namespace Proyecto_Apuestas.Services.Implementations
                 var userId = _userService.GetCurrentUserId();
 
                 // Valida límites
-                if (!await ValidateBetLimitsAsync(userId, model.Stake))
+                var limitValidation = await ValidateBetLimitsAsync(userId, model.Stake);
+                if (!limitValidation.IsValid)
                 {
-                    return new ApiBetResult { Success = false, ErrorMessage = "Monto excede los límites permitidos" };
+                    return new ApiBetResult { Success = false, ErrorMessage = limitValidation.ErrorMessage };
                 }
 
-                // Actualiza balance
-                if (!await _userService.UpdateUserBalanceAsync(userId, model.Stake, "BET"))
+                // Actualiza balance (sin transacción porque ya estamos en una)
+                if (!await _userService.UpdateUserBalanceAsync(userId, model.Stake, "BET", useTransaction: false))
                 {
                     return new ApiBetResult { Success = false, ErrorMessage = "Saldo insuficiente" };
                 }
@@ -376,21 +377,27 @@ namespace Proyecto_Apuestas.Services.Implementations
                 .ToListAsync();
         }
 
-        public async Task<bool> ValidateBetLimitsAsync(int userId, decimal amount)
+        public async Task<BetLimitValidationResult> ValidateBetLimitsAsync(int userId, decimal amount)
         {
             var user = await _userService.GetUserByIdAsync(userId);
-            if (user == null) return false;
+            if (user == null) 
+                return new BetLimitValidationResult { IsValid = false, ErrorMessage = "Usuario no encontrado" };
 
-            // Límites por rol
+            // Límites por rol (en colones costarricenses)
             var maxBetAmount = user.Role.RoleName switch
             {
-                "VIP" => 50000m,
-                "Premium" => 20000m,
-                "Regular" => 5000m,
-                _ => 1000m
+                "VIP" => 26000000m,      // $50,000 * 520 = ₡26,000,000
+                "Premium" => 10400000m,  // $20,000 * 520 = ₡10,400,000
+                "Regular" => 2600000m,   // $5,000 * 520 = ₡2,600,000
+                _ => 520000m             // $1,000 * 520 = ₡520,000
             };
 
-            if (amount > maxBetAmount) return false;
+            if (amount > maxBetAmount) 
+                return new BetLimitValidationResult 
+                { 
+                    IsValid = false, 
+                    ErrorMessage = $"El monto máximo por apuesta para tu nivel ({user.Role.RoleName}) es ₡{maxBetAmount:N0}" 
+                };
 
             // Límite diario
             var today = DateTime.Today;
@@ -400,13 +407,58 @@ namespace Proyecto_Apuestas.Services.Implementations
 
             var dailyLimit = user.Role.RoleName switch
             {
-                "VIP" => 100000m,
-                "Premium" => 50000m,
-                "Regular" => 10000m,
-                _ => 5000m
+                "VIP" => 52000000m,      // $100,000 * 520 = ₡52,000,000
+                "Premium" => 26000000m,  // $50,000 * 520 = ₡26,000,000
+                "Regular" => 5200000m,   // $10,000 * 520 = ₡5,200,000
+                _ => 2600000m            // $5,000 * 520 = ₡2,600,000
             };
 
-            return (todayTotal + amount) <= dailyLimit;
+            if ((todayTotal + amount) > dailyLimit)
+                return new BetLimitValidationResult 
+                { 
+                    IsValid = false, 
+                    ErrorMessage = $"Límite diario excedido. Has apostado ₡{todayTotal:N0} hoy. Límite: ₡{dailyLimit:N0}" 
+                };
+
+            return new BetLimitValidationResult { IsValid = true };
+        }
+
+        public async Task<BettingLimitsInfo> GetBettingLimitsAsync(int userId)
+        {
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null)
+                return new BettingLimitsInfo();
+
+            // Límites por rol (en colones costarricenses)
+            var maxBetAmount = user.Role.RoleName switch
+            {
+                "VIP" => 26000000m,      // $50,000 * 520 = ₡26,000,000
+                "Premium" => 10400000m,  // $20,000 * 520 = ₡10,400,000
+                "Regular" => 2600000m,   // $5,000 * 520 = ₡2,600,000
+                _ => 520000m             // $1,000 * 520 = ₡520,000
+            };
+
+            var dailyLimit = user.Role.RoleName switch
+            {
+                "VIP" => 52000000m,      // $100,000 * 520 = ₡52,000,000
+                "Premium" => 26000000m,  // $50,000 * 520 = ₡26,000,000
+                "Regular" => 5200000m,   // $10,000 * 520 = ₡5,200,000
+                _ => 2600000m            // $5,000 * 520 = ₡2,600,000
+            };
+
+            // Calcular total apostado hoy
+            var today = DateTime.Today;
+            var todayTotal = await _context.ApiBets
+                .Where(b => b.Users.Any(u => u.UserId == userId) && b.CreatedAt >= today)
+                .SumAsync(b => b.Stake);
+
+            return new BettingLimitsInfo
+            {
+                MaxBetAmount = maxBetAmount,
+                DailyLimit = dailyLimit,
+                TodayStaked = todayTotal,
+                UserRole = user.Role.RoleName
+            };
         }
 
         private string GetBetStatusDisplay(string status)

@@ -195,6 +195,39 @@ namespace Proyecto_Apuestas.Services.Implementations
             }
         }
 
+        public async Task<bool> UpdateUserBalanceAsync(int userId, decimal amount, string transactionType, bool useTransaction = true)
+        {
+            if (useTransaction)
+            {
+                return await UpdateUserBalanceAsync(userId, amount, transactionType);
+            }
+
+            try
+            {
+                var user = await GetUserByIdAsync(userId);
+                if (user == null) return false;
+
+                if (transactionType == "DEPOSIT" || transactionType == "PAYOUT")
+                {
+                    user.CreditBalance += amount;
+                }
+                else if (transactionType == "WITHDRAWAL" || transactionType == "BET")
+                {
+                    if (user.CreditBalance < amount) return false;
+                    user.CreditBalance -= amount;
+                }
+
+                user.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating balance for userId: {UserId}", userId);
+                return false;
+            }
+        }
+
         public async Task<bool> LockUserAccountAsync(int userId, DateTime until, string reason)
         {
             try

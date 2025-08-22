@@ -299,7 +299,6 @@ try
 
         Log.Information("🔧 Development endpoints enabled: /config/*, /api-docs/*, /scalar/v1, /healthchecks-ui");
     }
-
     Log.Information("🌟 Proyecto Apuestas application started successfully");
     Log.Information("📊 Health checks available at: /health, /health/ready, /health/live, /healthchecks-ui");
     

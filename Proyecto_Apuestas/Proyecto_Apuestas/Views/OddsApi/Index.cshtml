@@ -910,11 +910,14 @@
                 'action': '@Url.Action("CreateBetFromApi", "OddsApi")'
             });
 
+            // Format odds for server culture (replace . with ,)
+            const formattedOdds = odds.toString().replace('.', ',');
+
             // Add form fields
             form.append($('<input>', { 'type': 'hidden', 'name': 'ApiEventId', 'value': eventId }));
             form.append($('<input>', { 'type': 'hidden', 'name': 'SportKey', 'value': sportKey }));
             form.append($('<input>', { 'type': 'hidden', 'name': 'TeamName', 'value': teamName }));
-            form.append($('<input>', { 'type': 'hidden', 'name': 'Odds', 'value': odds }));
+            form.append($('<input>', { 'type': 'hidden', 'name': 'Odds', 'value': formattedOdds }));
             form.append($('<input>', { 'type': 'hidden', 'name': 'Stake', 'value': amount }));
 
             // Submit form

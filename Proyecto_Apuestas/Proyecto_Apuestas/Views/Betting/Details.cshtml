@@ -287,7 +287,7 @@
                             <i class="bi bi-x-circle me-2"></i>Cancelar Apuesta
                         </button>
                     }
-                    <a href="@Url.Action("Index", "Event")" class="btn btn-outline-primary btn-lg">
+                    <a href="@Url.Action("Index", "OddsApi")" class="btn btn-outline-primary btn-lg">
                         <i class="bi bi-calendar-event me-2"></i>Ver Más Eventos
                     </a>
                 </div>
@@ -624,4 +624,3 @@
 @* Anti-forgery token for AJAX requests *@
 <form style="display: none;">
     @Html.AntiForgeryToken()
-</form>

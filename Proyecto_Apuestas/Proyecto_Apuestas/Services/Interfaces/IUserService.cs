@@ -23,6 +23,7 @@ namespace Proyecto_Apuestas.Services.Interfaces
         Task<bool> UpdateUserProfileAsync(int userId, UpdateProfileViewModel model);
         Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
         Task<bool> UpdateUserBalanceAsync(int userId, decimal amount, string transactionType);
+        Task<bool> UpdateUserBalanceAsync(int userId, decimal amount, string transactionType, bool useTransaction = true);
         Task<bool> LockUserAccountAsync(int userId, DateTime until, string reason);
         Task<bool> UnlockUserAccountAsync(int userId);
         Task<List<UserAccount>> GetActiveUsersAsync();

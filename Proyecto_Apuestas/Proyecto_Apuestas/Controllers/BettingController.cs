@@ -38,9 +38,40 @@ namespace Proyecto_Apuestas.Controllers
                 EndDate = endDate
             };
 
-            var history = await _bettingService.GetUserBetHistoryAsync(userId, page, 20, filter);
-            return View(history);
+            try
+            {
+                var history = await _bettingService.GetUserBetHistoryAsync(userId, page, 20, filter);
+                
+                // Debug: Log para verificar qué se está retornando
+                _logger.LogInformation("Retrieved {Count} bets for user {UserId}", history.Bets?.Count ?? 0, userId);
+                
+                return View(history);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving bet history for user {UserId}", userId);
+                
+                // En caso de error, retornar vista vacía
+                return View(new BetHistoryViewModel
+                {
+                    Bets = new List<BetDetailsViewModel>(),
+                    TotalBets = 0,
+                    WonBets = 0,
+                    LostBets = 0,
+                    PendingBets = 0,
+                    TotalStaked = 0m,
+                    TotalWon = 0m,
+                    NetProfit = 0m,
+                    CurrentPage = page,
+                    TotalPages = 1,
+                    PageSize = 20,
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    Status = status
+                });
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> BetsView(

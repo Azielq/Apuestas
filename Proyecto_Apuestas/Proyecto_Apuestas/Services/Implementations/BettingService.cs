@@ -175,24 +175,18 @@ namespace Proyecto_Apuestas.Services.Implementations
 
         public async Task<BetDetailsViewModel?> GetBetDetailsAsync(int betId, int userId)
         {
-            var bet = await _context.Bets
-                .Include(b => b.Event)
-                    .ThenInclude(e => e.EventHasTeams)
-                    .ThenInclude(et => et.Team)
+            var bet = await _context.ApiBets
                 .Include(b => b.PaymentTransaction)
-                .FirstOrDefaultAsync(b => b.BetId == betId && b.Users.Any(u => u.UserId == userId));
+                .FirstOrDefaultAsync(b => b.ApiBetId == betId && b.Users.Any(u => u.UserId == userId));
 
             if (bet == null) return null;
 
-            var teams = bet.Event.EventHasTeams.Select(et => et.Team).ToList();
-            var betTeam = teams.FirstOrDefault(); // Aquí se debería determinar en qué equipo apostó
-
             return new BetDetailsViewModel
             {
-                BetId = bet.BetId,
-                EventName = $"{string.Join(" vs ", teams.Select(t => t.TeamName))}",
-                EventDate = bet.Event.Date,
-                TeamName = betTeam?.TeamName ?? "N/A",
+                BetId = bet.ApiBetId,
+                EventName = bet.EventName,
+                EventDate = bet.EventDate,
+                TeamName = bet.TeamName,
                 Odds = bet.Odds,
                 Stake = bet.Stake,
                 Payout = bet.Payout,
@@ -200,17 +194,14 @@ namespace Proyecto_Apuestas.Services.Implementations
                 BetStatusDisplay = GetBetStatusDisplay(bet.BetStatus),
                 CreatedAt = bet.CreatedAt,
                 TransactionStatus = bet.PaymentTransaction?.Status,
-                EventOutcome = bet.Event.Outcome,
-                IsEventFinished = bet.Event.Date < DateTime.Now && !string.IsNullOrEmpty(bet.Event.Outcome)
+                EventOutcome = bet.EventResult,
+                IsEventFinished = bet.EventDate < DateTime.Now && !string.IsNullOrEmpty(bet.EventResult)
             };
         }
 
         public async Task<BetHistoryViewModel> GetUserBetHistoryAsync(int userId, int page = 1, int pageSize = 20, BetHistoryFilter? filter = null)
         {
-            var query = _context.Bets
-                .Include(b => b.Event)
-                    .ThenInclude(e => e.EventHasTeams)
-                    .ThenInclude(et => et.Team)
+            var query = _context.ApiBets
                 .Where(b => b.Users.Any(u => u.UserId == userId));
 
             // Aplica filtros
@@ -226,7 +217,7 @@ namespace Proyecto_Apuestas.Services.Implementations
                     query = query.Where(b => b.BetStatus == filter.Status);
 
                 if (filter.SportId.HasValue)
-                    query = query.Where(b => b.Event.EventHasTeams.Any(et => et.Team.SportId == filter.SportId.Value));
+                    query = query.Where(b => b.SportKey == filter.SportId.Value.ToString());
             }
 
             var totalBets = await query.CountAsync();
@@ -238,13 +229,12 @@ namespace Proyecto_Apuestas.Services.Implementations
 
             var betDetails = bets.Select(bet =>
             {
-                var teams = bet.Event.EventHasTeams.Select(et => et.Team).ToList();
                 return new BetDetailsViewModel
                 {
-                    BetId = bet.BetId,
-                    EventName = $"{string.Join(" vs ", teams.Select(t => t.TeamName))}",
-                    EventDate = bet.Event.Date,
-                    TeamName = teams.FirstOrDefault()?.TeamName ?? "N/A",
+                    BetId = bet.ApiBetId,
+                    EventName = bet.EventName,
+                    EventDate = bet.EventDate,
+                    TeamName = bet.TeamName,
                     Odds = bet.Odds,
                     Stake = bet.Stake,
                     Payout = bet.Payout,
@@ -255,7 +245,7 @@ namespace Proyecto_Apuestas.Services.Implementations
             }).ToList();
 
             // Calcula estadísticas
-            var allUserBets = await _context.Bets
+            var allUserBets = await _context.ApiBets
                 .Where(b => b.Users.Any(u => u.UserId == userId))
                 .ToListAsync();
 
@@ -412,7 +402,7 @@ namespace Proyecto_Apuestas.Services.Implementations
 
         public async Task<Dictionary<string, decimal>> GetBettingStatisticsAsync(int userId)
         {
-            var bets = await _context.Bets
+            var bets = await _context.ApiBets
                 .Where(b => b.Users.Any(u => u.UserId == userId))
                 .ToListAsync();
 
@@ -432,10 +422,21 @@ namespace Proyecto_Apuestas.Services.Implementations
 
         public async Task<List<Bet>> GetActiveBetsByUserAsync(int userId)
         {
-            return await _context.Bets
-                .Include(b => b.Event)
+            return await _context.ApiBets
                 .Where(b => b.Users.Any(u => u.UserId == userId) && b.BetStatus == "P")
                 .OrderByDescending(b => b.CreatedAt)
+                .Select(apiBet => new Bet
+                {
+                    BetId = apiBet.ApiBetId,
+                    Odds = apiBet.Odds,
+                    Stake = apiBet.Stake,
+                    Payout = apiBet.Payout,
+                    Date = apiBet.Date,
+                    BetStatus = apiBet.BetStatus,
+                    CreatedAt = apiBet.CreatedAt,
+                    UpdatedAt = apiBet.UpdatedAt,
+                    PaymentTransactionId = apiBet.PaymentTransactionId
+                })
                 .ToListAsync();
         }
 
@@ -457,7 +458,7 @@ namespace Proyecto_Apuestas.Services.Implementations
 
             // Límite diario
             var today = DateTime.Today;
-            var todayTotal = await _context.Bets
+            var todayTotal = await _context.ApiBets
                 .Where(b => b.Users.Any(u => u.UserId == userId) && b.CreatedAt >= today)
                 .SumAsync(b => b.Stake);
 

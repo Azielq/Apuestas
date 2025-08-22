@@ -1,0 +1,908 @@
+@using Proyecto_Apuestas.ViewModels
+@using Proyecto_Apuestas.Helpers
+@model BetHistoryViewModel
+@{
+    ViewData["Title"] = "Mis Apuestas";
+}
+
+<!-- Hero Section -->
+<section class="hero-section-bets">
+    <div class="hero-overlay"></div>
+    <div class="container-fluid">
+        <div class="row align-items-center min-vh-40">
+            <div class="col-lg-8">
+                <div class="hero-content">
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb bg-transparent p-0">
+                            <li class="breadcrumb-item">
+                                <a href="@Url.Action("Index", "Home")" class="text-white-50">
+                                    <i class="bi bi-house me-1"></i>Inicio
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active text-white">Mis Apuestas</li>
+                        </ol>
+                    </nav>
+                    <div class="hero-badge mb-3">
+                        <span class="badge bg-gradient-primary px-3 py-2">
+                            <i class="bi bi-graph-up me-1"></i>HISTORIAL DE APUESTAS
+                        </span>
+                    </div>
+                    <h1 class="hero-title">
+                        <i class="bi bi-journal-check me-3 text-gradient-primary"></i>
+                        Mis Apuestas
+                    </h1>
+                    <p class="hero-subtitle">
+                        Revisa tu historial completo de apuestas, ganancias y estadísticas
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="hero-stats">
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-success">
+                            <i class="bi bi-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">@Model.WonBets</div>
+                            <div class="stat-label">Apuestas Ganadas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-info">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">₡@Model.TotalWon.ToString("N0")</div>
+                            <div class="stat-label">Total Ganado</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div class="stat-icon bg-warning">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">@Model.PendingBets</div>
+                            <div class="stat-label">Pendientes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid py-4">
+    <!-- Summary Cards -->
+    <section class="summary-section mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="summary-card glass-effect">
+                    <div class="summary-icon bg-primary">
+                        <i class="bi bi-list-ol"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3>@Model.TotalBets</h3>
+                        <p>Total Apuestas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card glass-effect">
+                    <div class="summary-icon bg-success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3>@((Model.TotalBets > 0 ? (Model.WonBets * 100.0 / Model.TotalBets) : 0).ToString("F1"))%</h3>
+                        <p>Tasa de Éxito</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card glass-effect">
+                    <div class="summary-icon bg-info">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3>₡@Model.TotalStaked.ToString("N0")</h3>
+                        <p>Total Apostado</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card glass-effect">
+                    <div class="summary-icon @(Model.NetProfit >= 0 ? "bg-success" : "bg-danger")">
+                        <i class="bi bi-graph-@(Model.NetProfit >= 0 ? "up" : "down")-arrow"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 class="@(Model.NetProfit >= 0 ? "text-success" : "text-danger")">₡@Model.NetProfit.ToString("N0")</h3>
+                        <p>Ganancia Neta</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section" id="filters-section">
+        <div class="filter-card glass-effect">
+            <div class="filter-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3 class="filter-title">
+                            <span class="title-icon">
+                                <i class="bi bi-funnel-fill"></i>
+                            </span>
+                            Filtrar Apuestas
+                        </h3>
+                        <p class="filter-subtitle">Organiza y busca tus apuestas por fecha, estado y más</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="filter-actions">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="clearFilters()">
+                                <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form method="get" action="@Url.Action("Index", "Betting")">
+                <div class="filter-body">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="bi bi-calendar-range text-primary me-2"></i>Fecha Desde
+                                </label>
+                                <input type="date" name="startDate" class="filter-select" 
+                                       value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="bi bi-calendar-range text-primary me-2"></i>Fecha Hasta
+                                </label>
+                                <input type="date" name="endDate" class="filter-select" 
+                                       value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="bi bi-tags text-warning me-2"></i>Estado
+                                </label>
+                                <select name="status" class="filter-select">
+                                    <option value="">Todas las apuestas</option>
+                                    @if (Model.Status == "P")
+                                    {
+                                        <option value="P" selected>Pendientes</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="P">Pendientes</option>
+                                    }
+                                    @if (Model.Status == "W")
+                                    {
+                                        <option value="W" selected>Ganadas</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="W">Ganadas</option>
+                                    }
+                                    @if (Model.Status == "L")
+                                    {
+                                        <option value="L" selected>Perdidas</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="L">Perdidas</option>
+                                    }
+                                    @if (Model.Status == "C")
+                                    {
+                                        <option value="C" selected>Canceladas</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="C">Canceladas</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="bi bi-search text-success me-2"></i>Buscar
+                                </label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search me-2"></i>Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Bets Table Section -->
+    <section class="bets-section">
+        <div class="section-header">
+            <div class="row align-items-center mb-4">
+                <div class="col-md-8">
+                    <h2 class="section-title">
+                        <span class="title-icon">
+                            <i class="bi bi-table"></i>
+                        </span>
+                        Historial de Apuestas
+                        <span class="badge bg-gradient-primary ms-3 pulse">@Model.Bets.Count</span>
+                    </h2>
+                    <p class="section-subtitle">
+                        <i class="bi bi-clock me-1"></i>Última actualización: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="view-options">
+                        <button class="btn btn-outline-primary btn-sm active" data-view="table">
+                            <i class="bi bi-table"></i> Vista Tabla
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" data-view="cards">
+                            <i class="bi bi-grid-3x3-gap"></i> Vista Cards
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (!Model.Bets.Any())
+        {
+            <div class="alert alert-info bg-dark-2 border-info text-white">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-3 text-info fs-4"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">No hay apuestas disponibles</h5>
+                        <p class="mb-0">No se encontraron apuestas para los filtros seleccionados.</p>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Table View -->
+            <div id="table-view" class="table-container glass-effect">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th><i class="bi bi-hash me-1"></i>ID</th>
+                                <th><i class="bi bi-calendar-event me-1"></i>Evento</th>
+                                <th><i class="bi bi-shield me-1"></i>Equipo</th>
+                                <th><i class="bi bi-cash-coin me-1"></i>Monto</th>
+                                <th><i class="bi bi-graph-up me-1"></i>Cuota</th>
+                                <th><i class="bi bi-trophy me-1"></i>Ganancia Potencial</th>
+                                <th><i class="bi bi-tags me-1"></i>Estado</th>
+                                <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
+                                <th><i class="bi bi-gear me-1"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bet in Model.Bets)
+                            {
+                                <tr class="bet-row">
+                                    <td>
+                                        <span class="bet-id">#@bet.BetId</span>
+                                    </td>
+                                    <td>
+                                        <div class="event-info">
+                                            <div class="event-name">@bet.EventName</div>
+                                            <small class="text-muted">@bet.EventDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="team-info">
+                                            <i class="bi bi-shield-fill me-2 text-primary"></i>
+                                            @bet.TeamName
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="amount">₡@bet.Stake.ToString("N0")</span>
+                                    </td>
+                                    <td>
+                                        <span class="odds-badge">@bet.Odds.ToString("0.00")</span>
+                                    </td>
+                                    <td>
+                                        <span class="potential-payout text-success">₡@bet.Payout.ToString("N0")</span>
+                                    </td>
+                                    <td>
+                                        @switch (bet.BetStatus)
+                                        {
+                                            case "P":
+                                                <span class="status-badge pending">
+                                                    <i class="bi bi-clock-fill me-1"></i>Pendiente
+                                                </span>
+                                                break;
+                                            case "W":
+                                                <span class="status-badge won">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>Ganada
+                                                </span>
+                                                break;
+                                            case "L":
+                                                <span class="status-badge lost">
+                                                    <i class="bi bi-x-circle-fill me-1"></i>Perdida
+                                                </span>
+                                                break;
+                                            case "C":
+                                                <span class="status-badge cancelled">
+                                                    <i class="bi bi-dash-circle-fill me-1"></i>Cancelada
+                                                </span>
+                                                break;
+                                            default:
+                                                <span class="status-badge unknown">
+                                                    <i class="bi bi-question-circle-fill me-1"></i>Desconocido
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            <div>@bet.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                            <small class="text-muted">@bet.CreatedAt.ToString("HH:mm")</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="@Url.Action("Details", "Betting", new { id = bet.BetId })" 
+                                               class="btn btn-sm btn-outline-primary" title="Ver Detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (bet.BetStatus == "P")
+                                            {
+                                                <button class="btn btn-sm btn-outline-warning" 
+                                                        onclick="cancelBet(@bet.BetId)" 
+                                                        title="Cancelar Apuesta">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Cards View (Hidden by default) -->
+            <div id="cards-view" class="row g-3" style="display: none;">
+                @foreach (var bet in Model.Bets)
+                {
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="bet-card glass-effect">
+                            <div class="bet-card-header">
+                                <div class="bet-id">#@bet.BetId</div>
+                                @switch (bet.BetStatus)
+                                {
+                                    case "P":
+                                        <span class="status-badge pending">
+                                            <i class="bi bi-clock-fill me-1"></i>Pendiente
+                                        </span>
+                                        break;
+                                    case "W":
+                                        <span class="status-badge won">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Ganada
+                                        </span>
+                                        break;
+                                    case "L":
+                                        <span class="status-badge lost">
+                                            <i class="bi bi-x-circle-fill me-1"></i>Perdida
+                                        </span>
+                                        break;
+                                    case "C":
+                                        <span class="status-badge cancelled">
+                                            <i class="bi bi-dash-circle-fill me-1"></i>Cancelada
+                                        </span>
+                                        break;
+                                }
+                            </div>
+                            <div class="bet-card-body">
+                                <h6 class="event-title">@bet.EventName</h6>
+                                <div class="bet-details">
+                                    <div class="detail-row">
+                                        <span class="label">Equipo:</span>
+                                        <span class="value">@bet.TeamName</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="label">Monto:</span>
+                                        <span class="value">₡@bet.Stake.ToString("N0")</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="label">Cuota:</span>
+                                        <span class="value">@bet.Odds.ToString("0.00")</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="label">Ganancia:</span>
+                                        <span class="value text-success">₡@bet.Payout.ToString("N0")</span>
+                                    </div>
+                                </div>
+                                <div class="bet-card-footer">
+                                    <small class="text-muted">@bet.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", "Betting", new { id = bet.BetId })" 
+                                           class="btn btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (bet.BetStatus == "P")
+                                        {
+                                            <button class="btn btn-outline-warning" 
+                                                    onclick="cancelBet(@bet.BetId)">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Paginación de apuestas" class="mt-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>Página @Model.CurrentPage de @Model.TotalPages
+                        </small>
+                    </div>
+                    <ul class="pagination justify-content-center">
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link bg-dark-3 border-secondary text-white" 
+                                   href="@Url.Action("Index", new { page = Model.CurrentPage - 1, status = Model.Status, startDate = Model.StartDate, endDate = Model.EndDate })">
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link @(i == Model.CurrentPage ? "bg-primary border-primary" : "bg-dark-3 border-secondary text-white hover-scale")" 
+                                   href="@Url.Action("Index", new { page = i, status = Model.Status, startDate = Model.StartDate, endDate = Model.EndDate })">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        @if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link bg-dark-3 border-secondary text-white" 
+                                   href="@Url.Action("Index", new { page = Model.CurrentPage + 1, status = Model.Status, startDate = Model.StartDate, endDate = Model.EndDate })">
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // View toggle functionality
+            $('.view-options .btn').on('click', function() {
+                const view = $(this).data('view');
+                $('.view-options .btn').removeClass('active');
+                $(this).addClass('active');
+                
+                if (view === 'table') {
+                    $('#table-view').show();
+                    $('#cards-view').hide();
+                } else {
+                    $('#table-view').hide();
+                    $('#cards-view').show();
+                }
+            });
+        });
+
+        function clearFilters() {
+            window.location.href = '@Url.Action("Index", "Betting")';
+        }
+
+        function cancelBet(betId) {
+            if (!confirm('¿Estás seguro de que deseas cancelar esta apuesta?')) {
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("Cancel", "Betting")',
+                type: 'POST',
+                data: {
+                    id: betId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success('Apuesta cancelada exitosamente');
+                        location.reload();
+                    } else {
+                        toastr.error('Error al cancelar la apuesta');
+                    }
+                },
+                error: function() {
+                    toastr.error('Error al cancelar la apuesta');
+                }
+            });
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Hero Section Bets */
+        .hero-section-bets {
+            position: relative;
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 50%, #2196F3 100%);
+            overflow: hidden;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-section-bets .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+
+        .hero-section-bets .container-fluid {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Glass Effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border-radius: 20px;
+        }
+
+        /* Summary Cards */
+        .summary-card {
+            padding: 1.5rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .summary-content h3 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Filter Section (Reused from Events) */
+        .filters-section {
+            margin-bottom: 3rem;
+        }
+
+        .filter-card {
+            padding: 2rem;
+            border-radius: 25px;
+        }
+
+        .filter-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .title-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .filter-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #2196F3;
+            box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+        }
+
+        .filter-select option {
+            background: #2d2d2d;
+            color: white;
+        }
+
+        /* Table Container */
+        .table-container {
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            font-weight: 600;
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+        }
+
+        .bet-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status-badge.won {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .status-badge.lost {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .status-badge.cancelled {
+            background: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+
+        /* Other Elements */
+        .bet-id {
+            font-family: 'Monaco', monospace;
+            background: rgba(33, 150, 243, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #2196F3;
+        }
+
+        .odds-badge {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .amount {
+            font-weight: 700;
+            color: white;
+        }
+
+        .potential-payout {
+            font-weight: 700;
+        }
+
+        /* Cards View */
+        .bet-card {
+            padding: 1.5rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .bet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .bet-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .event-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-row .label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .detail-row .value {
+            color: white;
+            font-weight: 600;
+        }
+
+        .bet-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* View Options */
+        .view-options .btn {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-options .btn.active {
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        /* Hero Content Animation */
+        .hero-content {
+            animation: fadeInLeft 0.8s ease;
+        }
+
+        .hero-stats {
+            animation: fadeInRight 0.8s ease;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        @@keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @@keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .summary-card {
+                padding: 1rem;
+            }
+            
+            .filter-card {
+                padding: 1.5rem;
+            }
+            
+            .table-container {
+                padding: 1rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+}

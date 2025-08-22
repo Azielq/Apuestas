@@ -116,7 +116,11 @@ namespace Proyecto_Apuestas.Configuration
             {
                 options.AddPolicy("ApiPolicy", builder =>
                 {
-                    builder.WithOrigins("https://localhost:7000", "https://bet506.com")
+                    builder.WithOrigins(
+                        "https://localhost:7000", 
+                        "http://localhost:5000", 
+                        "https://localhost:5001",
+                        "https://bet506.com")
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials();
