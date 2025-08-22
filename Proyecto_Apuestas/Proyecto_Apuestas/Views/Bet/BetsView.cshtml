@@ -1,0 +1,262 @@
+﻿@model Proyecto_Apuestas.ViewModels.AdminApiBetsViewVM
+@{
+    ViewData["Title"] = "Apuestas en curso (API)";
+}
+
+@section Styles {
+<style>
+/* ====== FIX contraste BetsView (scoped) ====== */
+#betsview { color: #e6eaf1; }
+
+/* Forzar esquema de color de la tabla usando variables de Bootstrap */
+#betsview .table{
+  --bs-table-color: #e6eaf1;
+  --bs-table-bg: #0b1220;
+  --bs-table-striped-color: #e6eaf1;
+  --bs-table-striped-bg: #0e1626;
+  --bs-table-hover-color: #ffffff;
+  --bs-table-hover-bg: #111827;
+  --bs-table-border-color: #334155;
+}
+
+/* Asegurar que las celdas usen nuestro color (algunos temas aplican opacidad) */
+#betsview .table > :not(caption) > * > *{
+  color: var(--bs-table-color) !important;
+  background-color: transparent;
+  border-bottom-color: var(--bs-table-border-color);
+  opacity: 1 !important;
+}
+
+/* Cabecera sticky y con buen contraste */
+#betsview .table thead th{
+  position: sticky; top: 0;
+  background: #0f172a !important;
+  color: #cbd5e1 !important;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* Texto “muted” sin desvanecer */
+#betsview .text-muted, #betsview small.text-muted{
+  color: #a8b1c3 !important;
+  opacity: 1 !important;
+}
+
+/* Hover y efecto zebra */
+#betsview .table tbody tr:hover{ background: #111827 !important; }
+
+/* Badges */
+#betsview .badge.bg-warning{ background:#f59e0b !important; color:#111827 }
+#betsview .badge.bg-success{ background:#16a34a !important }
+#betsview .badge.bg-danger{  background:#dc2626 !important }
+#betsview .badge.bg-secondary{background:#6b7280 !important}
+
+/* Borde lateral por estado */
+#betsview tr.bet-P{ box-shadow: inset 3px 0 0 #f59e0b }
+#betsview tr.bet-W{ box-shadow: inset 3px 0 0 #16a34a }
+#betsview tr.bet-L{ box-shadow: inset 3px 0 0 #dc2626 }
+#betsview tr.bet-C{ box-shadow: inset 3px 0 0 #6b7280 }
+
+/* Inputs y botones (por si los necesitas también con contraste) */
+#betsview .form-control, #betsview .form-select{
+  background:#111827; color:#e6eaf1; border-color:#374151;
+}
+#betsview .form-control::placeholder{ color:#9ca3af }
+#betsview .form-control:focus, #betsview .form-select:focus{
+  background:#0b1220; color:#fff; border-color:#5C4B8B;
+  box-shadow:0 0 0 .2rem rgba(92,75,139,.25);
+}
+#betsview .btn-primary{ background:#5C4B8B; border-color:#5C4B8B }
+#betsview .btn-outline-secondary{ color:#e6eaf1; border-color:#475569 }
+#betsview .btn-outline-secondary:hover{ background:#1f2937; border-color:#64748b }
+</style>
+}
+
+<div id="betsview">
+
+<h2>Apuestas en curso (API)</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-2">
+        <label class="form-label">Sport</label>
+        <input class="form-control" name="sportKey" value="@Model?.Filters?.SportKey" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Región</label>
+        <input class="form-control" name="region" value="@Model?.Filters?.Region" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Mercado</label>
+        <input class="form-control" name="market" value="@Model?.Filters?.Market" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Bookmaker</label>
+        <input class="form-control" name="bookmaker" value="@Model?.Filters?.Bookmaker" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Buscar</label>
+        <input class="form-control" name="q" value="@Model?.Filters?.Q" placeholder="Evento, equipo o ApiEventId..." />
+    </div>
+    <div class="col-md-1 d-flex align-items-end">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="liveOnly" name="liveOnly" value="true" @(Model?.Filters?.LiveOnly == true ? "checked" : null) />
+            <label class="form-check-label" for="liveOnly">En vivo</label>
+        </div>
+    </div>
+
+    <div class="col-12 d-flex gap-2 mt-2">
+        <select class="form-select w-auto" name="pageSize">
+            @{
+                var sizes = new[] { 20, 50, 100, 200 };
+                var ps = Model?.Filters?.PageSize ?? 50;
+                foreach (var s in sizes)
+                {
+                    <option value="@s" selected="@(ps==s)">@s por página</option>
+                }
+            }
+        </select>
+        <button class="btn btn-primary">Filtrar</button>
+        <a class="btn btn-outline-secondary" href="@Url.Action("BetsView","Bet")">Limpiar</a>
+    </div>
+</form>
+
+<div class="small text-muted mb-2">
+    Mostrando @Model.Items.Count de @Model.TotalItems resultados
+</div>
+
+<div class="table-responsive">
+<table class="table table-striped align-middle w-100">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Fecha</th>
+            <th>Sport</th>
+            <th>Región</th>
+            <th>Mercado</th>
+            <th>Book</th>
+            <th>Evento</th>
+            <th>Odds</th>
+            <th>Stake</th>
+            <th>Payout</th>
+            <th>Usuarios</th>
+            <th>Estado</th>
+            <th>Txn</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model.Items == null || !Model.Items.Any())
+    {
+        <tr><td colspan="99" class="text-muted">No hay apuestas para mostrar.</td></tr>
+    }
+    else
+    {
+        foreach (var b in Model.Items)
+        {
+            var rowClass = $"bet-{b.BetStatus}";
+            var badge = "secondary";
+            if (string.Equals(b.BetStatus, "P", StringComparison.OrdinalIgnoreCase)) badge = "warning";
+            else if (string.Equals(b.BetStatus, "W", StringComparison.OrdinalIgnoreCase)) badge = "success";
+            else if (string.Equals(b.BetStatus, "L", StringComparison.OrdinalIgnoreCase)) badge = "danger";
+
+            // --- Evita escribir texto dentro de bloques Razor ---
+            var title = (!string.IsNullOrWhiteSpace(b.HomeTeam) || !string.IsNullOrWhiteSpace(b.AwayTeam))
+                        ? $"{(b.HomeTeam ?? "?")} vs {(b.AwayTeam ?? "?")}"
+                        : b.EventName;
+            var subtitle = (!string.IsNullOrWhiteSpace(b.HomeTeam) || !string.IsNullOrWhiteSpace(b.AwayTeam))
+                        ? b.EventName
+                        : (string.IsNullOrWhiteSpace(b.TeamName) ? null : b.TeamName);
+
+            <tr class="@rowClass">
+                <td>@b.ApiBetId</td>
+                <td>@b.EventDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@b.SportKey</td>
+                <td>@(b.Region ?? "—")</td>
+                <td>@(b.Market ?? "—")</td>
+                <td>@(b.Bookmaker ?? "—")</td>
+                <td>
+                    @title
+                    @if (!string.IsNullOrWhiteSpace(subtitle))
+                    {
+                        <div class="text-muted small">@subtitle</div>
+                    }
+                </td>
+                <td>@b.Odds</td>
+                <td>@b.Stake</td>
+                <td>@b.Payout</td>
+                <td>
+                    @{
+                        var names = b.UserNames ?? new List<string>();
+                    }
+                    @if (names.Any())
+                    {
+                        <span>@string.Join(", ", names)</span>
+                        @if (b.UsersCount > names.Count)
+                        {
+                            <span class="text-muted"> (+@(@b.UsersCount - names.Count) más)</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                </td>
+                <td><span class="badge bg-@badge">@b.BetStatus</span></td>
+                <td>@(b.PaymentTransactionId?.ToString() ?? "—")</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    var prev = Math.Max(1, Model.Filters.Page - 1);
+    var next = Math.Min(Model.TotalPages, Model.Filters.Page + 1);
+
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(Model.Filters.Page==1?"disabled":null)">
+                <a class="page-link" href="@Url.Action("BetsView","Bet", new {
+                    sportKey = Model.Filters.SportKey,
+                    region = Model.Filters.Region,
+                    market = Model.Filters.Market,
+                    bookmaker = Model.Filters.Bookmaker,
+                    q = Model.Filters.Q,
+                    liveOnly = Model.Filters.LiveOnly,
+                    page = prev,
+                    pageSize = Model.Filters.PageSize
+                })">Anterior</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages && i <= 10; i++)
+            {
+                <li class="page-item @(i==Model.Filters.Page?"active":null)">
+                    <a class="page-link" href="@Url.Action("BetsView","Bet", new {
+                        sportKey = Model.Filters.SportKey,
+                        region = Model.Filters.Region,
+                        market = Model.Filters.Market,
+                        bookmaker = Model.Filters.Bookmaker,
+                        q = Model.Filters.Q,
+                        liveOnly = Model.Filters.LiveOnly,
+                        page = i,
+                        pageSize = Model.Filters.PageSize
+                    })">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.Filters.Page==Model.TotalPages?"disabled":null)">
+                <a class="page-link" href="@Url.Action("BetsView","Bet", new {
+                    sportKey = Model.Filters.SportKey,
+                    region = Model.Filters.Region,
+                    market = Model.Filters.Market,
+                    bookmaker = Model.Filters.Bookmaker,
+                    q = Model.Filters.Q,
+                    liveOnly = Model.Filters.LiveOnly,
+                    page = next,
+                    pageSize = Model.Filters.PageSize
+                })">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+</div>

@@ -12,6 +12,17 @@
     --info-color: #00BCD4;
 }
 
+.MainBackgound {
+    background-color: #060019 !important;
+    color: #dcd6f7 !important;
+    min-height: 150vh !important; 
+    padding: 4rem !important; 
+    margin: -4rem -6rem -4rem -6rem !important;
+    border-radius: 8px !important;
+    width: calc(100% + 12rem) !important;
+    box-sizing: border-box !important;
+}
+
 /* Contenedor principal */
 .user-management-container {
     background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 50%, var(--accent-dark) 100%);
@@ -929,4 +940,347 @@
     .users-table tbody td {
         color: black;
     }
+}
+
+/* Estilos adicionales específicos para el dashboard */
+/* Usa estos estilos junto con los que ya tienes */
+
+/* Animaciones para los contadores */
+@keyframes countUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.stat-number {
+    animation: countUp 0.6s ease forwards;
+    animation-delay: 0.3s;
+    opacity: 0;
+}
+
+/* Efectos hover mejorados para las tarjetas de estadísticas */
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--purple-glow), var(--blue-glow));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(108, 92, 231, 0.25);
+    }
+
+/* Estilos para gráficos responsivos */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+    .chart-container canvas {
+        max-width: 100%;
+        height: auto !important;
+    }
+
+/* Indicadores de estado mejorados */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+    .status-indicator.online {
+        background-color: var(--success-color);
+    }
+
+    .status-indicator.offline {
+        background-color: var(--danger-color);
+    }
+
+    .status-indicator.warning {
+        background-color: var(--warning-color);
+    }
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(108, 92, 231, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(108, 92, 231, 0);
+    }
+}
+
+/* Notificaciones flotantes */
+.floating-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 350px;
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+    .floating-notification.show {
+        transform: translateX(0);
+    }
+
+    .floating-notification.hide {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+/* Mejoras para la tabla de actividad reciente */
+.users-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+    .users-table tbody tr:hover {
+        background: rgba(108, 92, 231, 0.15);
+        transform: scale(1.01);
+    }
+
+/* Botones de navegación rápida mejorados */
+.btn-primary, .btn-secondary {
+    position: relative;
+    overflow: hidden;
+}
+
+    .btn-primary::before, .btn-secondary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before, .btn-secondary:hover::before {
+        left: 100%;
+    }
+
+/* Efectos de carga para gráficos */
+.chart-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-secondary);
+}
+
+    .chart-loading i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        animation: spin 1s linear infinite;
+    }
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive específico para dashboard */
+@media (max-width: 1400px) {
+    .stats-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1200px) {
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+
+    .stat-card {
+        padding: 20px;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+}
+
+/* Tema oscuro mejorado para gráficos */
+.chart-dark-theme {
+    background: rgba(6, 0, 25, 0.1);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Animaciones de entrada escalonadas */
+.stats-cards .stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stats-cards .stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stats-cards .stat-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stats-cards .stat-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.stats-cards .stat-card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.stats-cards .stat-card:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.stats-cards .stat-card:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.stats-cards .stat-card:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+.stats-cards .stat-card:nth-child(9) {
+    animation-delay: 0.9s;
+}
+
+.stats-cards .stat-card:nth-child(10) {
+    animation-delay: 1s;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(6, 0, 25, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+    .loading-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(108, 92, 231, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--purple-glow);
+    animation: spin 1s ease-in-out infinite;
+}
+
+.glass-card {
+    background: rgba(47, 40, 59, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(108, 92, 231, 0.2);
+    cursor: pointer;
+}
+
+.no-data-message {
+    text-align: center;
+    color: #dcd6f7;
+    padding: 50px;
+    font-style: italic;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
 }
