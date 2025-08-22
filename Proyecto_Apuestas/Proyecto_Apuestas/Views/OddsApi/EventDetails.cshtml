@@ -160,12 +160,12 @@
                                                     }
                                                     else
                                                     {
-                                                        <a class="chip-btn best" href="@Url.Action("Login", "Account")" title="Inicia sesión para apostar">
+                                                        <button type="button" class="chip-btn best" data-bs-toggle="modal" data-bs-target="#loginModal" title="Inicia sesión para apostar">
                                                             <i class="bi bi-graph-up"></i>
                                                             <strong>@go.Best.Outcome.Price.ToString("0.00")</strong>
                                                             <span class="ms-1">@go.Name</span>
                                                             <span class="ms-2 text-muted">(@go.Best.BookTitle)</span>
-                                                        </a>
+                                                        </button>
                                                     }
                                                 }
                                             </div>
@@ -208,10 +208,10 @@
                                                                         }
                                                                         else
                                                                         {
-                                                                            <a class="chip-btn @(isBest ? "best" : "")" href="@Url.Action("Login", "Account")" title="Inicia sesión para apostar">
+                                                                            <button type="button" class="chip-btn @(isBest ? "best" : "")" data-bs-toggle="modal" data-bs-target="#loginModal" title="Inicia sesión para apostar">
                                                                                 <span>@outcome.Name</span>
                                                                                 <strong class="ms-1">@outcome.Price.ToString("0.00")</strong>
-                                                                            </a>
+                                                                            </button>
                                                                         }
                                                                     }
                                                                 </div>
@@ -273,7 +273,7 @@
                     }
                     else
                     {
-                        <a class="btn btn-primary w-100" href="@Url.Action("Login", "Account")"><i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión</a>
+                        <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión</button>
                     }
                 </div>
             </div>

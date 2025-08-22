@@ -289,7 +289,7 @@ namespace Proyecto_Apuestas.Controllers
                     var userAfterBet = await _userService.GetCurrentUserAsync();
                     if (userAfterBet != null)
                     {
-                        TempData["NewUserBalance"] = userAfterBet.CreditBalance;
+                        TempData["NewUserBalance"] = userAfterBet.CreditBalance.ToString("F2");
                     }
                     
                     _logger.LogInformation("Redirecting to ApiBetDetails with URL: /OddsApi/ApiBetDetails/{ApiBetId}", result.ApiBetId);
