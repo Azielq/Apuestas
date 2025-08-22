@@ -169,6 +169,13 @@ namespace Proyecto_Apuestas.Controllers
             var userId = _userService.GetCurrentUserId();
             var success = await _bettingService.CancelBetAsync(id, userId);
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                // AJAX request - return JSON
+                return Json(new { success = success });
+            }
+
+            // Regular form submission - redirect
             if (success)
             {
                 AddSuccessMessage("Apuesta cancelada exitosamente");

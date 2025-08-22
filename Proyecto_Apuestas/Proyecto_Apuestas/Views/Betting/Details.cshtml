@@ -306,6 +306,9 @@
             $.ajax({
                 url: '@Url.Action("Cancel", "Betting")',
                 type: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 data: {
                     id: betId,
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
@@ -624,3 +627,4 @@
 @* Anti-forgery token for AJAX requests *@
 <form style="display: none;">
     @Html.AntiForgeryToken()
+</form>
